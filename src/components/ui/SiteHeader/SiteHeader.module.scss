@@ -29,8 +29,20 @@
   }
 }
 
+// Game pages: back link, logo, menu button. Equal side columns keep the logo
+// centred on the screen, however wide the back link is.
+.root[data-variant="game"] .phone {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+
+  @include bp(lg) {
+    display: none;
+  }
+}
+
 .back {
   display: inline-flex;
+  justify-self: start;
   gap: var(--space-1);
   align-items: center;
   min-height: var(--tap-min);
@@ -47,6 +59,11 @@
 
 .menu {
   display: contents;
+}
+
+// The menu button's wrapper is the last item of the game header's grid.
+.menu > :first-child {
+  justify-self: end;
 }
 
 // Anchored to the header row so it opens just under the bar, above page content.
