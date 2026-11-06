@@ -12,8 +12,8 @@ $breakpoints: (
 
 // On dark surfaces components override outline-color to var(--color-accent).
 @mixin focus-ring {
-  outline: 2px solid var(--color-ink);
-  outline-offset: 2px;
+  outline: var(--focus-ring-width) solid var(--color-ink);
+  outline-offset: var(--focus-ring-offset);
 }
 
 @mixin visually-hidden {

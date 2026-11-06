@@ -1,0 +1,523 @@
+# inkOrange Studios design system
+
+This is the rulebook for every page on the inkOrange Studios site. Read it before
+you build or change any UI, whether you are Chris, a contributor, or an AI
+session. If something you need isn't here, add it here first (see
+[Adding a token or component](#adding-a-token-or-component)), then build it.
+
+The look comes from the **"D · Light — warm paper"** mockups (home and
+TerraForge page, desktop 1440 and phone 390). Where this document and the
+mockups disagree, this document wins; fix whichever one is wrong.
+
+Where things live:
+
+| Path | What it holds |
+|---|---|
+| `src/styles/tokens.scss` | Every raw value: colors, fonts, sizes, radii, durations, layers. The only file allowed to hold them. |
+| `src/styles/_mixins.scss` | Sass mixins (breakpoints, focus ring, visually hidden, reduced motion). The only file allowed Sass `$variables`. |
+| `src/styles/globals.scss` | Reset and base element styles. Imported once, by `src/app/layout.tsx`. |
+| `src/app/fonts.ts` | The three font families, loaded with `next/font/google`. |
+| `src/components/ui/<Name>/` | One folder per design-system component: `<Name>.tsx` + `<Name>.module.scss` (+ test). |
+| `public/brand/` | The logo PNG and the watercolor texture. |
+
+## Principles
+
+1. **Warm paper, ink, one accent.** Pages sit on warm off-white paper. Text and
+   dark surfaces are near-black ink. There is exactly one accent color, the
+   logo orange, and it is used for the logo, the primary call to action, "out
+   now" status, numbered markers and the one highlighted phrase. No second
+   accent, no gradients standing in for color.
+2. **Condensed uppercase display.** Headlines, game names and section titles
+   are Barlow Condensed, bold or black, uppercase, set tight. Everything else
+   is Inter.
+3. **Mono for metadata.** Status chips, eyebrows, dates, counters, labels and
+   placeholder captions are JetBrains Mono, small, tracked out and uppercase.
+   Mono means "this is data about the thing", never the thing itself.
+4. **Pills everywhere.** Buttons, chips, the nav bar, filter tabs, inputs and
+   round icon buttons are fully rounded (`--radius-pill`). Cards and media use
+   large soft radii. There are no square corners on interactive things.
+5. **Hairlines, not shadows.** Cards are separated by 1px `--color-line`
+   borders and tone changes (paper → card → sand), not drop shadows. The only
+   shadow in the system is the floating sticky play bar.
+6. **Light page, dark showcase.** The page is light. Dark ink surfaces are
+   reserved for the "finished, playable" moments: the showcase hero, media
+   viewer, footer, phone menu sheet and sticky play bar.
+7. **Content decides what shows.** Optional content that is missing hides its
+   whole block (heading included). Bracketed mockup text such as `[PRICE]` or
+   `[RELEASE DATE]` is never rendered.
+8. **Compose, don't style.** Pages are built only from components. If a page
+   needs a look that no component provides, add or extend a component.
+
+## Brand motif
+
+The studio intro animation tells a four-stage story: **sketch → shade → paint
+→ digital**. Pencil construction lines and an outline logo appear on paper,
+cross-hatching fills it in, a watercolor wash bleeds in, then it resolves into
+flat digital orange on near-black. The system uses each stage on purpose:
+
+| Stage | In the system | Use it for | Don't |
+|---|---|---|---|
+| **Sketch** — construction lines | Faint blue-grey guide lines in `--color-guide`, drawn by the `GuideLines` component | Decorative backgrounds on a few surfaces: hero edges, section dividers, the `/design` page, empty states | Behind body text, on dark surfaces, or on more than one or two surfaces per page. Always `aria-hidden`. |
+| **Shade** — pencil hatching | The diagonal-stripe placeholder (`--color-sand` / `--color-stripe` on light, `--color-dark-stripe` / `--color-dark-stripe-2` on dark), drawn by `Placeholder` | Art that doesn't exist yet: covers, key art, screenshots, photos. It means "not finished yet", so it is the right look for coming-soon and in-development games | As decoration on finished content, or as an empty box with no stripe. Missing art is always the hatched placeholder. |
+| **Paint** — watercolor wash | The texture image `--texture-watercolor` (a real image asset, not a CSS gradient) | The accent callout band and the one highlighted phrase ("make you think.") | Anywhere else. At most once or twice per page. Never behind small text. |
+| **Digital** — flat orange on ink | Dark `--color-ink` surfaces with `--color-on-dark` text and the accent | The showcase hero, media viewer, footer, phone menu sheet and sticky play bar: where real game art lives | Light-page sections that just want "contrast". A page has one dark hero area at most, plus the footer. |
+
+Motion follows the same story: an optional one-time **draw-on** reveal
+(outline, then fill) for the logo and display headings on first view, and a
+**gloss sweep** across primary buttons on hover. See [Motion](#motion).
+
+**The logo** is the supplied PNG at `public/brand/inkorange-logo.png`
+(orange "inkOrange STUDIOS", with "ink" knocked out of a rounded block). The
+knocked-out letters show whatever is behind it: paper on light grounds, ink on
+dark. Always render it with the `Logo` component (alt text "inkOrange
+Studios"). Don't rebuild it in live text the way the mockups did, recolor it,
+stretch it, or put it on the accent or on busy art.
+
+## Color
+
+All colors are CSS custom properties in `tokens.scss`. Use them by role, not by
+how they look: if you need "secondary body text", use `--color-ink-2` even if
+another token looks close.
+
+### Light surfaces and text
+
+| Token | Value | Use for (as in the mockups) |
+|---|---|---|
+| `--color-paper` | `#F6F1E7` | Page background. Also the fill of email inputs on dark surfaces. |
+| `--color-card` | `#FFFDF8` | Raised surfaces on paper: news cards, the store card, the nav pill bar, the selected spotlight rail item, the phone menu button, the phone details accordion, inputs on paper/sand. |
+| `--color-sand` | `#EDE5D6` | Alternate sections (the studio band, "More from inkOrange") and small info cards (press kit, help). First stripe of the light placeholder. |
+| `--color-stripe` | `#E6DCCB` | Second stripe of the light placeholder. Nothing else. |
+| `--color-line` | `#DDD3C2` | 1px borders on cards, tiles and inputs; row dividers in feature lists, update rows and fact lists; unselected thumbnail borders. |
+| `--color-line-strong` | `#CFC4B1` | Borders that must read on paper without a fill: unselected filter pills, the dashed "notify me" box. |
+| `--color-ink` | `#1C1A17` | Primary text and headings. The selected nav pill and filter pill. The 2px rule under section headers and the 3px rule over values. Secondary buttons ("Join the beta", "Notify me"). The "coming soon" chip. Selected thumbnail/rail borders. All dark surfaces. Text on the accent. |
+| `--color-ink-2` | `#4A453E` | Secondary body text: paragraph copy under a heading, feature descriptions, info-card descriptions, value descriptions. |
+| `--color-ink-3` | `#6B6358` | Metadata: "Genre · Platform" lines, dates, breadcrumbs, fact-list labels (`dt`), thumbnail captions, small mono eyebrows on cards ("GET THE GAME"). |
+| `--color-ink-4` | `#8C8478` | Placeholder captions only (`[COVER ART]`). 3.28:1 on paper: decorative text, never real content. |
+| `--color-accent` | `#E08D00` | The logo orange, sampled from the logo PNG. Primary buttons, the "out now" chip, the callout band, the highlighted phrase, numbered feature markers, the trailer play button, the active carousel dot, text selection. Text on it is always `--color-ink`. Never use it as a text color on light surfaces (2.34:1 on paper). |
+| `--color-link` | `#9A5200` | Text links that are actions ("All news →", "Download →"), the eyebrow above a section ("THE STUDIO"), and the hover color of plain links. |
+
+### Dark ("digital") surfaces
+
+| Token | Value | Use for |
+|---|---|---|
+| `--color-on-dark` | `#F6F1E7` | Main text and headings on ink; link text in the footer. |
+| `--color-on-dark-2` | `#D9D1C4` | Body copy on ink (the hero blurb). |
+| `--color-on-dark-3` | `#C9C0B2` | Secondary text on ink: hero platform line, slide counter, footer intro line, footer bottom-row links, the sticky bar's price line. |
+| `--color-on-dark-4` | `#A39A8C` | Quiet labels on ink: footer column labels, the copyright line. |
+| `--color-dark-line` | `#3A362F` | Dividers on ink: footer rule, menu-sheet rows. |
+| `--color-dark-line-2` | `#5A544B` | Borders of chips and round icon buttons on ink; unselected carousel dots. |
+| `--color-dark-line-3` | `#6B6358` | Border of the outline button on ink ("Game details"). |
+| `--color-dark-stripe` | `#2A2722` | First stripe of the dark placeholder. |
+| `--color-dark-stripe-2` | `#24211D` | Second stripe of the dark placeholder. |
+
+### Brand motif
+
+| Token | Value | Use for |
+|---|---|---|
+| `--color-guide` | `#B9C4CC` | The faint blue-grey construction lines (`GuideLines`). Decorative only. |
+| `--color-shadow` | ink at 25% | The one shadow in the system: under the floating sticky play bar. |
+| `--texture-watercolor` | `url(/brand/watercolor-wash.webp)` | The watercolor wash for the callout band and the highlighted phrase. Layer it over `--color-accent` so the band still reads if the image fails to load. |
+
+### Pairings
+
+- Light page: `--color-ink` on `--color-paper`, `--color-card` or `--color-sand`.
+- Primary action: `--color-ink` text on `--color-accent`.
+- Secondary action on light: `--color-on-dark` text on `--color-ink`.
+- Dark surface: `--color-on-dark` (or `-2`/`-3`/`-4` by importance) on `--color-ink`.
+- Never: accent text on paper, ink-4 for anything a reader needs, on-dark text on the accent.
+
+## Typography
+
+Three families, loaded in `src/app/fonts.ts` with `next/font/google`. The font
+tokens put the loaded face first (via `var(--font-display-face)` and friends,
+set on `<html>` by the root layout) and fall back to system fonts.
+
+| Token | Family | Use for |
+|---|---|---|
+| `--font-display` | Barlow Condensed (600/700/800) | Display and headings, always uppercase. Game names on tiles and rails. |
+| `--font-sans` | Inter (400/500/600) | Body text, buttons, nav, form fields. The page default. |
+| `--font-mono` | JetBrains Mono (400/500) | Chips, eyebrows, dates, counters, labels, placeholder captions. Usually uppercase with `--tracking-mono`. |
+
+### Type scale
+
+Every size is fluid: it scales smoothly from the phone size at a 375px viewport
+to the desktop size at 1320px, using `clamp()` in rem plus a vw slope. Because
+the ends are in rem, text still grows when a reader raises their browser font
+size. Pick the token by role; don't pick a different token at a breakpoint.
+
+| Token | Phone → desktop | Used for in the mockups |
+|---|---|---|
+| `--text-display-xl` | 68 → 112px | Page titles ("TERRAFORGE") and the showcase hero game name. Weight 800. |
+| `--text-display-l` | 44 → 72px | The studio one-liner ("An independent studio making games that make you think."). Weight 800. |
+| `--text-display-m` | 40 → 64px | Callout band heading ("Play Space Cowboy before anyone else."). Weight 800. |
+| `--text-heading-l` | 34 → 56px | Big section statements: the studio heading, the footer "Get the newsletter". |
+| `--text-heading-m` | 34 → 44px | Standard section headers: "All games", "News", "About the game", "Features". Phone menu-sheet links. Weight 700. |
+| `--text-heading-s` | 26 → 36px | The price in the store card. |
+| `--text-title` | 20 → 28px | Game names under tiles. Weight 700, display font. |
+| `--text-title-s` | 20 → 22px | Game names in the spotlight rail and the sticky play bar. |
+| `--text-lead` | 17 → 21px | The lead paragraph on a game page. Weight 500. |
+| `--text-body-l` | 16 → 18px | Hero blurb, feature titles, update-row headlines. |
+| `--text-body` | 15 → 17px | Default body copy (set on `body`). |
+| `--text-body-s` | 14 → 15px | Nav pills, filter pills, card descriptions, feature descriptions, fact lists. |
+| `--text-meta` | 13 → 14px | "Genre · Platform" lines, breadcrumbs, copyright. |
+| `--text-mono` | 12 → 13px | Mono chips, eyebrows, the slide counter, dates. |
+| `--text-mono-s` | 11 → 12px | Small mono: tile status chips, footer column labels, placeholder captions. |
+| `--text-mono-xs` | 10 → 11px | The smallest mono labels: phone placeholder captions, the trailer-length label. |
+
+### Weights
+
+| Token | Value | Use for |
+|---|---|---|
+| `--weight-regular` | 400 | Body copy, mono labels. |
+| `--weight-medium` | 500 | Nav and filter pills, the lead paragraph, mono numbers in feature markers. |
+| `--weight-semibold` | 600 | Buttons, links that are actions, card and row headlines, value titles. |
+| `--weight-bold` | 700 | Display font: section headings, tile and rail names. |
+| `--weight-black` | 800 | Display font: page titles, hero, one-liner, callout, footer heading. |
+
+### Line height
+
+| Token | Value | Use for |
+|---|---|---|
+| `--leading-tight` | 0.86 | Display sizes (xl/l/m). Condensed caps stack tightly. |
+| `--leading-snug` | 1 | Headings and game names. |
+| `--leading-normal` | 1.3 | Card and row headlines, short UI text. |
+| `--leading-body` | 1.6 | Body copy (the page default). |
+| `--leading-loose` | 1.7 | Long-form paragraphs on game, news and legal pages. |
+
+### Letter spacing
+
+| Token | Value | Use for |
+|---|---|---|
+| `--tracking-mono` | 0.1em | Mono chips, labels, captions. |
+| `--tracking-eyebrow` | 0.14em | Eyebrows above headings ("THE STUDIO", "NOW RECRUITING TESTERS"), footer column labels. |
+| `--tracking-wordmark` | 0.06em | Wordmark-style lettering (the "STUDIOS" line); rare. |
+
+Rules: display text is always uppercase. Mono text is uppercase unless it's a
+date or a number. Don't bold Inter past 600. Don't use the display font below
+`--text-title-s`.
+
+## Spacing & layout
+
+### Space scale
+
+Spacing tokens are named by their multiple of 4px: `--space-6` is 24px. Use
+them for every margin, padding and gap.
+
+| Token | Value | Typical use |
+|---|---|---|
+| `--space-1` | 4px | Hairline gaps between a label and its value. |
+| `--space-2` | 8px | Chip rows, gaps between pills, small stacks. |
+| `--space-3` | 12px | Button rows, spotlight rail gaps, thumbnail strips, phone grid column gap. |
+| `--space-4` | 16px | Card inner padding (small), stacked list gaps. |
+| `--space-5` | 20px | Grid column gaps, header padding-bottom, card padding. |
+| `--space-6` | 24px | Card padding, news grid gap, page gutters on desktop. |
+| `--space-7` | 28px | Tile grid row gap, space under section headers, store card padding. |
+| `--space-8` | 32px | Column gaps in two-column sections. |
+| `--space-10` | 40px | Gaps inside the callout and footer. |
+| `--space-12` | 48px | Large stacks. |
+| `--space-14` | 56px | Hero and callout inner padding, gap between a section's media and text. |
+| `--space-16` | 64px | Gap between blocks in the game-page main column. |
+| `--space-18` | 72px | Space above the game-page content columns. |
+| `--space-22` | 88px | Space above the studio one-liner, top padding of sand sections. |
+| `--space-24` | 96px | Fixed large section padding on desktop. |
+
+### Layout tokens
+
+| Token | Value | Use for |
+|---|---|---|
+| `--section-y` | 48 → 96px (fluid) | Vertical padding of a standard section. Use this rather than picking phone and desktop spaces. |
+| `--gutter` | 16 → 24px (fluid) | Left and right page padding inside `Container`. |
+| `--content-max` | 1320px | Maximum content width. Everything lines up to this column. |
+
+### Breakpoints
+
+Layouts are mobile-first. Breakpoints live in `_mixins.scss` and are used with
+`@include bp(md) { … }` or `@include bp(lg) { … }`:
+
+- **md, 720px and up:** tablets and small laptops. Phone stacks become rows.
+- **lg, 1024px and up:** desktop. Pill nav replaces the hamburger, the game
+  page goes two-column with the store card on the right.
+
+Prefer intrinsic layouts (`repeat(auto-fill, minmax(…, 1fr))`, flex-wrap) so
+most components need no breakpoint at all; the mockups are built that way.
+
+## Radius
+
+| Token | Value | Use for |
+|---|---|---|
+| `--radius-xs` | 10px | Spotlight rail thumbnails, phone media thumbnails. |
+| `--radius-s` | 14px | Desktop media thumbnails, phone game tiles. |
+| `--radius-m` | 16px | Spotlight rail items, the dashed "notify me" box. |
+| `--radius-l` | 18px | Game tiles, news cards, phone press/help cards. |
+| `--radius-xl` | 20px | Press and help cards, the phone media viewer and details accordion, phone studio photo. |
+| `--radius-2xl` | 24px | The store card, desktop studio photo, phone hero card, phone callout, phone menu sheet. |
+| `--radius-3xl` | 28px | The big surfaces: desktop showcase hero, media viewer, callout band. |
+| `--radius-pill` | 999px | Every button, chip, input, nav bar, filter pill, round icon button and the sticky play bar. |
+
+Rule of thumb: the bigger the surface, the bigger the radius. On phone, step a
+surface down one size (desktop `--radius-3xl` becomes `--radius-2xl` or
+`--radius-xl`).
+
+## Sizes
+
+| Token | Value | Use for |
+|---|---|---|
+| `--tap-min` | 44px | Minimum height and width of anything tappable. |
+| `--icon-button` | 48px | Round icon buttons: carousel arrows, the phone menu button. |
+| `--control-height` | 48px | Height of buttons and inputs at the default size. |
+| `--focus-ring-width` | 2px | Width of the focus outline. |
+| `--focus-ring-offset` | 2px | Gap between an element and its focus outline. |
+
+## Motion
+
+| Token | Value | Use for |
+|---|---|---|
+| `--duration-fast` | 120ms | Color and border changes on hover and press. |
+| `--duration-base` | 200ms | Most UI transitions: opening the menu sheet or accordion, swapping a slide. |
+| `--duration-slow` | 600ms | The gloss sweep across primary buttons; fade-in of revealed content. |
+| `--duration-draw` | 1200ms | The one-time draw-on reveal of the logo and display headings. |
+| `--ease-standard` | `cubic-bezier(0.2, 0.7, 0.2, 1)` | The default easing for state changes. |
+| `--ease-out` | `cubic-bezier(0, 0, 0.2, 1)` | Things entering the screen. |
+
+Rules:
+
+- Under `prefers-reduced-motion: reduce`, every duration token is `0ms`, so
+  anything timed with tokens stops moving on its own. Looping or keyframe
+  animations must also be switched off with `@include reduced-motion { … }`.
+  Smooth scrolling is already turned off in `globals.scss`.
+- Motion is a reward, not a requirement: content must be visible and usable
+  with every animation off.
+- Nothing moves on its own. No autoplaying video, no auto-advancing carousel.
+  Video plays only when the visitor presses play.
+
+## Layers
+
+| Token | Value | Use for |
+|---|---|---|
+| `--z-sticky` | 10 | The sticky play bar on phone game pages. |
+| `--z-header` | 20 | The site header. |
+| `--z-sheet` | 30 | The phone menu sheet. |
+| `--z-banner` | 40 | The cookie consent banner, which sits above everything. |
+
+Use only these four. If a component needs a new layer, add a token.
+
+## Components
+
+Each design-system component lives in its own folder in `src/components/ui/`
+with a `.tsx` file and one `.module.scss` file. Every folder gets a `### Name`
+section below (the sync test fails without it) saying what it is, when to use
+it, when not to, its variants, and its accessibility behavior. Use this shape:
+
+```md
+### ComponentName
+
+What it is in one sentence.
+
+- **Use for:** …
+- **Don't use for:** … (and what to use instead)
+- **Props / variants:** …
+- **Accessibility:** …
+```
+
+No components have landed yet. These are coming, in this order (names may
+change as they are built):
+
+- **Layout and type (coming):** Container, Section (paper / sand / ink), Stack,
+  Grid, Display (with Highlight), Heading, Text, Eyebrow, Logo, Placeholder
+  (light / dark), GuideLines.
+- **Actions (coming):** Button (accent / ink / outline on light / outline on
+  dark; link or button; sizes), IconButton (round), Icon, Chip (status accent /
+  status ink / outline / mono plain), FilterPills.
+- **Form controls (coming):** TextField, TextArea, FormMessage (success /
+  error), EmailSignupForm (inline pill input + button; light and dark),
+  Turnstile.
+- **Content blocks (coming):** SectionHeader (title + rule + optional action),
+  GameTile (cover + status chip), NewsCard, UpdateRow, FeatureList (numbered),
+  FactList (`dl`), Accordion, InfoCard (press / help), CalloutBand, RichText,
+  Breadcrumb, ValueList.
+- **Site chrome (coming):** NavPillBar, SiteHeader (desktop pill nav + CTA;
+  phone hamburger + sheet), SiteFooter (with newsletter), ConsentBanner.
+- **Game page (coming):** MediaViewer (trailer + thumbnails), StoreCard,
+  StickyPlayBar, ShareTitle.
+- **Home (coming):** ShowcaseHero (carousel), SpotlightRail, GameGrid.
+- **Other pages (coming):** LegalEmpty, FaqList, DesignGallery.
+
+Form components that talk to the server (newsletter, beta, launch alert,
+contact) live in `src/components/forms/`. They own no SCSS and are built only
+from `ui` components.
+
+## Page composition
+
+How to put a page together from the parts above.
+
+- **Pages compose; they don't style.** A file in `src/app/` imports components
+  and passes them content. It never imports `.scss`, never sets `className` or
+  `style`, and never contains a color or size. If you want something to look
+  different, change or add a component.
+- **Every public page** renders inside the site layout: `SiteHeader`, then the
+  page content, then `SiteFooter`. Content is a stack of
+  `Section`s, each wrapping a `Container`, so every page lines up to the same
+  `--content-max` column with the same `--gutter`.
+- **Section rhythm.** Sections use `--section-y` padding. Most are paper; use a
+  sand section to set apart one block (the studio band, "More from inkOrange");
+  don't put two sand sections next to each other. Ink is for the showcase hero
+  and the footer.
+- **Section headers** are a heading with a 2px ink rule under it and an
+  optional action link on the right ("All news →"). Use `SectionHeader`; don't
+  draw rules by hand.
+- **One primary action per view.** The accent `Button` is the main thing to do
+  in that part of the screen ("Play free in browser", "Subscribe"). Next to it,
+  use the ink or outline variant. Never two accent buttons side by side.
+- **One highlight, one callout.** A page has at most one `Highlight` phrase and
+  at most one `CalloutBand`.
+- **Missing content hides.** If an optional field (price, trailer, screenshots,
+  facts, features, release date) is empty, its block and its heading don't
+  render. Missing art shows the hatched `Placeholder`. Never show bracketed
+  text like `[PRICE]`.
+- **Empty states** (no games, no news, Sanity unreachable) render a short
+  message in the system's style, never a crash or a blank section.
+- **Phone layouts** follow the phone mockups: hamburger + dark menu sheet; the
+  hero becomes a stacked card with dots; the game grid is two columns; news
+  becomes a horizontal scroller; the game page reorders to media → title and
+  CTA → about → features → details accordion → updates → more games → press
+  and help cards, with the sticky play bar at the bottom.
+
+## Accessibility
+
+Every page must pass WCAG 2.2 AA.
+
+### Contrast
+
+| Pair | Ratio | Allowed for |
+|---|---|---|
+| `--color-ink` on `--color-accent` | 6.6:1 | Primary buttons, chips, the callout band. |
+| `--color-link` (#9A5200) on `--color-paper` | 5.21:1 | Links and eyebrows. |
+| `--color-link` on `--color-sand` | 4.69:1 | Links on sand cards and sections. |
+| `--color-ink-3` on `--color-paper` | 5.25:1 | Metadata text. |
+| `--color-ink-3` on `--color-sand` | 4.73:1 | Metadata text on sand. |
+| `--color-ink-2` on `--color-sand` | 7.59:1 | Body copy on sand. |
+| `--color-on-dark-4` (#A39A8C) on `--color-ink` | 6.25:1 | Quiet labels on dark surfaces. |
+| `--color-ink-4` on `--color-paper` | 3.28:1 | **Decorative and placeholder labels only.** Fails AA for text, so never use it for anything a reader needs. |
+
+Everything else in the [Pairings](#pairings) list is higher than these (ink on
+paper is about 15:1). If you introduce a new pair, check it and add it here.
+
+### Focus
+
+- Every interactive element shows a visible focus ring on `:focus-visible`. The
+  default comes from `globals.scss` via the `focus-ring` mixin: a
+  `--focus-ring-width` outline in `--color-ink`, offset by `--focus-ring-offset`.
+- On dark surfaces, components switch the outline color to `--color-accent` so
+  it stays visible. The default ink ring already reads on paper, sand, card and
+  the accent.
+- Never remove an outline without replacing it.
+
+### Interaction
+
+- **Tap targets** are at least `--tap-min` (44px) in both directions, including
+  text links in lists, carousel dots and chips that act as buttons.
+- Use real `<button>` for actions and `<a>` for navigation. Icon-only buttons
+  need an `aria-label` ("Previous featured game", "Open menu").
+- Every form field has a label. If the design hides it, use the
+  `visually-hidden` mixin, never a placeholder alone.
+- The phone menu sheet closes on Escape and returns focus to the menu button.
+  Toggles expose `aria-expanded`; selected thumbnails and filters expose
+  `aria-pressed` or `aria-current`.
+- Carousels never auto-advance. Video never autoplays.
+- Decorative art (`GuideLines`, unlabeled `Placeholder`) is `aria-hidden`.
+  Real images get meaningful `alt` text.
+- Sections that act as landmarks get an `aria-label` ("Featured games",
+  "Trailer and screenshots").
+
+### Motion
+
+Respect `prefers-reduced-motion: reduce` (see [Motion](#motion)).
+
+## Enforcement
+
+These rules are checked automatically by `npm run lint` and `npm test`. Run
+both (and `npm run typecheck`) before every commit; CI runs them too. A failing check is a bug in the change, not
+in the rule. (Stylelint and the ESLint rules below land with the enforcement
+task; until then, follow them by hand.)
+
+### Stylelint (`*.scss` in `src/`)
+
+Config: `stylelint-config-standard-scss` plus
+`stylelint-declaration-strict-value`.
+
+- **No raw colors.** Hex colors, named colors and `rgb()`/`rgba()`/`hsl()`/
+  `hsla()` are errors everywhere except `src/styles/tokens.scss`.
+- **Strict values.** These properties must use `var(--…)`: anything ending in
+  `color`, `fill`, `stroke`, `background`, `background-color`, `font-size`,
+  `font-family`, `font-weight`, `line-height`, `letter-spacing`,
+  `border-radius`, `gap`, `row-gap`, `column-gap`, every `margin*` and
+  `padding*`, `box-shadow`, `z-index`, `transition-duration` and
+  `animation-duration`. Shorthands are expanded and checked. The only raw
+  values allowed are `0`, `auto`, `inherit`, `initial`, `unset`, `none`,
+  `transparent`, `currentColor` and `100%`. `tokens.scss` is exempt.
+- **No Sass `$variables`** outside `src/styles/_mixins.scss`. Values come from
+  CSS custom properties in `tokens.scss`, not Sass variables.
+- **No `@import`.** Use `@use`.
+- Properties the linter doesn't check still follow the spirit: if a size is a
+  design decision (a card min-width, a media height), make it a token. Plain
+  geometry such as `1fr`, `aspect-ratio: 3 / 4` and 1–3px border widths is
+  fine inline.
+
+### ESLint (`*.ts`, `*.tsx`)
+
+- **No inline styles.** A `style` prop is an error, with one escape hatch in
+  components: an object whose keys are all CSS custom properties, e.g.
+  `style={{ "--progress": "40%" }}`, so a component can pass a runtime value to
+  its own SCSS.
+- **No raw color literals** (`"#E08D00"`, `"rgb(…)"`, `"hsl(…)"`) in `src/`.
+  Test files (`*.test.ts`, `*.test.tsx`) and everything in `tests/` are exempt
+  because fixtures and token tests need literals.
+- **Pages don't style.** Files in `src/app/**` may not import `.scss` or `.css`
+  files and may not use `className` or `style` at all.
+- **Exemptions:** `src/app/layout.tsx` may import `@/styles/globals.scss` and
+  may set the font-variable classes on `<html>`. `src/app/studio/**` (Sanity's
+  own UI) and `sanity.config.ts` are not checked by these rules.
+
+### Tests (`tests/enforcement/`)
+
+- `tokens.test.ts` checks the required tokens exist, the accent is `#E08D00`,
+  `tokens.scss` compiles, fluid sizes are `clamp()` in rem, and every duration
+  is `0ms` under reduced motion.
+- `design-doc-sync.test.ts` checks that the set of tokens defined in
+  `tokens.scss` is exactly the set of tokens written in backticks in this file,
+  that this file has all its sections, and that every folder in
+  `src/components/ui/` has a `### FolderName` heading here.
+
+## Adding a token or component
+
+### A new token
+
+1. Check the tables above first. Most "new" values are an existing token used
+   for a slightly different role. Reuse beats a near-duplicate.
+2. Add it to `src/styles/tokens.scss` in the right group, named by role
+   (`--color-…`, `--text-…`, `--space-…`, `--radius-…`, `--duration-…`,
+   `--z-…`). For a size that differs between phone and desktop, use
+   `fluid(phone-px, desktop-px)` rather than two tokens.
+3. Add a row for it in the matching table in this file, with its name in
+   backticks and what it's for. The sync test fails until you do, and fails if
+   you leave a row for a token you removed.
+4. If it's a color that carries text, add its contrast to the
+   [Contrast](#contrast) table.
+5. Run `npm test`.
+
+### A new component
+
+1. Make sure no existing component (or a new variant of one) already does the
+   job. A variant is better than a near-copy.
+2. Create `src/components/ui/<Name>/` with `<Name>.tsx`, `<Name>.module.scss`
+   and `<Name>.test.tsx`. Style only with tokens and the mixins
+   (`@use "../../../styles/mixins" as *;` at the top of the module).
+3. Export it from `src/components/ui/index.ts`.
+4. Add a `### <Name>` section under [Components](#components) using the shape
+   shown there, and remove it from the "coming" list. The heading must match the
+   folder name exactly.
+5. Add it to the `/design` gallery page so it can be seen in every variant.
+6. Run `npm test`, `npm run lint` and `npm run typecheck`.
+
+If a page needs something the system can't express, stop and extend the system
+here. Don't work around it in the page.

@@ -1,11 +1,17 @@
 // Design tokens. The only file in the repo allowed to hold raw colors, sizes and fonts.
-// Fluid type: scales from the phone size (375px viewport) to the desktop size (1320px).
+// Fluid sizes: scale from the phone size (375px viewport) to the desktop size (1320px).
+// Arguments are px numbers from the mockups; output is rem (16px base) plus a vw slope,
+// so text still follows the reader's browser font-size setting.
 @use "sass:math";
+
+@function to-rem($px) {
+  @return math.div($px, 16) * 1rem;
+}
 
 @function fluid($min, $max, $from: 375, $to: 1320) {
   $slope: math.div($max - $min, $to - $from);
   $base: $min - $slope * $from;
-  @return clamp(#{$min}px, calc(#{$base}px + #{$slope * 100}vw), #{$max}px);
+  @return clamp(#{to-rem($min)}, calc(#{to-rem($base)} + #{$slope * 100}vw), #{to-rem($max)});
 }
 
 :root {
@@ -111,6 +117,8 @@
   --tap-min: 44px;
   --icon-button: 48px;
   --control-height: 48px;
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
 
   // Motion
   --duration-fast: 120ms;
