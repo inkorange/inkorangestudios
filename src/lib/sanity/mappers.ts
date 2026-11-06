@@ -16,6 +16,7 @@ import type {
   PostSummary,
   RichBody,
   SiteSettings,
+  StoreLink,
 } from "./types";
 
 /*
@@ -102,6 +103,7 @@ const gameShape = lenient({
   }),
   blurb: str,
   description: blocks,
+  storeLinks: obj,
   keyArt: z.unknown(),
   coverArt: z.unknown(),
   trailer: obj,
@@ -140,6 +142,16 @@ function mapMedia(trailer: Record<string, unknown> | null, screenshots: unknown[
   return media;
 }
 
+const STORE_FIELDS: Record<Platform, string> = { Android: "googlePlay", iOS: "appStore", Web: "web" };
+
+/** A store link shows only for a ticked platform, and only when it is an https URL. */
+function mapStores(platforms: Platform[], links: Record<string, unknown> | null): StoreLink[] {
+  return platforms.flatMap((platform) => {
+    const href = clean(links?.[STORE_FIELDS[platform]]);
+    return href && /^https:\/\//i.test(href) ? [{ platform, href }] : [];
+  });
+}
+
 export function mapGame(raw: unknown): Game | null {
   const d = gameShape(raw);
   if (!d || !d.slug || !d.name) return null;
@@ -156,6 +168,7 @@ export function mapGame(raw: unknown): Game | null {
     status: d.status,
     genres: d.genres,
     platforms: d.platforms,
+    stores: mapStores(d.platforms, d.storeLinks),
     blurb: d.blurb ?? "",
     description: d.description,
     keyArt,

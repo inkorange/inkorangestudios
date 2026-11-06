@@ -28,3 +28,10 @@ export function toPlatform(value: unknown): Platform | null {
   const v = value.trim().toLowerCase();
   return PLATFORMS.find((p) => p.toLowerCase() === v) ?? null;
 }
+
+/** What each platform's store link says: the badge's alt text, and the phone play bar's button. */
+export const STORE_LINK_LABELS: Record<Platform, { badge: string; short: string }> = {
+  Android: { badge: "Get it on Google Play", short: "Google Play" },
+  iOS: { badge: "Download on the App Store", short: "App Store" },
+  Web: { badge: "Play in your browser", short: "Play in browser" },
+};

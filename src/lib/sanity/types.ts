@@ -3,6 +3,8 @@ import type { GameStatus, Platform } from "@/lib/games";
 
 export type { PortableTextBlock };
 
+export type StoreLink = { platform: Platform; href: string };
+
 export type ImageRef = { src: string; alt: string; width: number; height: number } | null;
 
 /** An image placed inside a portable text body in the Studio, mapped for rendering. */
@@ -57,6 +59,8 @@ export type Game = {
   genres: string[];
   /** Known platforms only, in `PLATFORMS` order. */
   platforms: Platform[];
+  /** One per ticked platform that has an https store link, in `PLATFORMS` order. */
+  stores: StoreLink[];
   blurb: string;
   description: RichBody;
   keyArt: ImageRef;

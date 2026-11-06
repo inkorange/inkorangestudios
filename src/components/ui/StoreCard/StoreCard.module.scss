@@ -32,6 +32,31 @@
   text-transform: uppercase;
 }
 
+// Official store badges, side by side, at the button height (above the 40px minimum both stores set).
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.badge {
+  display: block;
+  border-radius: var(--radius-xs);
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+.badge-image {
+  display: block;
+  width: auto;
+  height: var(--control-height);
+}
+
 .notify {
   display: flex;
   flex-direction: column;

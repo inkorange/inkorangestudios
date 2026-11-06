@@ -1,5 +1,11 @@
-import { render, screen } from "@testing-library/react";
-import { expect, it } from "vitest";
+import { render, screen, within } from "@testing-library/react";
+import { expect, it, vi } from "vitest";
+
+vi.mock("next/image", () => ({
+  // eslint-disable-next-line @next/next/no-img-element -- plain img stands in for next/image in jsdom
+  default: ({ alt, src }: { alt: string; src: string }) => <img alt={alt} src={src} />,
+}));
+
 import { StoreCard } from "./StoreCard";
 
 it("renders only the eyebrow and primary button when sparse", () => {
@@ -40,4 +46,32 @@ it("can leave the phone fact accordion to the page", () => {
   const { container } = render(<StoreCard primary={null} facts={[{ label: "Genre", value: "Sandbox" }]} phoneFacts={false} />);
   expect(container.querySelectorAll("dl")).toHaveLength(1);
   expect(container.querySelector("details")).toBeNull();
+});
+
+const play = { platform: "Android", href: "https://play.google.com/store/apps/details?id=x" } as const;
+const apple = { platform: "iOS", href: "https://apps.apple.com/app/id1" } as const;
+const web = { platform: "Web", href: "https://play.example.com" } as const;
+
+it("shows the official store badges as links that open in a new tab", () => {
+  render(<StoreCard primary={null} stores={[play, apple]} facts={[]} />);
+  const list = screen.getByRole("list", { name: "App stores" });
+  const links = within(list).getAllByRole("link");
+  expect(links.map((a) => a.getAttribute("href"))).toEqual([play.href, apple.href]);
+  for (const a of links) {
+    expect(a).toHaveAttribute("target", "_blank");
+    expect(a).toHaveAttribute("rel", "noopener noreferrer");
+  }
+  expect(within(links[0]).getByRole("img", { name: "Get it on Google Play" })).toHaveAttribute("src", "/badges/google-play.png");
+  expect(within(links[1]).getByRole("img", { name: "Download on the App Store" })).toHaveAttribute("src", "/badges/app-store.svg");
+});
+
+it("shows the web link as a button, skipping it when the main button already goes there", () => {
+  const { unmount } = render(<StoreCard primary={null} stores={[web]} facts={[]} />);
+  expect(screen.getByRole("link", { name: "Play in your browser" })).toHaveAttribute("href", web.href);
+  expect(screen.queryByRole("list", { name: "App stores" })).toBeNull();
+  unmount();
+
+  render(<StoreCard primary={{ label: "Play now", href: web.href }} stores={[web]} facts={[]} />);
+  expect(screen.queryByRole("link", { name: "Play in your browser" })).toBeNull();
+  expect(screen.getAllByRole("link")).toHaveLength(1);
 });

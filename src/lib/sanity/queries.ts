@@ -13,6 +13,7 @@ const GAME_FIELDS = `
   status,
   genres,
   platforms,
+  "storeLinks": storeLinks{ googlePlay, appStore, web },
   blurb,
   description,
   ${img("keyArt")},

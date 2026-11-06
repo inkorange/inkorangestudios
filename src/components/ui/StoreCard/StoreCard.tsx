@@ -1,4 +1,7 @@
+import Image from "next/image";
 import type { ReactNode } from "react";
+import { STORE_LINK_LABELS } from "@/lib/games";
+import type { StoreLink } from "@/lib/sanity/types";
 import { isAbsoluteUrl } from "@/lib/video";
 import { Accordion } from "../Accordion/Accordion";
 import { Button } from "../Button/Button";
@@ -10,6 +13,8 @@ import styles from "./StoreCard.module.scss";
 export type StoreCardProps = {
   priceLabel?: string;
   primary: { label: string; href: string } | null;
+  /** Store links: official Google Play and App Store badges, and a "Play in your browser" button for Web. */
+  stores?: StoreLink[];
   notify?: ReactNode;
   notifyTitle?: string;
   facts: { label: string; value: string }[];
@@ -17,7 +22,16 @@ export type StoreCardProps = {
   phoneFacts?: boolean;
 };
 
-export function StoreCard({ priceLabel, primary, notify, notifyTitle, facts, phoneFacts = true }: StoreCardProps) {
+/** The official badge artwork, as Apple and Google supply it (the Google PNG trimmed of its clear space). */
+const BADGES = {
+  Android: { src: "/badges/google-play.png", width: 564, height: 168 },
+  iOS: { src: "/badges/app-store.svg", width: 120, height: 40 },
+} as const;
+
+export function StoreCard({ priceLabel, primary, stores = [], notify, notifyTitle, facts, phoneFacts = true }: StoreCardProps) {
+  const badges = stores.filter((s): s is StoreLink & { platform: keyof typeof BADGES } => s.platform in BADGES);
+  // The web link doubles up when the main button already goes there.
+  const web = stores.find((s) => s.platform === "Web" && s.href !== primary?.href);
   return (
     <aside className={styles.root} aria-label="Get the game">
       <span className={styles.eyebrow}>
@@ -28,6 +42,32 @@ export function StoreCard({ priceLabel, primary, notify, notifyTitle, facts, pho
         <Button variant="accent" size="l" block icon="globe" href={primary.href} external={isAbsoluteUrl(primary.href)}>
           {primary.label}
         </Button>
+      ) : null}
+      {web ? (
+        <Button variant={primary ? "outline" : "accent"} size="l" block icon="globe" href={web.href} external>
+          {STORE_LINK_LABELS.Web.badge}
+        </Button>
+      ) : null}
+      {badges.length > 0 ? (
+        <ul className={styles.badges} aria-label="App stores">
+          {badges.map((s) => {
+            const badge = BADGES[s.platform];
+            return (
+              <li key={s.platform}>
+                <a className={styles.badge} href={s.href} target="_blank" rel="noopener noreferrer">
+                  <Image
+                    className={styles["badge-image"]}
+                    src={badge.src}
+                    alt={STORE_LINK_LABELS[s.platform].badge}
+                    width={badge.width}
+                    height={badge.height}
+                    unoptimized={badge.src.endsWith(".svg")}
+                  />
+                </a>
+              </li>
+            );
+          })}
+        </ul>
       ) : null}
       {notify ? (
         <div className={styles.notify}>

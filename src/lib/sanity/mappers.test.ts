@@ -127,6 +127,23 @@ describe("mapGame platforms", () => {
   });
 });
 
+describe("mapGame store links", () => {
+  const links = { googlePlay: "https://play.google.com/store/apps/details?id=x", appStore: "https://apps.apple.com/app/id1", web: "https://play.example.com" };
+  const stores = (platforms: unknown, storeLinks: unknown) => mapGame({ slug: "s", name: "S", platforms, storeLinks })!.stores;
+  it("gives one link per ticked platform, in Android, iOS, Web order", () => {
+    expect(stores(["Web", "iOS", "Android"], links)).toEqual([
+      { platform: "Android", href: links.googlePlay },
+      { platform: "iOS", href: links.appStore },
+      { platform: "Web", href: links.web },
+    ]);
+  });
+  it("drops a link whose platform isn't ticked, and blank or non-https links", () => {
+    expect(stores(["iOS"], links)).toEqual([{ platform: "iOS", href: links.appStore }]);
+    expect(stores(["Android", "iOS", "Web"], { googlePlay: "  ", appStore: "http://apps.apple.com/x", web: "javascript:alert(1)" })).toEqual([]);
+    expect(stores(["Android"], null)).toEqual([]);
+  });
+});
+
 describe("mapGameSummary and toFeatured", () => {
   const raw = { ...base, genres: ["Builder", "Sim"], platforms: ["Web", "iOS"], coverArt: img("Cover"), keyArt: img("Key") };
   it("summarises", () => {

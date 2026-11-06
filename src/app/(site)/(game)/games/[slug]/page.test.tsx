@@ -54,6 +54,7 @@ const full: Game = {
   status: "out-now",
   genres: ["Sandbox", "Creative"],
   platforms: ["Web"],
+  stores: [],
   blurb: "Build planets and entire star systems.",
   description: [block("a", "TerraForge is a sandbox for making worlds."), block("b", "Visit real exoplanets.")],
   keyArt: { src: "https://cdn.sanity.io/images/p/d/key-2000x1000.jpg", alt: "TerraForge key art", width: 2000, height: 1000 },
@@ -199,6 +200,7 @@ it("the full TerraForge game renders every block in place", async () => {
   expect(within(store).getByText("Free")).toBeInTheDocument();
   expect(within(store).getByRole("link", { name: "Play in browser" })).toHaveAttribute("href", "https://www.terraforgeworlds.com");
   expect(within(store).getByText("Android · coming soon")).toBeInTheDocument();
+  expect(within(store).queryByRole("list", { name: "App stores" })).toBeNull();
   expect(within(store).getByRole("button", { name: "Notify me" })).toBeInTheDocument();
   expect(store.querySelector('input[name="game"]')).toHaveValue("terraforge");
   expect(store.querySelector('input[name="platform"]')).toHaveValue("android");
@@ -240,7 +242,7 @@ it("the full TerraForge game renders every block in place", async () => {
   expect(visibleText(container)).not.toContain("[");
 });
 
-describe("key art", () => {
+describe("key art and store links", () => {
   beforeEach(() => {
     content.getPosts.mockResolvedValue([]);
     content.getGames.mockResolvedValue([]);
@@ -253,6 +255,17 @@ describe("key art", () => {
     expect(within(art as HTMLElement).getByAltText("TerraForge key art")).toHaveAttribute("src", full.keyArt!.src);
     expect(art.previousElementSibling).toHaveAttribute("data-slot", "title");
     expect(art.nextElementSibling).toHaveAttribute("data-slot", "media");
+  });
+
+  it("store links alone are enough for a store card with their badges", async () => {
+    content.getGame.mockResolvedValue({
+      ...sparse,
+      platforms: ["iOS"],
+      stores: [{ platform: "iOS", href: "https://apps.apple.com/app/id1" }],
+    });
+    render(await GamePage(params("terraforge")));
+    const store = screen.getByRole("complementary", { name: "Get the game" });
+    expect(within(store).getByRole("link", { name: "Download on the App Store" })).toHaveAttribute("href", "https://apps.apple.com/app/id1");
   });
 
   it("is left out when the game has no key art", async () => {

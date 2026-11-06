@@ -61,6 +61,7 @@ function BetaBand({ game }: { game: Game }) {
     return (
       <CalloutBand
         eyebrow="NOW RECRUITING TESTERS"
+        paint
         title={beta.title ?? `Play ${game.name} before anyone else.`}
         body={beta.body ?? "Join the beta and help shape the game before launch."}
         action={<BetaForm game={game.slug} platforms={beta.platforms} source="game-page" />}
@@ -93,7 +94,7 @@ export default async function GamePage({ params }: Props) {
   const hasAbout = Boolean(lead) || rest.length > 0;
   // A trailer takes the key art's place under the title (the key art becomes its poster when it has none).
   const showKeyArt = !game.media.some((m) => m.kind === "trailer");
-  const hasStore = Boolean(game.priceLabel || game.primaryCta || game.notify || game.facts.length > 0);
+  const hasStore = Boolean(game.priceLabel || game.primaryCta || game.stores.length > 0 || game.notify || game.facts.length > 0);
   const others = games.filter((other) => other.slug !== game.slug);
 
   return (
@@ -117,6 +118,7 @@ export default async function GamePage({ params }: Props) {
             <StoreCard
               priceLabel={game.priceLabel ?? undefined}
               primary={game.primaryCta}
+              stores={game.stores}
               notifyTitle={game.notify ? `${game.notify.platform} · coming soon` : undefined}
               notify={game.notify ? <LaunchAlertForm game={game.slug} platform={game.notify.platform} /> : undefined}
               facts={game.facts}

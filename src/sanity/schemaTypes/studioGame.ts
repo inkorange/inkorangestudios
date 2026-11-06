@@ -1,6 +1,11 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
 import { bodyField, imageField } from "./shared";
 
+/** Whether the game's Platforms checkboxes include `platform`. */
+function hasPlatform(document: Record<string, unknown> | undefined, platform: string): boolean {
+  return Array.isArray(document?.platforms) && document.platforms.includes(platform);
+}
+
 export const studioGame = defineType({
   name: "studioGame",
   title: "Game",
@@ -45,6 +50,37 @@ export const studioGame = defineType({
         ],
       },
       validation: (r) => r.unique(),
+    }),
+    defineField({
+      name: "storeLinks",
+      title: "Store links",
+      description: "Add a link and the game page shows that store's badge. Each field appears once its platform is ticked above.",
+      type: "object",
+      fields: [
+        defineField({
+          name: "googlePlay",
+          title: "Google Play URL",
+          type: "url",
+          validation: (r) => r.uri({ scheme: ["https"] }),
+          hidden: ({ document }) => !hasPlatform(document, "Android"),
+        }),
+        defineField({
+          name: "appStore",
+          title: "App Store URL",
+          type: "url",
+          validation: (r) => r.uri({ scheme: ["https"] }),
+          hidden: ({ document }) => !hasPlatform(document, "iOS"),
+        }),
+        defineField({
+          name: "web",
+          title: "Web URL",
+          description: "Where to play in the browser.",
+          type: "url",
+          validation: (r) => r.uri({ scheme: ["https"] }),
+          hidden: ({ document }) => !hasPlatform(document, "Web"),
+        }),
+      ],
+      options: { collapsible: true, collapsed: false },
     }),
     defineField({
       name: "blurb",
