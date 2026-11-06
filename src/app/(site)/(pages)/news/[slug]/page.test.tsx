@@ -80,5 +80,5 @@ it("builds metadata from the post", async () => {
   expect(meta.description).toBe("Brushes, biomes and more.");
   expect(meta.openGraph).toMatchObject({ type: "article", images: [{ url: "/cover.jpg", width: 1600, height: 900, alt: "The new terrain brush" }] });
   content.getPost.mockResolvedValue(null);
-  expect(await generateMetadata(params("nope"))).toEqual({});
+  expect(await generateMetadata(params("nope"))).toEqual({ title: "Page not found — inkOrange Studios" });
 });

@@ -91,7 +91,7 @@ describe("with data", () => {
     expect(query).toContain("game->slug.current == $gameSlug");
     expect(query).toContain("[0...3]");
     expect(params).toEqual({ gameSlug: "terraforge" });
-    expect(tags).toEqual(["studioPost"]);
+    expect(tags).toEqual(["studioPost", "studioGame"]);
   });
 
   it("getPosts without args has no filter and no slice", async () => {
@@ -105,15 +105,15 @@ describe("with data", () => {
   it("getPost, getLegalPage, getFaqs, getSettings use their tags", async () => {
     fetchMock.mockResolvedValueOnce({ slug: "p", title: "P", date: "2026-01-01" });
     expect((await getPost("p"))?.title).toBe("P");
-    expect(fetchMock.mock.calls[0][2]).toEqual(["studioPost"]);
+    expect(fetchMock.mock.calls[0][2]).toEqual(["studioPost", "studioGame"]);
     fetchMock.mockResolvedValueOnce({ slug: "privacy", title: "Privacy" });
     expect((await getLegalPage("privacy"))?.title).toBe("Privacy");
     expect(fetchMock.mock.calls[1][2]).toEqual(["studioPage"]);
     fetchMock.mockResolvedValueOnce([{ _id: "1", question: "Q?" }]);
     expect(await getFaqs()).toHaveLength(1);
-    expect(fetchMock.mock.calls[2][2]).toEqual(["studioFaq"]);
+    expect(fetchMock.mock.calls[2][2]).toEqual(["studioFaq", "studioGame"]);
     fetchMock.mockResolvedValueOnce({ supportEmail: "a@b.test" });
     expect((await getSettings()).supportEmail).toBe("a@b.test");
-    expect(fetchMock.mock.calls[3][2]).toEqual(["studioSettings"]);
+    expect(fetchMock.mock.calls[3][2]).toEqual(["studioSettings", "studioGame"]);
   });
 });

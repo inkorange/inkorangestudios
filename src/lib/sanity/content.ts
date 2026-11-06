@@ -17,10 +17,11 @@ import type { Faq, Featured, Game, GameSummary, LegalPage, Post, PostSummary, Si
 
 const TAGS = {
   game: ["studioGame"],
-  post: ["studioPost"],
+  // post, faq and settings dereference game->, so publishing a game must revalidate them too.
+  post: ["studioPost", "studioGame"],
   page: ["studioPage"],
-  faq: ["studioFaq"],
-  settings: ["studioSettings"],
+  faq: ["studioFaq", "studioGame"],
+  settings: ["studioSettings", "studioGame"],
 };
 
 /** Runs a content read; logs once and returns the empty value on any failure. */

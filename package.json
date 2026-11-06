@@ -8,9 +8,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint && stylelint \"src/**/*.{scss,css,sass}\"",
-    "pretest": "node scripts/tokens-json.mjs",
+    "pretest": "node scripts/tokens-json.mjs --check",
     "test": "vitest run",
-    "pretypecheck": "node scripts/tokens-json.mjs",
+    "pretypecheck": "node scripts/tokens-json.mjs --check",
     "typecheck": "tsc --noEmit",
     "seed": "node --env-file=.env.local scripts/seed-sanity.mjs"
   },

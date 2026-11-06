@@ -38,7 +38,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const game = await getGame(slug);
-  if (!game) return {};
+  if (!game) return { title: "Page not found — inkOrange Studios" };
   const title = `${game.name} — inkOrange Studios`;
   const description = game.blurb || undefined;
   const art = game.keyArt;

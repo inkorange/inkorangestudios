@@ -245,7 +245,7 @@ const VALUES = [
 ];
 
 const MEDIA: Media[] = [
-  { kind: "trailer", label: "Trailer", poster: null, url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", duration: "1:30" },
+  { kind: "trailer", label: "Trailer", poster: null, url: "https://vimeo.com/000000000", duration: "1:30" },
   { kind: "image", label: "Screenshot 1", image: null },
   { kind: "image", label: "Screenshot 2", image: null },
 ];

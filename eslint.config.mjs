@@ -29,13 +29,12 @@ const baseSyntax = [
   },
 ];
 
-const pageSyntax = [
-  {
-    selector: "JSXAttribute[name.name='className']",
-    message: `Pages may not set className; use a component ${SEE}.`,
-  },
-  { selector: "JSXAttribute[name.name='style']", message: `Pages may not set style ${SEE}.` },
-];
+const pageNoClassName = {
+  selector: "JSXAttribute[name.name='className']",
+  message: `Pages may not set className; use a component ${SEE}.`,
+};
+const pageNoStyle = { selector: "JSXAttribute[name.name='style']", message: `Pages may not set style ${SEE}.` };
+const pageSyntax = [pageNoClassName, pageNoStyle];
 
 const eslintConfig = defineConfig([
   ...nextVitals,
@@ -83,7 +82,7 @@ const eslintConfig = defineConfig([
     // are allowed here. Colors and sizes still come from tokens (src/lib/tokens.ts), and
     // className and stylesheet imports stay banned.
     files: ["src/app/**/opengraph-image.tsx", "src/app/**/twitter-image.tsx"],
-    rules: { "no-restricted-syntax": ["error", ...rawColor, pageSyntax[0]] },
+    rules: { "no-restricted-syntax": ["error", ...rawColor, pageNoClassName] },
   },
   {
     // Root layout: global stylesheet and font-variable classNames only.
@@ -100,7 +99,7 @@ const eslintConfig = defineConfig([
           ],
         },
       ],
-      "no-restricted-syntax": ["error", ...baseSyntax, ...rawColor, pageSyntax[1]],
+      "no-restricted-syntax": ["error", ...baseSyntax, ...rawColor, pageNoStyle],
     },
   },
 ]);

@@ -14,7 +14,7 @@ function block(id, text) {
 const slug = (current) => ({ _type: "slug", current });
 
 /*
- * Ids are hyphenated on purpose: in Sanity a dotted id ("studioGame-terraforge") is a
+ * Ids are hyphenated on purpose: in Sanity a dotted id ("studioGame.terraforge") is a
  * private document, readable only with a token. The site reads unauthenticated via the
  * CDN, so dotted ids would make every seeded document invisible.
  */

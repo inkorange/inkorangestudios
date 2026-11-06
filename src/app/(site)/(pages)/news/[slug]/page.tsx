@@ -30,7 +30,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPost(slug);
-  if (!post) return {};
+  if (!post) return { title: "Page not found — inkOrange Studios" };
   const title = `${post.title} — inkOrange Studios`;
   const description = post.excerpt ?? undefined;
   const image = post.image;

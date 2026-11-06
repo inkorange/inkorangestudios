@@ -118,7 +118,7 @@ describe("route config", () => {
 
   it("returns no metadata for an unknown slug and no OG image without key art", async () => {
     content.getGame.mockResolvedValue(null);
-    expect(await generateMetadata(params("nope"))).toEqual({});
+    expect(await generateMetadata(params("nope"))).toEqual({ title: "Page not found — inkOrange Studios" });
     content.getGame.mockResolvedValue(sparse);
     const meta = await generateMetadata(params("terraforge"));
     expect(meta.openGraph).not.toHaveProperty("images");

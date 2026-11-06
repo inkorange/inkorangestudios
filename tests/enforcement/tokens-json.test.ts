@@ -1,8 +1,10 @@
 // @vitest-environment node
-import { readFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { buildTokens } from "../../scripts/tokens-json.mjs";
+import { buildTokens, isStale } from "../../scripts/tokens-json.mjs";
 
 type Token = { name: string; value: string; source: string; group: string };
 
@@ -36,5 +38,27 @@ describe("scripts/tokens-json.mjs", () => {
   it("matches the committed src/styles/tokens.json (run `node scripts/tokens-json.mjs`)", () => {
     const committed = JSON.parse(readFileSync(path.join(root, "src/styles/tokens.json"), "utf8"));
     expect(committed).toEqual(buildTokens(path.join(root, "src/styles/tokens.scss")));
+  });
+
+  it("isStale detects a tokens.json that no longer matches tokens.scss", () => {
+    const scssPath = path.join(root, "src/styles/tokens.scss");
+    const dir = mkdtempSync(path.join(tmpdir(), "tokens-"));
+    const fresh = path.join(dir, "fresh.json");
+    const stale = path.join(dir, "stale.json");
+    const missing = path.join(dir, "missing.json");
+    const built = buildTokens(scssPath);
+    writeFileSync(fresh, `${JSON.stringify(built, null, 2)}\n`);
+    writeFileSync(stale, `${JSON.stringify({ tokens: built.tokens.slice(1) }, null, 2)}\n`);
+    expect(isStale(scssPath, fresh)).toBe(false);
+    expect(isStale(scssPath, stale)).toBe(true);
+    expect(isStale(scssPath, missing)).toBe(true);
+  });
+
+  it("`--check` exits 0 for the committed file without rewriting it", () => {
+    const jsonPath = path.join(root, "src/styles/tokens.json");
+    const before = readFileSync(jsonPath, "utf8");
+    const run = spawnSync("node", ["scripts/tokens-json.mjs", "--check"], { cwd: root, encoding: "utf8" });
+    expect(run.status).toBe(0);
+    expect(readFileSync(jsonPath, "utf8")).toBe(before);
   });
 });
