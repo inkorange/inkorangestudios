@@ -10,13 +10,19 @@ import type {
   RenderedEmail,
 } from "./types";
 
-const UNSUB = "{{{pm:unsubscribe}}}";
+/** Postmark swaps this for each recipient's unsubscribe link. The view-in-browser route replaces it too. */
+export const UNSUBSCRIBE_PLACEHOLDER = "{{{ pm:unsubscribe }}}";
+const UNSUB = UNSUBSCRIBE_PLACEHOLDER;
 const UNSUB_NOTE = "(Unsubscribe link appears here)";
 const REASON = "You're getting this because you signed up at inkorangestudios.com.";
 const CONFIRM_REASON =
   "You're getting this because someone signed up at inkorangestudios.com with this email address.";
 const LOGO = { width: 160, height: 60 };
-const CARD_WIDTH = theme.width - 48;
+/** Horizontal padding around a card (the page gutter) and inside it. */
+const CARD_GUTTER = 24;
+const CARD_PADDING = 20;
+/** The cell a card's image sits in: Outlook stretches anything wider. */
+const CARD_WIDTH = theme.width - 2 * CARD_GUTTER - 2 * CARD_PADDING;
 
 const base = (siteUrl: string) => siteUrl.replace(/\/+$/, "");
 const lines = (s: string) => esc(s).replace(/\r?\n/g, "<br>");
@@ -63,7 +69,7 @@ function button(b: EmailButton | null): { html: string; href: string | null } {
 function section(s: EmailSection, siteUrl: string): string {
   const free = s.kind === "free";
   const wrapAttrs = free
-    ? `bgcolor="${theme.sand}" background="${esc(`${base(siteUrl)}/brand/watercolor-wash.webp`)}" style="background-color:${theme.sand};background-image:url('${esc(`${base(siteUrl)}/brand/watercolor-wash.webp`)}');background-size:cover;border-radius:${theme.radiusCard};"`
+    ? `bgcolor="${theme.sand}" background="${esc(`${base(siteUrl)}/brand/watercolor-wash.jpg`)}" style="background-color:${theme.sand};background-image:url('${esc(`${base(siteUrl)}/brand/watercolor-wash.jpg`)}');background-size:cover;border-radius:${theme.radiusCard};"`
     : `bgcolor="${theme.card}" style="background-color:${theme.card};border:1px solid ${theme.line};border-radius:${theme.radiusCard};"`;
   const parts: string[] = [];
   if (s.image) parts.push(`<tr><td style="padding:0 0 18px 0;">${image(s.image)}</td></tr>`);
@@ -83,7 +89,7 @@ function section(s: EmailSection, siteUrl: string): string {
   );
   const btn = button(s.button);
   if (btn.href) parts.push(`<tr><td style="padding:8px 0 0 0;">${btn.html}</td></tr>`);
-  return `<tr><td style="padding:0 24px 24px 24px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" ${wrapAttrs}><tr><td style="padding:20px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${parts.join("")}</table></td></tr></table></td></tr>`;
+  return `<tr><td style="padding:0 ${CARD_GUTTER}px ${CARD_GUTTER}px ${CARD_GUTTER}px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" ${wrapAttrs}><tr><td style="padding:${CARD_PADDING}px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${parts.join("")}</table></td></tr></table></td></tr>`;
 }
 
 function sectionText(s: EmailSection): string {

@@ -187,8 +187,9 @@ describe("emailImageUrl", () => {
     expect(r.src).not.toContain("auto=format");
     expect(r).toMatchObject({ width: 1200, height: 600, alt: "Art" });
   });
-  it("keeps PNG as png", () => {
-    expect(new URL(emailImageUrl(img(png), cfg, "card")!.src).searchParams.get("fm")).toBe("png");
+  it("card art is always jpg, even from a PNG original; icons keep PNG", () => {
+    expect(new URL(emailImageUrl(img(png), cfg, "card")!.src).searchParams.get("fm")).toBe("jpg");
+    expect(new URL(emailImageUrl(img(png), cfg, "icon")!.src).searchParams.get("fm")).toBe("png");
   });
   it("icons are 128x128", () => {
     const r = emailImageUrl(img(png), cfg, "icon")!;

@@ -1,9 +1,9 @@
 import type { NextRequest } from "next/server";
 import { publicEnv } from "@/lib/env";
+import { UNSUBSCRIBE_PLACEHOLDER } from "@/lib/newsletter/email/render";
 import { createServiceClient } from "@/lib/supabase/server";
 
 const ISSUE_ID = /^[A-Za-z0-9._-]{1,128}$/;
-const UNSUBSCRIBE = "{{{pm:unsubscribe}}}";
 
 const notFound = () => new Response("Not found", { status: 404, headers: { "x-robots-tag": "noindex" } });
 
@@ -23,7 +23,7 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ issueId: s
     .maybeSingle();
   if (error || !data || typeof data.html !== "string") return notFound();
 
-  const html = data.html.split(UNSUBSCRIBE).join(`${publicEnv.siteUrl}/#newsletter`);
+  const html = data.html.split(UNSUBSCRIBE_PLACEHOLDER).join(`${publicEnv.siteUrl}/#newsletter`);
   return new Response(html, {
     headers: {
       "content-type": "text/html; charset=utf-8",

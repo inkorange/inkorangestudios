@@ -57,7 +57,7 @@ function assetRef(source: unknown): string | null {
 }
 
 /**
- * An image scaled for email: JPEG (PNG only when the original is a PNG), q=75, never `auto=format`
+ * An image scaled for email: JPEG (icons stay PNG when the original is a PNG), q=75, never `auto=format`
  * (which can return WebP). Cards are a 2:1 crop honouring the Studio hotspot and crop. Null without an asset.
  */
 export function emailImageUrl(
@@ -68,7 +68,8 @@ export function emailImageUrl(
 ): EmailImage | null {
   const ref = assetRef(source);
   if (!ref || !isObj(source)) return null;
-  const isPng = REF_PATTERN.exec(ref)?.[1] === "png";
+  // Card art is photographic and large: always JPEG. Icons may need transparency, so PNG stays PNG.
+  const keepPng = kind === "icon" && REF_PATTERN.exec(ref)?.[1] === "png";
   const [width, height] = kind === "card" ? [1200, 600] : [128, 128];
   const builderSource = {
     asset: { _ref: ref },
@@ -80,7 +81,7 @@ export function emailImageUrl(
     .width(width)
     .height(height)
     .fit("crop")
-    .format(isPng ? "png" : "jpg")
+    .format(keepPng ? "png" : "jpg")
     .quality(75)
     .url();
   return { src, alt: str(source.alt) ?? altFallback, width, height };

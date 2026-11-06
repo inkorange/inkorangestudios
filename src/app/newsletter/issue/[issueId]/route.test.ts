@@ -21,6 +21,7 @@ vi.mock("@/lib/env", async (importOriginal) => ({
   publicEnv: { siteUrl: "https://example.test" },
 }));
 
+import { UNSUBSCRIBE_PLACEHOLDER } from "@/lib/newsletter/email/render";
 import { GET } from "./route";
 
 const get = (issueId: string) =>
@@ -49,7 +50,9 @@ it("returns 404 on a database error", async () => {
 
 it("serves the stored html with the unsubscribe placeholder replaced", async () => {
   db.state.result = {
-    data: { html: '<a href="{{{pm:unsubscribe}}}">Unsub</a><a href="{{{pm:unsubscribe}}}">again</a><a href="https://x/newsletter/issue/1">View in browser</a>' },
+    data: {
+      html: `<a href="${UNSUBSCRIBE_PLACEHOLDER}">Unsub</a><a href="${UNSUBSCRIBE_PLACEHOLDER}">again</a><a href="https://x/newsletter/issue/1">View in browser</a>`,
+    },
     error: null,
   };
   const res = await get("issue-1");

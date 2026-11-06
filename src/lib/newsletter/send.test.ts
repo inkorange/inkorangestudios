@@ -2,6 +2,7 @@ import { evaluate, parse } from "groq-js";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { NewsletterEnv } from "@/lib/env";
+import { UNSUBSCRIBE_PLACEHOLDER } from "./email/render";
 import type { NewsletterSanity } from "./sanityServer";
 import { audience, handleRequest, type Deps, type NewsletterRequest } from "./send";
 
@@ -379,7 +380,7 @@ describe("test send", () => {
       stream: "outbound",
     });
     expect(msg.html).toContain("(Unsubscribe link appears here)");
-    expect(msg.html).not.toContain("{{{pm:unsubscribe}}}");
+    expect(msg.html).not.toContain("pm:unsubscribe");
     expect(sendBatch).not.toHaveBeenCalled();
     const d = delivery()!;
     expect(d).toMatchObject({ status: "idle", lastTest: { at: NOW.toISOString(), revision: "draft-rev" }, audienceCount: 3 });
@@ -468,7 +469,7 @@ describe("broadcast", () => {
       tag: "issue-i1",
     });
     expect(msgs[0].to).not.toContain(",");
-    expect(msgs[0].html).toContain("{{{pm:unsubscribe}}}");
+    expect(msgs[0].html).toContain(UNSUBSCRIBE_PLACEHOLDER);
     expect(msgs[0].html).toContain(`${SITE}/newsletter/issue/i1`);
 
     const [send] = db.tables[SENDS];
@@ -575,7 +576,7 @@ describe("resume", () => {
       request_id: "newsletter.request.first",
       status,
       subject: "Hello",
-      html: "<p>Hi {{{pm:unsubscribe}}}</p>",
+      html: "<p>Hi {{{ pm:unsubscribe }}}</p>",
       text_body: "Hi",
       recipient_count: batchStates.length * 3,
       failed_count: 0,
@@ -592,7 +593,7 @@ describe("resume", () => {
     await handleRequest(req("resume", { revision: null }), deps());
     expect(batches().map((b) => b.status)).toEqual(["sent", "uncertain", "sent", "sent"]);
     expect(sentTo()).toEqual([...list(6, 3), ...list(9, 3)]);
-    expect(sendBatch.mock.calls[0][1][0]).toMatchObject({ subject: "Hello", html: "<p>Hi {{{pm:unsubscribe}}}</p>", text: "Hi" });
+    expect(sendBatch.mock.calls[0][1][0]).toMatchObject({ subject: "Hello", html: "<p>Hi {{{ pm:unsubscribe }}}</p>", text: "Hi" });
     expect(db.tables[SENDS][0]).toMatchObject({ status: "sent", uncertain_count: 3, recipient_count: 12 });
     expect(delivery()).toMatchObject({ status: "sent", recipientCount: 12, uncertainCount: 3 });
   });

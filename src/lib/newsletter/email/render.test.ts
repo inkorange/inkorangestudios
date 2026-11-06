@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { tokenValue } from "@/lib/tokens";
 import { blocksToHtml, blocksToText } from "./blocks";
-import { renderConfirmation, renderIssue } from "./render";
+import { UNSUBSCRIBE_PLACEHOLDER, renderConfirmation, renderIssue } from "./render";
+import { theme } from "./theme";
 import type { EmailBlock, Footer, IssueData } from "./types";
 
 const para = (text: string, extra?: Partial<EmailBlock>): EmailBlock => ({
@@ -99,11 +100,12 @@ describe("renderIssue", () => {
   it("footer has address and unsubscribe handling", () => {
     expect(out.html).toContain("1 Main St, Springfield");
     expect(out.text).toContain("1 Main St, Springfield");
-    expect(out.html).toContain('href="{{{pm:unsubscribe}}}"');
-    expect(out.text).toContain("{{{pm:unsubscribe}}}");
+    expect(UNSUBSCRIBE_PLACEHOLDER).toBe("{{{ pm:unsubscribe }}}");
+    expect(out.html).toContain('href="{{{ pm:unsubscribe }}}"');
+    expect(out.text).toContain("Unsubscribe: {{{ pm:unsubscribe }}}");
     const note = renderIssue(issue, { ...footer, unsubscribe: "note" });
-    expect(note.html).not.toContain("{{{pm:unsubscribe}}}");
-    expect(note.text).not.toContain("{{{pm:unsubscribe}}}");
+    expect(note.html).not.toContain("pm:unsubscribe");
+    expect(note.text).not.toContain("pm:unsubscribe");
     expect(note.html).toContain("(Unsubscribe link appears here)");
   });
 
@@ -114,8 +116,20 @@ describe("renderIssue", () => {
     expect(none.text).not.toContain("View in browser");
   });
 
-  it("uses a watercolor background fallback on free sections", () => {
-    expect(out.html).toContain('background="https://www.example.com/brand/watercolor-wash.webp"');
+  it("uses a JPEG watercolor background fallback on free sections, never WebP", () => {
+    expect(out.html).toContain('background="https://www.example.com/brand/watercolor-wash.jpg"');
+    expect(out.html).toContain("url('https://www.example.com/brand/watercolor-wash.jpg')");
+    expect(out.html).not.toMatch(/\.webp/i);
+  });
+
+  it("card images are as wide as the cell they sit in (page minus outer and inner padding)", () => {
+    const cell = theme.width - 2 * 24 - 2 * 20;
+    expect(cell).toBe(512);
+    const art = (out.html.match(/<img\b[^>]*>/g) ?? []).find((i) => i.includes("cdn.example.com/a.jpg"))!;
+    expect(art).toContain(`width="${cell}"`);
+    expect(art).toContain(`height="${cell / 2}"`);
+    expect(out.html).toContain("padding:0 24px 24px 24px;");
+    expect(out.html).toContain("padding:20px;");
   });
 
   it("has no undefined/null and only token colours", () => {
