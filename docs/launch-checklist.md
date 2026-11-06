@@ -7,10 +7,10 @@ Work top to bottom. Env var names all come from `.env.example`.
 - [ ] Create the Vercel project from this repo (branch `main` for production).
 - [ ] Add the domain `inkorangestudios.com` (and `www`, redirecting to the apex) in Vercel.
 - [ ] Point DNS at Vercel as the dashboard instructs; wait for the certificate.
-- [ ] Add every env var below to Vercel (Production and Preview):
+- [ ] Add every env var below to Vercel (Production and Preview). Preview deploys share the production secrets, and Turnstile will not pass on random preview hostnames unless you add them (section 5).
   - [ ] `NEXT_PUBLIC_SITE_URL` = `https://inkorangestudios.com`
   - [ ] `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET` (same project and dataset as the portfolio)
-  - [ ] `SANITY_API_TOKEN` (read token, server only)
+  - [ ] `SANITY_API_TOKEN`: optional, not used by the site (content reads are unauthenticated). Do not put an Editor token in Vercel.
   - [ ] `SANITY_REVALIDATE_SECRET` (a long random string; see section 3)
   - [ ] `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
   - [ ] `POSTMARK_SERVER_TOKEN`, `FEEDBACK_FROM_EMAIL=hello@inkorangestudios.com`, `FEEDBACK_NOTIFY_EMAIL=thrillgraphics@gmail.com`
@@ -35,7 +35,8 @@ Work top to bottom. Env var names all come from `.env.example`.
   - URL: `https://inkorangestudios.com/api/revalidate`
   - Method: POST
   - Dataset: production
-  - Trigger on: create, update, delete
+  - Trigger on: create, update, delete, published documents only (leave Drafts off)
+  - The webhook's dataset must match `NEXT_PUBLIC_SANITY_DATASET`
   - Filter: `_type match "studio*"`
   - Projection: `{_type, _id}`
   - Secret: the same value as `SANITY_REVALIDATE_SECRET` in Vercel
@@ -46,7 +47,7 @@ Work top to bottom. Env var names all come from `.env.example`.
 - [ ] In Postmark, add the sender signature domain `inkorangestudios.com`.
 - [ ] Add the DKIM record and the Return-Path CNAME it gives you to DNS; click Verify until both pass.
 - [ ] Set `FEEDBACK_FROM_EMAIL=hello@inkorangestudios.com` in Vercel.
-- [ ] Until the domain is verified, notification emails are skipped. Signups and messages are still saved, so nothing is lost; you just are not emailed.
+- [ ] Until the domain is verified, Postmark rejects the notification emails (logged as `[signups] postmark responded <status>`). Signups and messages are still saved, so nothing is lost; you just are not emailed.
 - [ ] After verifying, submit the contact form on `/about` once and confirm the email arrives at `FEEDBACK_NOTIFY_EMAIL`.
 
 ## 5. Cloudflare Turnstile
@@ -68,6 +69,7 @@ The site shows empty states, never placeholder text, until these exist.
 - [ ] Cover art for every game, and key art for the games other than TerraForge.
 - [ ] Confirm the seeded founded line is right.
 - [ ] Confirm or rewrite the Exoplanet Explorer and Strata blurbs (the seed wrote first drafts).
+- [ ] Press kit: the "Press" nav item and "Press kit" footer link currently just scroll to the footer. Set `pressKitUrl` per game in Studio to fill the game page's Press kit card.
 - [ ] Optional: an SVG logo to replace the PNG.
 
 ## 7. Where signups land
@@ -79,10 +81,12 @@ Submissions go to the shared Supabase project. View them in the Supabase dashboa
 - `studio_launch_alerts`
 - `studio_contact_messages`
 
+The four tables already exist in the shared project (migration `supabase/migrations/0001_studio_signups.sql`, applied by hand; never run `supabase db push`).
+
 Duplicate signups are stored once and shown as a normal success to the visitor.
 
 ## 8. Final pass
 
-- [ ] Delete any test rows from the tables above.
+- [ ] Delete any test rows from the tables above. In particular, delete the QA rows with email `qa+t21@inkorangestudios.com` from `studio_newsletter_signups` and `studio_contact_messages`.
 - [ ] Check `/sitemap.xml`, `/robots.txt` and a shared link preview (`/opengraph-image`).
 - [ ] Accept and decline the cookie banner; confirm GTM only loads after Accept.
