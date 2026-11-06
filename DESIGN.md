@@ -540,7 +540,7 @@ An email input plus submit button bound to a server action.
 - **Use for:** the footer newsletter, the beta signup and the launch-alert ("Notify me") box.
 - **Don't use for:** forms with more than an email (build those from `TextField` / `TextArea`).
 - **Props / variants:** `action(prev, data)` returning a `FormState`; `label` (visually hidden); `placeholder`; `submitLabel`; `tone`: `on-dark` (footer: paper input, accent button), `on-card` (store card box: paper input, ink button), `on-accent` (callout band: card input, ink button); `layout`: `inline` (row that wraps when narrow, default) or `stacked` (phone / footer column, full-width button); `hidden` (extra fields sent with the form); `extraFields` (controls such as a `Select`, rendered inside the form before the submit button; make them controlled if their value must survive a failed submit; the form gets `data-extra="true"` and, below `md`, the email takes its own full-width line above them); `successMessage`.
-- **Accessibility:** the label stays the input's accessible name. Submit is disabled while pending. Success replaces the form with a `status` message; an error shows in an `alert` and keeps what was typed. Includes `Turnstile`, which renders only when `CAPTCHA_REQUIRED`.
+- **Accessibility:** the label stays the input's accessible name. Submit is disabled while pending. Success replaces the form with a `status` message; an error shows in an `alert` and keeps what was typed. Includes `Turnstile`, which renders only when `CAPTCHA_WIDGET` (a site key is set, outside `next dev`).
 
 ### Turnstile
 
@@ -549,7 +549,8 @@ The Cloudflare human check, invisible to the layout when off.
 - **Use for:** inside any public form that posts to a server action (`EmailSignupForm` includes it).
 - **Don't use for:** pages with no form.
 - **Props / variants:** `resetKey` (change it after each submit result to renew the single-use token). Loads `api.js?render=explicit` and writes the token into a hidden `captchaToken` input so `FormData` carries it. Site key from `publicEnv.turnstileSiteKey`, imported from the zod-free `src/lib/env-public.ts` (client components must not import `src/lib/env.ts`; `tests/enforcement/client-bundle.test.ts` checks it).
-- **Accessibility:** renders nothing when `CAPTCHA_REQUIRED` is false (`next dev`, tests, no keys). Cloudflare's widget supplies its own labelling.
+- **Accessibility:** renders nothing when `CAPTCHA_WIDGET` is false (`next dev`, tests, no site key). Cloudflare's widget supplies its own labelling.
+- **Keys:** the server verifies tokens only when both `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` are set (`CAPTCHA_REQUIRED` in `src/lib/signups/turnstile.ts`). With neither, the check is off. With exactly one (outside `next dev`) the server logs one error and rejects every submission (fails closed); the widget still renders if the site key is set.
 
 ### SectionHeader
 

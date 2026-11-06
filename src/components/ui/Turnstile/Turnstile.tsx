@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { publicEnv } from "@/lib/env-public";
-import { CAPTCHA_REQUIRED } from "@/lib/signups/captchaEnabled";
+import { CAPTCHA_WIDGET } from "@/lib/signups/captchaEnabled";
 import styles from "./Turnstile.module.scss";
 
 type TurnstileApi = {
@@ -46,7 +46,7 @@ function ensureScript(): Promise<void> {
 
 /** True when a widget will render, i.e. a token must be earned before submit. */
 export function turnstileActive(): boolean {
-  return CAPTCHA_REQUIRED && Boolean(publicEnv.turnstileSiteKey);
+  return CAPTCHA_WIDGET && Boolean(publicEnv.turnstileSiteKey);
 }
 
 export type TurnstileProps = {
@@ -59,13 +59,13 @@ export type TurnstileProps = {
 /**
  * Cloudflare Turnstile. Writes the token into a hidden `captchaToken` input so
  * the surrounding form's FormData carries it. Renders nothing when
- * CAPTCHA_REQUIRED is false (tests, `next dev`, no keys).
+ * CAPTCHA_WIDGET is false (tests, `next dev`, no site key).
  */
 export function Turnstile({ resetKey, onTokenChange }: TurnstileProps) {
   const ref = useRef<HTMLDivElement>(null);
   const widgetId = useRef<string | null>(null);
   const [token, setToken] = useState("");
-  const siteKey = CAPTCHA_REQUIRED ? publicEnv.turnstileSiteKey : undefined;
+  const siteKey = CAPTCHA_WIDGET ? publicEnv.turnstileSiteKey : undefined;
 
   useEffect(() => {
     if (!siteKey || !ref.current) return;

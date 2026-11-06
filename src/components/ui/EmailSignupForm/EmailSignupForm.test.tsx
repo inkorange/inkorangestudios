@@ -54,7 +54,7 @@ it("disables submit while pending", async () => {
 
 it("holds submit until the human check has produced a token", async () => {
   vi.resetModules();
-  vi.doMock("@/lib/signups/captchaEnabled", () => ({ CAPTCHA_REQUIRED: true }));
+  vi.doMock("@/lib/signups/captchaEnabled", () => ({ CAPTCHA_WIDGET: true }));
   vi.doMock("@/lib/env-public", () => ({ publicEnv: { turnstileSiteKey: "site-key" } }));
   let callback: (t: string) => void = () => {};
   (window as unknown as { turnstile: unknown }).turnstile = {

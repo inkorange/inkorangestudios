@@ -53,7 +53,7 @@ Work top to bottom. Env var names all come from `.env.example`.
 ## 5. Cloudflare Turnstile
 
 - [ ] Create a Turnstile widget with hostnames `inkorangestudios.com` and the Vercel preview domain.
-- [ ] Set **both** `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY`. If only the secret is set, the server demands a token that the form can never produce, and every submission fails.
+- [ ] Set **both** `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY`. If only one of them is set, the server logs `[turnstile] Exactly one of …` once and rejects every form submission (fail closed) until both are set.
 - [ ] Submit a form on the live site to confirm it works.
 
 ## 6. Content for you to write in Studio

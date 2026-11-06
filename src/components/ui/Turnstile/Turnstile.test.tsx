@@ -5,7 +5,7 @@ type Opts = { sitekey: string; callback: (t: string) => void; "response-field"?:
 const SRC = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
 
 function mockRequired(required: boolean) {
-  vi.doMock("@/lib/signups/captchaEnabled", () => ({ CAPTCHA_REQUIRED: required }));
+  vi.doMock("@/lib/signups/captchaEnabled", () => ({ CAPTCHA_WIDGET: required }));
   vi.doMock("@/lib/env-public", () => ({ publicEnv: { turnstileSiteKey: "site-key" } }));
 }
 function stubApi() {

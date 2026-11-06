@@ -902,7 +902,7 @@ const COMPONENTS: Entry[] = [
   },
   {
     name: "Turnstile",
-    note: "Renders nothing unless the Cloudflare keys are set (CAPTCHA_REQUIRED), so it is usually empty here.",
+    note: "Renders nothing unless the Turnstile site key is set outside `next dev` (CAPTCHA_WIDGET), so it is usually empty here.",
     render: () => <Turnstile />,
   },
   {
