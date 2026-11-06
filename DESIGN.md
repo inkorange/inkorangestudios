@@ -244,12 +244,13 @@ them for every margin, padding and gap.
 | `--logo-width-l` | 220px | `Logo` width at size `l`. |
 | `--play-button-size` | 68 → 96px (fluid) | Diameter of the accent play button on the `MediaViewer` stage. |
 | `--thumb-height` | 60 → 92px (fluid) | Height of `MediaViewer` thumbnails; phone strip thumbs are 1.6 times this wide. |
-| `--sticky-bar-space` | 96px | Room the `StickyPlayBar` occupies at the bottom of a phone page. Pages (or the footer) add `padding-bottom: var(--sticky-bar-space)` below `lg` so the last content scrolls clear of the bar. |
+| `--sticky-bar-space` | 96px | Room the `StickyPlayBar` occupies at the bottom of a phone page. The game layout renders the bar after a `SiteFooter` with `stickyBarSpace`, which adds this much bottom padding below `lg` so the footer's last line scrolls clear of the bar. |
 | `--statement-body-max` | 400px | Maximum width of the paragraph beside a `Statement` heading. |
 | `--teaser-photo-height` | 220 → 420px (fluid) | Height of the photo in `StudioTeaser`. |
 | `--teaser-photo-min` | 420px | Flex basis of the `StudioTeaser` photo column; below it the photo and text stack. |
 | `--teaser-text-min` | 480px | Flex basis of the `StudioTeaser` text column. |
 | `--rail-card-width` | 270px | Width of each card in the phone `NewsRail` scroller. |
+| `--rail-tile-width` | 150px | Width of each tile in the phone `MoreGames` scroller. |
 
 ### Breakpoints
 
@@ -618,7 +619,7 @@ A small sand card with a title, a line of copy and an action link.
 
 - **Use for:** the press kit and help cards beside the store card.
 - **Don't use for:** primary calls to action (use `Button`).
-- **Props / variants:** `title`, `body`, `link` (`{ label, href }`; `http(s):` and `mailto:` render a plain anchor), `layout`: `stack` (default) or `row`.
+- **Props / variants:** `title`, `body`, `link` (`{ label, href }`; `http(s):` and `mailto:` render a plain anchor), `layout`: `stack` (default), `row`, or `auto` (a row below `lg`, a stack from `lg`; the game page's press and help cards).
 - **Accessibility:** the link text must describe its destination. Link is `--color-link` on sand and at least `--tap-min` tall.
 
 ### CalloutBand
@@ -682,7 +683,7 @@ The ink footer with the newsletter signup, link columns and legal row.
 
 - **Use for:** the bottom of every page, once. Its `id="newsletter"` is where every "Get the newsletter" link lands.
 - **Don't use for:** page-level calls to action.
-- **Props / variants:** `newsletter` (a node: the signup form); `variant`: `full` (Games / Studio / Help / Follow columns) or `compact` (one row of links, for game pages); `socialLinks` (the Follow column is hidden when empty); `supportEmail` (the "Player support" link is hidden without it); `games` (optional links added to the Games column). The Studio column carries `id="press"`, the target of the nav's "Press" and the "Press kit" link (`/#press`) until a press page exists. Includes a "Cookie settings" button that reopens the consent banner.
+- **Props / variants:** `newsletter` (a node: the signup form); `variant`: `full` (Games / Studio / Help / Follow columns) or `compact` (one row of links, for game pages); `socialLinks` (the Follow column is hidden when empty); `supportEmail` (the "Player support" link is hidden without it); `games` (optional links added to the Games column); `stickyBarSpace` (below `lg`, adds `--sticky-bar-space` of bottom padding for a `StickyPlayBar` that follows the footer). Pages don't render it: `SiteFooterBlock` (`src/components/site/`) wires it to content, and the leaf layouts mount that (see Page composition). The Studio column carries `id="press"`, the target of the nav's "Press" and the "Press kit" link (`/#press`) until a press page exists. Includes a "Cookie settings" button that reopens the consent banner.
 - **Accessibility:** column labels are mono eyebrows in `--color-on-dark-4`; links are at least `--tap-min` tall, with accent focus rings.
 
 ### ConsentBanner
@@ -709,7 +710,7 @@ The game page's "get the game" card.
 
 - **Use for:** price, the main play/store link, the notify-me form and the fact sheet.
 - **Don't use for:** other call-out cards (use `InfoCard`).
-- **Props / variants:** `priceLabel`, `primary` (`{ label, href }` or `null`; absolute URLs open in a new tab), `notify` (a node, normally `EmailSignupForm`), `notifyTitle`, `facts`. Blocks without data are not rendered, so a sparse game shows only the eyebrow and button. Facts render twice: a `dl` from `lg`, and a "Game details" `Accordion` below `lg`; CSS switches between them.
+- **Props / variants:** `priceLabel`, `primary` (`{ label, href }` or `null`; absolute URLs open in a new tab), `notify` (a node, normally `EmailSignupForm`), `notifyTitle`, `facts`, `phoneFacts` (default true). Blocks without data are not rendered, so a sparse game shows only the eyebrow and button (the game page skips the card entirely when it has nothing to sell). Facts render twice: a `dl` from `lg`, and a "Game details" `Accordion` below `lg`; CSS switches between them. `phoneFacts={false}` drops the accordion so the page can place it elsewhere (the game page puts it after Features, as in the phone mockup). Below `lg` the card has no chrome and no eyebrow: price, button and notify box sit straight under the game title; from `lg` it is the bordered card on `--radius-2xl`.
 - **Accessibility:** an `aside` named "Get the game". The hidden rendering is `display: none`, so assistive tech reads the facts once.
 
 ### StickyPlayBar
@@ -718,7 +719,7 @@ A floating ink pill with the game name and a "Play now" button, phone only.
 
 - **Use for:** the bottom of a phone game page.
 - **Don't use for:** desktop (hidden from `lg` up) or general navigation.
-- **Props / variants:** `title`, `meta` (for example `Free · Web`), `action` (`{ label, href }`). Sits on `--z-sticky` with the system's one shadow. It overlaps the last `--sticky-bar-space` of the page, so give the page or footer `padding-bottom: var(--sticky-bar-space)` below `lg`.
+- **Props / variants:** `title`, `meta` (for example `Free · Web`), `action` (`{ label, href }`). Sits on `--z-sticky` with the system's one shadow. It overlaps the last `--sticky-bar-space` of its container. The game layout (`src/app/(site)/(game)/games/[slug]/layout.tsx`) renders it after the compact footer, which gets `stickyBarSpace`, so the bar stays stuck through the footer and comes to rest over the footer's reserved bottom room. Its label is "Play now" for out-now games, otherwise the CTA's own label.
 - **Accessibility:** an `aside` named "{title} quick play". The action is a real link at least `--tap-min` tall with the accent-on-ink focus ring. Only the pill takes pointer events, so it never blocks content beside it.
 
 ### ShowcaseHero
@@ -744,7 +745,7 @@ The row of selectable game cards under the hero, desktop only.
 The "All games" section body: a `SectionHeader` with All / Out now / Coming soon `FilterPills`, then a grid of `GameTile`s.
 
 - **Use for:** the home page's games section (inside `Section id="games"`), and any full list of games.
-- **Don't use for:** a short related-games row (use a `Grid` of `GameTile size="s"`).
+- **Don't use for:** a short related-games row (use `MoreGames`).
 - **Props / variants:** `games` (`GameSummary[]`); `title` (default "All games"). A client island: "Out now" shows `out-now` games, "Coming soon" shows every other status (coming soon, in development, announcing soon). Two columns below `md`, auto-fill at `--grid-min-tile` from `md`. Each tile links to `/games/{slug}` with a "Genre · Platform" meta line. With no games it shows "New games are on the way." and no filters; a filter with no matches shows the same line.
 - **Accessibility:** the filters are a `group` named "Filter games" with `aria-pressed`; the tiles are a list named "Games".
 
@@ -775,6 +776,33 @@ A list of `NewsCard`s: a grid from `md`, a horizontal scroller on phones.
 - **Props / variants:** `posts` (`PostSummary[]`; each card links to `/news/{slug}`); `label` (default "Latest news"). Below `md` the cards are `--rail-card-width` wide in one row that scrolls sideways with snap points, running past the right gutter; from `md` they are an auto-fit grid at `--grid-min-card`. Renders nothing for no posts, so the page hides the section.
 - **Accessibility:** a list named by `label`; each card is one link. The scroller is native overflow, so touch, trackpad and keyboard scrolling all work.
 
+### GameTitle
+
+The game page's title block: a breadcrumb, the page `h1` and the chips.
+
+- **Use for:** the top of `/games/[slug]`, in `GameLayout`'s `title` slot.
+- **Don't use for:** other page titles (use `Display` in the page) or the showcase hero.
+- **Props / variants:** `name` (`Display as="h1" size="xl"`); `status` (accent `Chip` with `statusLabel`); `tags` (genres then platforms as outline chips; blanks and duplicates dropped); `crumbs` (`Breadcrumb` items, e.g. Games / TerraForge); `lead` (optional, phone only: the blurb under the name). From `lg`: breadcrumb, then the name on the left with the chips bottom-right. Below `lg`: no breadcrumb (the header's "‹ Games" back link replaces it), chips above the name, then the lead.
+- **Accessibility:** owns the page's only `h1`. The chips are a list after the `h1` in the DOM; the phone puts them above it with `column-reverse`, which is safe because chips aren't focusable. The phone lead is `display: none` from `lg`, so it is read once.
+
+### GameLayout
+
+The game page body: named slots placed for desktop and reordered for phones.
+
+- **Use for:** `/games/[slug]` only.
+- **Don't use for:** other two-column pages (compose `Section`, `Container` and `Grid`).
+- **Props / variants:** slots `title`, `media`, `store`, `about`, `features`, `details`, `updates`, `cards`, `more`; any slot left out renders nothing (and an empty main column renders no wrapper). From `lg`: a grid inside the `--content-max` column with `title` and `media` full width, then the main column (`about`, `features`, `updates`, `--space-16` apart) beside a 4/11 aside with `store` and, under it, `cards` (`--space-14` column gap, `--space-18` above the columns, `--space-24` below). The main column spans both aside rows and the last row is flexible, so the cards stay tucked under the store card however long the main column runs. `details` is hidden from `lg` (the store card shows the facts there). `more` sits outside the content column so it can be a full-width band. Below `lg`: one column in the phone mockup's order (media, title, store, about, features, details, updates, more, cards); the frame becomes `display: contents`, each slot carries the `--gutter`, and `order` arranges them.
+- **Accessibility:** the DOM order is the desktop order (title, media, store, main column, cards, band). On phones only two adjacent pairs swap visually (media above the title, the band above the cards), so focus order stays close to reading order. Wrappers are plain `div`s; headings come from the slots.
+
+### MoreGames
+
+"More from inkOrange": a `SectionHeader` with "All games →" and small `GameTile`s.
+
+- **Use for:** the related-games band at the bottom of a game page, inside a sand `Section` and `Container`.
+- **Don't use for:** the full games list with filters (use `GameGrid`).
+- **Props / variants:** `games` (`GameSummary[]`; pass the other games, not the current one); `title` (default "More from inkOrange"); `action` (default "All games →" to `/#games`). Below `md` the tiles are `--rail-tile-width` wide in one row that scrolls sideways with snap points, running past the right gutter; from `md` an auto-fill grid at `--grid-min-tile-s` with a `--space-5` gap. Each tile links to `/games/{slug}` with a "Genre · Platform" meta line. Renders nothing for no games, so the page drops the band.
+- **Accessibility:** a list named "More games"; each tile is one link. The scroller is native overflow.
+
 Still coming, in this order (names may change as they are built):
 
 - **Game page (coming):** ShareTitle (not yet specified).
@@ -793,9 +821,14 @@ How to put a page together from the parts above.
   `style`, and never contains a color or size. If you want something to look
   different, change or add a component.
 - **Every public page** lives under `src/app/(site)/` and renders inside its
-  layout: `SiteHeader`, then the page content in `<main>`, then `SiteFooter`
-  (with the newsletter form), `ConsentBanner` and `Analytics`. Pages don't
-  render the header or footer themselves. Content is a stack of
+  layouts. `(site)/layout.tsx` is the shell: `SiteHeader`, then the page,
+  then `ConsentBanner` and `Analytics`. A leaf layout adds `<main>` and the
+  footer, through `SiteFooterBlock` (`src/components/site/`, which wires the
+  newsletter form, game links, socials and support email from content).
+  `(site)/(pages)/layout.tsx` gives every page the `full` footer, while
+  `(site)/(game)/games/[slug]/layout.tsx` gives game pages the `compact`
+  footer with `stickyBarSpace`, followed by the `StickyPlayBar`. A new page
+  goes under `(pages)/`. Pages don't render the header or footer themselves. Content is a stack of
   `Section`s, each wrapping a `Container`, so every page lines up to the same
   `--content-max` column with the same `--gutter`.
 - **Section rhythm.** Sections use `--section-y` padding. Most are paper; use a

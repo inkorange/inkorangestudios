@@ -14,12 +14,32 @@
     justify-content: space-between;
     gap: var(--space-3) var(--space-6);
   }
+
+  // Row on phones (text shrinks, link stays on the right), stack from lg.
+  &[data-layout="auto"] {
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3) var(--space-6);
+
+    @include bp(lg) {
+      flex-flow: column nowrap;
+      align-items: stretch;
+      justify-content: flex-start;
+      gap: var(--space-2);
+    }
+  }
 }
 
 .text {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+
+  .root[data-layout="auto"] & {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
 }
 
 .title {
@@ -44,6 +64,15 @@
 
   .root[data-layout="row"] & {
     align-self: center;
+  }
+
+  .root[data-layout="auto"] & {
+    align-self: center;
+    white-space: nowrap;
+
+    @include bp(lg) {
+      align-self: flex-start;
+    }
   }
 
   &:focus-visible {

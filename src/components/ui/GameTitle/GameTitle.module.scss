@@ -1,0 +1,59 @@
+@use "../../../styles/mixins" as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+
+  @include bp(lg) {
+    gap: var(--space-6);
+  }
+}
+
+// Phones get the header's "‹ Games" back link instead of the trail.
+.crumbs {
+  display: none;
+
+  @include bp(lg) {
+    display: block;
+  }
+}
+
+// Phone: chips above the name (visual order only; chips aren't focusable).
+// Desktop: name on the left, chips bottom-right on the name's baseline row.
+.row {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--space-4);
+
+  @include bp(lg) {
+    flex-flow: row wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-6);
+  }
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @include bp(lg) {
+    padding-bottom: var(--space-2);
+  }
+}
+
+.lead {
+  margin: 0;
+  font-size: var(--text-lead);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-body);
+
+  @include bp(lg) {
+    display: none;
+  }
+}

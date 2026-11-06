@@ -1,0 +1,119 @@
+@use "../../../styles/mixins" as *;
+
+// Phone: one column. The frame dissolves (display: contents) so its slots and the
+// full-width band are siblings that `order` can arrange; each slot carries the gutter.
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding-bottom: var(--space-10);
+
+  @include bp(lg) {
+    display: block;
+    padding-bottom: 0;
+  }
+}
+
+.frame {
+  display: contents;
+
+  // Desktop: title and media span both columns; the main column spans the store
+  // row and the cards row, and the flexible last row absorbs its extra height so
+  // the cards stay tucked under the store card.
+  @include bp(lg) {
+    box-sizing: border-box;
+    display: grid;
+    grid-template:
+      "title title" auto
+      "media media" auto
+      "main store" auto
+      "main cards" 1fr / minmax(0, 7fr) minmax(0, 4fr);
+    column-gap: var(--space-14);
+    max-width: var(--content-max);
+    margin: 0 auto;
+    padding: var(--space-6) var(--gutter) var(--space-24);
+  }
+}
+
+.title,
+.media,
+.store,
+.main,
+.cards {
+  padding-right: var(--gutter);
+  padding-left: var(--gutter);
+
+  @include bp(lg) {
+    padding-right: 0;
+    padding-left: 0;
+  }
+}
+
+.media {
+  order: 1;
+
+  @include bp(lg) {
+    grid-area: media;
+  }
+}
+
+.title {
+  order: 2;
+
+  @include bp(lg) {
+    grid-area: title;
+    padding-bottom: var(--space-7);
+  }
+}
+
+.store {
+  order: 3;
+
+  @include bp(lg) {
+    grid-area: store;
+    margin-top: var(--space-18);
+  }
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  order: 4;
+  gap: var(--space-10);
+  padding-top: var(--space-3);
+
+  @include bp(lg) {
+    grid-area: main;
+    gap: var(--space-16);
+    margin-top: var(--space-18);
+    padding-top: 0;
+  }
+}
+
+.details {
+  @include bp(lg) {
+    display: none;
+  }
+}
+
+.more {
+  order: 5;
+}
+
+.cards {
+  display: flex;
+  flex-direction: column;
+  order: 6;
+  gap: var(--space-3);
+
+  @include bp(lg) {
+    grid-area: cards;
+    align-self: start;
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+
+    .frame[data-store="false"] & {
+      margin-top: var(--space-18);
+    }
+  }
+}

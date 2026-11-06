@@ -14,3 +14,8 @@ it("defaults to stack and handles mailto links", () => {
   expect(container.firstElementChild).toHaveAttribute("data-layout", "stack");
   expect(screen.getByRole("link", { name: "mail" })).toHaveAttribute("href", "mailto:a@b.co");
 });
+
+it("supports the auto layout (a row on phones, a stack from lg)", () => {
+  const { container } = render(<InfoCard title="Press kit" body="Logos." link={{ label: "Download →", href: "https://x.test/kit.zip" }} layout="auto" />);
+  expect(container.firstElementChild).toHaveAttribute("data-layout", "auto");
+});

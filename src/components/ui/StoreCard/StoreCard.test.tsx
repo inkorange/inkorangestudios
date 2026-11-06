@@ -35,3 +35,9 @@ it("shows price, notify box and facts when given", () => {
   expect(container.querySelectorAll("dl")).toHaveLength(2);
   expect(container.querySelector("details summary")).toHaveTextContent("Game details");
 });
+
+it("can leave the phone fact accordion to the page", () => {
+  const { container } = render(<StoreCard primary={null} facts={[{ label: "Genre", value: "Sandbox" }]} phoneFacts={false} />);
+  expect(container.querySelectorAll("dl")).toHaveLength(1);
+  expect(container.querySelector("details")).toBeNull();
+});

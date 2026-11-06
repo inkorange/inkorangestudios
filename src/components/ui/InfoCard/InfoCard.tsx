@@ -5,7 +5,8 @@ export type InfoCardProps = {
   title: string;
   body: string;
   link: { label: string; href: string };
-  layout?: "stack" | "row";
+  /** `auto`: a row below `lg`, a stack from `lg` (the game page's press and help cards). */
+  layout?: "stack" | "row" | "auto";
 };
 
 export function InfoCard({ title, body, link, layout = "stack" }: InfoCardProps) {

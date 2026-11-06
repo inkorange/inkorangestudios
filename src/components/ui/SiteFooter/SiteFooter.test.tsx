@@ -50,3 +50,10 @@ it("gives the Studio column the press anchor, holding the Press kit link", () =>
   expect(screen.getByRole("link", { name: "Press kit" })).toHaveAttribute("href", "/#press");
   expect(press).toContainElement(screen.getByRole("link", { name: "Press kit" }));
 });
+
+it("reserves room for the phone sticky play bar only when asked", () => {
+  const { rerender } = render(<SiteFooter newsletter={null} socialLinks={[]} variant="compact" />);
+  expect(screen.getByRole("contentinfo")).toHaveAttribute("data-sticky-bar", "false");
+  rerender(<SiteFooter newsletter={null} socialLinks={[]} variant="compact" stickyBarSpace />);
+  expect(screen.getByRole("contentinfo")).toHaveAttribute("data-sticky-bar", "true");
+});

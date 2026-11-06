@@ -13,6 +13,8 @@ export type SiteFooterProps = {
   supportEmail?: string;
   /** Optional game links for the Games column. */
   games?: { label: string; href: string }[];
+  /** Below `lg`, add `--sticky-bar-space` of bottom padding so a `StickyPlayBar` after the footer never covers it. */
+  stickyBarSpace?: boolean;
 };
 
 type FooterLink = { label: string; href: string; external?: boolean };
@@ -54,7 +56,7 @@ function FooterAnchor({ link }: { link: FooterLink }) {
   );
 }
 
-export function SiteFooter({ newsletter, variant = "full", socialLinks, supportEmail, games = [] }: SiteFooterProps) {
+export function SiteFooter({ newsletter, variant = "full", socialLinks, supportEmail, games = [], stickyBarSpace = false }: SiteFooterProps) {
   const gamesLinks: FooterLink[] = [{ label: "All games", href: "/#games" }, ...games];
   const studioLinks: FooterLink[] = [
     { label: "About", href: "/about" },
@@ -77,7 +79,7 @@ export function SiteFooter({ newsletter, variant = "full", socialLinks, supportE
   ];
 
   return (
-    <footer id="newsletter" className={styles.root} data-variant={variant}>
+    <footer id="newsletter" className={styles.root} data-variant={variant} data-sticky-bar={stickyBarSpace}>
       <Container>
         <div className={styles.inner}>
           <div className={styles.signup}>

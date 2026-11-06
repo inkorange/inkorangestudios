@@ -3,6 +3,16 @@
 .root {
   color: var(--color-on-dark);
   background-color: var(--color-ink);
+
+  // Room for the phone StickyPlayBar, which parks over the footer's last
+  // --sticky-bar-space once the page is scrolled to the end.
+  &[data-sticky-bar="true"] {
+    padding-bottom: var(--sticky-bar-space);
+
+    @include bp(lg) {
+      padding-bottom: 0;
+    }
+  }
 }
 
 .inner {
