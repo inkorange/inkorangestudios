@@ -60,20 +60,6 @@ export function buildDocuments() {
     sortOrder: 1,
   };
 
-  const missionControl = {
-    _id: "studioGame-mission-control",
-    _type: "studioGame",
-    name: "Mission Control",
-    slug: slug("mission-control"),
-    status: "out-now",
-    genres: ["Simulation"],
-    platforms: ["Web"],
-    blurb: "Design a rocket part by part, launch it and see whether your build can hit its goals.",
-    featured: true,
-    featuredOrder: 3,
-    sortOrder: 2,
-  };
-
   const spaceCowboy = {
     _id: "studioGame-space-cowboy",
     _type: "studioGame",
@@ -85,7 +71,7 @@ export function buildDocuments() {
     blurb: "A story-driven puzzle game: plan the perfect shot, slingshot around obstacles and hit the target.",
     featured: true,
     featuredOrder: 2,
-    sortOrder: 3,
+    sortOrder: 2,
   };
 
   const exoplanetExplorer = {
@@ -98,20 +84,7 @@ export function buildDocuments() {
     platforms: ["Web"],
     blurb: "Explore real planets discovered beyond our solar system.",
     featured: false,
-    sortOrder: 4,
-  };
-
-  const strata = {
-    _id: "studioGame-strata",
-    _type: "studioGame",
-    name: "Strata",
-    slug: slug("strata"),
-    status: "in-development",
-    genres: ["Educational"],
-    platforms: ["Web"],
-    blurb: "An educational game about the layers beneath our feet.",
-    featured: false,
-    sortOrder: 5,
+    sortOrder: 3,
   };
 
   const settings = {
@@ -129,5 +102,5 @@ export function buildDocuments() {
       "Founded in New York in 2020 by design engineer Chris West, inkOrange Studios builds games that are easy to pick up and worth figuring out.",
   };
 
-  return [terraforge, missionControl, spaceCowboy, exoplanetExplorer, strata, settings];
+  return [terraforge, spaceCowboy, exoplanetExplorer, settings];
 }

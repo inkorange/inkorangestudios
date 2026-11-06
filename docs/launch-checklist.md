@@ -25,7 +25,7 @@ Work top to bottom. Env var names all come from `.env.example`.
 - [x] In Sanity (manage.sanity.io, API, Tokens) create a token with the **Editor** role.
 - [x] Put it in `.env.local` as `SANITY_WRITE_TOKEN=...`.
 - [ ] Run `npm run seed`. It is safe to run twice: it only creates documents that do not exist, so it never overwrites your edits.
-- [ ] Open `/studio` and confirm the five games (TerraForge, Space Cowboy, Mission Control, Exoplanet Explorer, Strata) and the settings document appear.
+- [ ] Open `/studio` and confirm the three games (TerraForge, Space Cowboy, Exoplanet Explorer) and the settings document appear.
 - [ ] Open the home page and confirm the games show.
 - [ ] Revoke or delete the Editor token afterwards.
 
@@ -69,7 +69,7 @@ The site shows empty states, never placeholder text, until these exist.
 - [ ] Studio photo (Settings).
 - [ ] All game art. The seed writes no images, so every game (TerraForge included) needs its cover art (3:4) and key art (wide hero) uploaded, plus any screenshots and a trailer poster. Fill in each image's alt text; an image without alt is not shown. Until then the site shows the hatched placeholder.
 - [ ] Confirm the seeded founded line is right.
-- [ ] Confirm or rewrite the Exoplanet Explorer and Strata blurbs (the seed wrote first drafts).
+- [ ] Confirm or rewrite the Exoplanet Explorer blurb (the seed wrote first drafts).
 - [ ] Press kit: set `pressKitUrl` per game in Studio to show the game page's Press kit card. There is no site-wide "Press" nav item or footer link yet; add them (in `src/lib/nav.ts` and `SiteFooter`) once a studio-wide press kit URL exists.
 - [ ] Optional: an SVG logo to replace the PNG.
 

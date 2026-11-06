@@ -16,9 +16,7 @@ describe("buildDocuments", () => {
     expect(docs.map((d) => d._id).sort()).toEqual(
       [
         "studioGame-exoplanet-explorer",
-        "studioGame-mission-control",
         "studioGame-space-cowboy",
-        "studioGame-strata",
         "studioGame-terraforge",
         "studioSettings",
       ].sort(),
