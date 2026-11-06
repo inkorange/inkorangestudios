@@ -352,8 +352,8 @@ A flex container with token gaps.
 
 - **Use for:** vertical or horizontal groups with consistent spacing (chip rows, button rows, lists).
 - **Don't use for:** responsive card layouts (use `Grid`).
-- **Props / variants:** `gap`: 1, 2, 3, 4 (default), 5, 6, 8, 10, 12, 14, 16 (the `--space-*` scale); `direction`: `column` (default) or `row`; `align`; `justify` (`start`, `center`, `end`, `between`); `wrap`; `as`: `div` (default), `ul`, `ol`, `li`, `nav`, `header`, `footer`, `span`.
-- **Accessibility:** list and nav semantics come from `as`; list bullets are removed, so only use `ul`/`ol` for real lists.
+- **Props / variants:** `gap`: 1, 2, 3, 4 (default), 5, 6, 8, 10, 12, 14, 16 (the `--space-*` scale); `direction`: `column` (default) or `row`; `align` (`start`, `center`, `end`, `stretch`, `baseline`); `justify` (`start`, `center`, `end`, `between`); `wrap`; `as`: `div` (default), `ul`, `ol`, `li`, `nav`, `header`, `footer`, `span`.
+- **Accessibility:** list and nav semantics come from `as`; list bullets are removed, so only use `ul`/`ol` for real lists. `ul` and `ol` get an explicit `role="list"` so Safari keeps the semantics.
 
 ### Grid
 
@@ -427,11 +427,53 @@ Decorative faint construction lines drawn behind its children.
 - **Props / variants:** `children` only. Lines are CSS gradients in `--color-guide`.
 - **Accessibility:** the lines layer is `aria-hidden` and ignores pointer events.
 
+### Icon
+
+The inline SVG icon set, drawn from the mockups.
+
+- **Use for:** icons inside `Button` and `IconButton`, or beside a label.
+- **Don't use for:** art or logos; icon-only controls need `IconButton` for the label.
+- **Props / variants:** `name`: `chevron-left`, `chevron-right`, `play`, `globe`, `phone`, `menu`, `close`, `arrow-right`; `size`: 16, 18 (default), 20, 26, 34. Uses `currentColor`.
+- **Accessibility:** always `aria-hidden`; the control around it carries the name.
+
+### Button
+
+The pill-shaped action: a link or a real button.
+
+- **Use for:** calls to action. One `accent` button per view; pair it with `ink` or an outline.
+- **Don't use for:** plain text links (use a normal link) or round icon-only controls (use `IconButton`).
+- **Props / variants:** `variant`: `accent` (orange, ink text, gloss sweep on hover), `ink`, `outline` (ink border, on light), `outline-on-dark` (on ink surfaces), `on-light` (card fill, for the accent callout band); `size`: `m` (default, `--control-height`), `l`, `s` (`--tap-min`); `href` (internal renders `next/link`); `external` (new tab, `rel="noopener noreferrer"`); `block`; `icon`; `type` (default `button`); `onClick`; `disabled` (button element only; links are never disabled).
+- **Accessibility:** at least `--tap-min` tall. Focus ring is ink, and accent on `ink` and `outline-on-dark`. The gloss sweep is removed under reduced motion. External links open a new tab, so say so in the label when it matters.
+
+### IconButton
+
+A round button holding one icon.
+
+- **Use for:** carousel previous/next, the phone menu toggle.
+- **Don't use for:** actions that need a text label (use `Button`).
+- **Props / variants:** `icon`; `label` (required); `tone`: `light` (default, card fill) or `dark` (outline on ink); `size`: `m` (`--icon-button`, default) or `l`; `onClick`; `aria-expanded`; `aria-controls`.
+- **Accessibility:** `label` becomes `aria-label`. 48px or larger. Accent focus ring on the `dark` tone.
+
+### Chip
+
+A small mono, tracked, uppercase tag.
+
+- **Use for:** status ("Out now", "Coming soon"), genre and platform tags, tile status chips.
+- **Don't use for:** anything clickable (use `FilterPills` or `Button`).
+- **Props / variants:** `tone`: `accent`, `ink`, `outline`, `outline-on-dark`, `plain-on-dark`; `size`: `m` (default) or `s` (tile chips).
+- **Accessibility:** a plain `span`; the text itself carries the meaning, never color alone. Uppercase is CSS only.
+
+### FilterPills
+
+A row of toggle pills that pick one value.
+
+- **Use for:** the All / Out now / Coming soon game filter.
+- **Don't use for:** navigation between pages (use `NavPillBar`) or multi-select.
+- **Props / variants:** `options` (readonly strings), `value`, `onChange(value)`, `label` (names the group).
+- **Accessibility:** a `role="group"` of buttons; the current one has `aria-pressed="true"`. Each is at least `--tap-min`.
+
 Still coming, in this order (names may change as they are built):
 
-- **Actions (coming):** Button (accent / ink / outline on light / outline on
-  dark; link or button; sizes), IconButton (round), Icon, Chip (status accent /
-  status ink / outline / mono plain), FilterPills.
 - **Form controls (coming):** TextField, TextArea, FormMessage (success /
   error), EmailSignupForm (inline pill input + button; light and dark),
   Turnstile.

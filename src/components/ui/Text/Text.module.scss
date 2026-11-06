@@ -4,9 +4,9 @@
   line-height: var(--leading-body);
   color: inherit;
 
-
   &[data-size="lead"] {
     font-size: var(--text-lead);
+    font-weight: var(--weight-medium);
   }
 
   &[data-size="body-l"] {
@@ -23,10 +23,6 @@
 
   &[data-size="meta"] {
     font-size: var(--text-meta);
-  }
-
-  &[data-size="lead"] {
-    font-weight: var(--weight-medium);
   }
 
   &[data-tone="ink"] {

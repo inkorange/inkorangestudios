@@ -15,3 +15,7 @@ it("defaults to a column div", () => {
   expect(el.tagName).toBe("DIV");
   expect(el).toHaveAttribute("data-direction", "column");
 });
+it("adds role=list to ul and ol", () => {
+  render(<Stack as="ol"><li>a</li></Stack>);
+  expect(screen.getByRole("list")).toHaveAttribute("role", "list");
+});

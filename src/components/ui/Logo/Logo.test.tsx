@@ -12,6 +12,7 @@ it("renders the logo image with alt text", () => {
   render(<Logo />);
   const img = screen.getByAltText("inkOrange Studios");
   expect(img).toBeInTheDocument();
+  expect(img).toHaveAttribute("src", "/brand/inkorange-logo.png");
   expect(screen.queryByRole("link")).toBeNull();
 });
 it("wraps in a link when href is given", () => {

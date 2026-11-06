@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 import styles from "./Stack.module.scss";
 
-type Gap = 1 | 2 | 3 | 4 | 5 | 6 | 8 | 10 | 12 | 14 | 16;
+export type SpaceStep = 1 | 2 | 3 | 4 | 5 | 6 | 8 | 10 | 12 | 14 | 16;
 
 export type StackProps = {
-  gap?: Gap;
+  gap?: SpaceStep;
   direction?: "column" | "row";
   align?: "start" | "center" | "end" | "stretch" | "baseline";
   justify?: "start" | "center" | "end" | "between";
@@ -19,6 +19,7 @@ export function Stack({ gap = 4, direction = "column", align, justify, wrap = fa
       className={styles.root}
       style={{ "--stack-gap": `var(--space-${gap})` }}
       data-gap={gap}
+      role={Tag === "ul" || Tag === "ol" ? "list" : undefined}
       data-direction={direction}
       data-align={align}
       data-justify={justify}

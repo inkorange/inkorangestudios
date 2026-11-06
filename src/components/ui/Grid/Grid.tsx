@@ -1,12 +1,12 @@
 import type { ReactNode } from "react";
+import type { SpaceStep } from "../Stack/Stack";
 import styles from "./Grid.module.scss";
 
 type Min = "tile" | "tile-s" | "card" | "rail" | "thumb";
-type Gap = 1 | 2 | 3 | 4 | 5 | 6 | 8 | 10 | 12 | 14 | 16;
 
 export type GridProps = {
   min: Min;
-  gap?: Gap;
+  gap?: SpaceStep;
   children: ReactNode;
 };
 
