@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import type { Media } from "@/lib/sanity/types";
-import { parseVideo } from "@/lib/video";
+import { isAbsoluteUrl, parseVideo } from "@/lib/video";
 import { Icon } from "../Icon/Icon";
 import { Placeholder } from "../Placeholder/Placeholder";
 import styles from "./MediaViewer.module.scss";
@@ -29,7 +29,8 @@ function Stage({ item, title, playing, onPlay }: { item: Media; title: string; p
     );
   }
 
-  const source = playing ? parseVideo(item.url) : null;
+  const parsed = parseVideo(item.url);
+  const source = playing && parsed.kind !== "unsupported" ? parsed : null;
   return (
     <figure className={styles.stage}>
       {source?.kind === "embed" ? (
@@ -46,14 +47,28 @@ function Stage({ item, title, playing, onPlay }: { item: Media; title: string; p
             </div>
           )}
           <span className={styles.scrim} aria-hidden="true" />
-          <button type="button" className={styles.play} onClick={onPlay} aria-label={`Play the ${title} trailer`}>
-            <Icon name="play" size={34} />
-          </button>
+          {parsed.kind === "unsupported" ? (
+            isAbsoluteUrl(item.url.trim()) ? (
+              <a className={styles.watch} href={item.url.trim()} target="_blank" rel="noopener noreferrer">
+                Watch the trailer
+              </a>
+            ) : null
+          ) : (
+            <button type="button" className={styles.play} onClick={onPlay} aria-label={`Play the ${title} trailer`}>
+              <Icon name="play" size={34} />
+            </button>
+          )}
           <figcaption className={styles.caption}>{item.duration ? `OFFICIAL TRAILER · ${item.duration}` : "OFFICIAL TRAILER"}</figcaption>
         </>
       )}
     </figure>
   );
+}
+
+function ThumbArt({ item }: { item: Media }) {
+  const art = item.kind === "trailer" ? item.poster : item.image;
+  if (!art) return null;
+  return <Image className={styles["thumb-image"]} src={art.src} alt="" width={art.width} height={art.height} sizes="150px" />;
 }
 
 export function MediaViewer({ items, title }: MediaViewerProps) {
@@ -63,6 +78,7 @@ export function MediaViewer({ items, title }: MediaViewerProps) {
   const current = items[Math.min(index, items.length - 1)];
 
   function select(i: number) {
+    if (i === index) return;
     setIndex(i);
     // Leaving the stage stops playback; coming back shows the poster again.
     setPlaying(false);
@@ -75,7 +91,10 @@ export function MediaViewer({ items, title }: MediaViewerProps) {
         <div className={styles.thumbs}>
           {items.map((item, i) => (
             <button key={`${i}-${item.label}`} type="button" className={styles.thumb} aria-label={`Show ${item.label}`} aria-pressed={i === index} onClick={() => select(i)}>
-              <span aria-hidden="true">{item.label}</span>
+              <ThumbArt item={item} />
+              <span className={styles["thumb-label"]} aria-hidden="true">
+                {item.label}
+              </span>
             </button>
           ))}
         </div>

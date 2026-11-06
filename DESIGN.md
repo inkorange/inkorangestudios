@@ -675,7 +675,7 @@ The game page's large stage with a thumbnail strip beneath it.
 - **Use for:** a game's trailer and screenshots, trailer first.
 - **Don't use for:** a single decorative image (use `next/image` in a section) or a carousel that moves on its own (`ShowcaseHero`).
 - **Props / variants:** `items` (`Media[]`: `trailer` with `poster`, `url`, optional `duration`; or `image`) and `title`. Stage is 16/7.5 on `--radius-3xl`, 16/10 on `--radius-xl` below `md`. Thumbs are a grid from `md`, a horizontal scroll strip below. Renders nothing when `items` is empty; a single item shows no thumbs. Missing art shows the dark `Placeholder`.
-- **Accessibility:** the trailer play button is named `Play the {title} trailer`. Nothing plays until it is pressed; then YouTube and Vimeo URLs become an `iframe` (titled `{title} trailer`) and other URLs a `video` with controls. Switching thumbs stops playback. Thumbs are buttons with `aria-pressed` and `aria-label="Show {label}"`; the selected one has an ink border. The stage is a `figure` whose caption carries the label.
+- **Accessibility:** the trailer play button is named `Play the {title} trailer`. Nothing plays until it is pressed; then YouTube and Vimeo URLs become an `iframe` (titled `{title} trailer`) and other URLs a `video` with controls. Trailer URLs that can't be played (not http(s), or a YouTube/Vimeo URL without a valid ID) show the poster with a "Watch the trailer" external link when the URL is http(s), otherwise just the poster. Switching thumbs stops playback. Thumbs show the screenshot or poster with the label as an overlay. Thumbs are buttons with `aria-pressed` and `aria-label="Show {label}"`; the selected one has an ink border. The stage is a `figure` whose caption carries the label.
 
 ### StoreCard
 
@@ -693,7 +693,7 @@ A floating ink pill with the game name and a "Play now" button, phone only.
 - **Use for:** the bottom of a phone game page.
 - **Don't use for:** desktop (hidden from `lg` up) or general navigation.
 - **Props / variants:** `title`, `meta` (for example `Free · Web`), `action` (`{ label, href }`). Sits on `--z-sticky` with the system's one shadow. It overlaps the last `--sticky-bar-space` of the page, so give the page or footer `padding-bottom: var(--sticky-bar-space)` below `lg`.
-- **Accessibility:** the action is a real link at least `--tap-min` tall with the accent-on-ink focus ring. Only the pill takes pointer events, so it never blocks content beside it.
+- **Accessibility:** an `aside` named "{title} quick play". The action is a real link at least `--tap-min` tall with the accent-on-ink focus ring. Only the pill takes pointer events, so it never blocks content beside it.
 
 Still coming, in this order (names may change as they are built):
 

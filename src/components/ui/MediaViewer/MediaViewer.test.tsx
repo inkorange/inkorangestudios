@@ -53,3 +53,33 @@ it("returning to the trailer resets playback", () => {
   fireEvent.click(screen.getByRole("button", { name: "Show TRAILER" }));
   expect(container.querySelector("iframe")).toBeNull();
 });
+
+it("shows poster and an external link, no play button, for unsupported trailer urls", () => {
+  const bad: Media[] = [{ kind: "trailer", label: "TRAILER", poster: null, url: "https://www.youtube.com/@channel" }];
+  render(<MediaViewer items={bad} title="TerraForge" />);
+  expect(screen.queryByRole("button", { name: /Play the/ })).toBeNull();
+  const link = screen.getByRole("link", { name: /Watch the trailer/ });
+  expect(link).toHaveAttribute("href", "https://www.youtube.com/@channel");
+  expect(link).toHaveAttribute("target", "_blank");
+});
+
+it("shows only the poster when the trailer url is not http(s)", () => {
+  const bad: Media[] = [{ kind: "trailer", label: "TRAILER", poster: null, url: "javascript:alert(1)" }];
+  render(<MediaViewer items={bad} title="TerraForge" />);
+  expect(screen.queryByRole("button", { name: /Play the/ })).toBeNull();
+  expect(screen.queryByRole("link")).toBeNull();
+});
+
+it("renders thumbnail images and keeps playback when the selected thumb is clicked again", () => {
+  const withArt: Media[] = [
+    { kind: "trailer", label: "TRAILER", poster: { src: "/p.png", alt: "Poster", width: 800, height: 400 }, url: "https://youtu.be/abc123" },
+    items[2],
+  ];
+  const { container } = render(<MediaViewer items={withArt} title="TerraForge" />);
+  const thumb = screen.getByRole("button", { name: "Show STAR SYSTEM" });
+  expect(thumb.querySelector("img")).toHaveAttribute("src", expect.stringContaining("s.png"));
+  expect(screen.getByRole("button", { name: "Show TRAILER" }).querySelector("img")).not.toBeNull();
+  fireEvent.click(screen.getByRole("button", { name: "Play the TerraForge trailer" }));
+  fireEvent.click(screen.getByRole("button", { name: "Show TRAILER" }));
+  expect(container.querySelector("iframe")).not.toBeNull();
+});

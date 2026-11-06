@@ -10,7 +10,7 @@ export type StickyPlayBarProps = {
 
 export function StickyPlayBar({ title, meta, action }: StickyPlayBarProps) {
   return (
-    <div className={styles.root}>
+    <aside className={styles.root} aria-label={`${title} quick play`}>
       <div className={styles.bar}>
         <span className={styles.text}>
           <span className={styles.title}>{title}</span>
@@ -20,6 +20,6 @@ export function StickyPlayBar({ title, meta, action }: StickyPlayBarProps) {
           {action.label}
         </Button>
       </div>
-    </div>
+    </aside>
   );
 }
