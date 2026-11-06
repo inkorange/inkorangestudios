@@ -51,6 +51,21 @@ describe("notifyOwner", () => {
     expect(JSON.parse(fetchMock.mock.calls[0][1].body).Subject).toHaveLength(180);
   });
 
+  it("passes a timeout signal", async () => {
+    await notifyOwner(msg);
+    expect(fetchMock.mock.calls[0][1].signal).toBeInstanceOf(AbortSignal);
+  });
+
+  it("logs a non-ok response without the email and resolves", async () => {
+    const err = vi.spyOn(console, "error").mockImplementation(() => {});
+    fetchMock.mockResolvedValue({ ok: false, status: 422 });
+    await expect(notifyOwner(msg)).resolves.toBeUndefined();
+    expect(err).toHaveBeenCalledTimes(1);
+    expect(JSON.stringify(err.mock.calls[0])).toContain("422");
+    expect(JSON.stringify(err.mock.calls[0])).not.toContain("a@b.co");
+    err.mockRestore();
+  });
+
   it("swallows fetch rejection", async () => {
     fetchMock.mockRejectedValue(new Error("down"));
     await expect(notifyOwner(msg)).resolves.toBeUndefined();

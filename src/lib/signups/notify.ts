@@ -20,7 +20,7 @@ export async function notifyOwner(msg: OwnerMessage): Promise<void> {
   if (!token || !from || !to) return;
 
   try {
-    await fetch("https://api.postmarkapp.com/email", {
+    const res = await fetch("https://api.postmarkapp.com/email", {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -35,7 +35,10 @@ export async function notifyOwner(msg: OwnerMessage): Promise<void> {
         TextBody: msg.lines.join("\n"),
         MessageStream: "outbound",
       }),
+      signal: AbortSignal.timeout(8000),
     });
+    // Status only: never the address or body.
+    if (!res.ok) console.error("[signups] postmark responded", res.status);
   } catch {
     // The row is saved; the mail is a convenience.
   }

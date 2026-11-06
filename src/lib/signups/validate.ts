@@ -4,8 +4,9 @@ export const MAX_NAME = 120;
 
 export type Validation<T> = { ok: true; value: T } | { ok: false; error: string };
 
-// Deliberately loose: something, an @, something, a dot, something.
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Deliberately loose: something, an @, something, a dot, something. `,;<>` are
+// rejected so one value can never become several ReplyTo addresses.
+const EMAIL = /^[^\s@,;<>]+@[^\s@,;<>]+\.[^\s@,;<>]+$/;
 const SLUG = /^[a-z0-9-]{1,64}$/;
 const TOPICS = ["general", "support", "press", "business"] as const;
 export type ContactTopic = (typeof TOPICS)[number];

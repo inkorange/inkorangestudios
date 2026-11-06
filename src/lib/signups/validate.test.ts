@@ -23,6 +23,12 @@ describe("normalizeEmail", () => {
     expect(normalizeEmail(null)).toBeNull();
     expect(normalizeEmail(42)).toBeNull();
   });
+  it("rejects multi-address and bracketed forms", () => {
+    expect(normalizeEmail("a@b.co,c@d.co")).toBeNull();
+    expect(normalizeEmail("a@b.co;c@d.co")).toBeNull();
+    expect(normalizeEmail("<a@b.co>")).toBeNull();
+    expect(normalizeEmail("Name <a@b.co>")).toBeNull();
+  });
   it("rejects over-length", () => {
     expect(normalizeEmail("a".repeat(MAX_EMAIL - 12) + "@example.com")).not.toBeNull();
     expect(normalizeEmail("a".repeat(MAX_EMAIL - 12 + 1) + "@example.com")).toBeNull();
