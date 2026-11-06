@@ -26,8 +26,13 @@ async function call(req: NextRequest) {
   const pending = POST(req).finally(() => {
     done = true;
   });
-  // Signature checking is real async crypto, so keep ticking until the handler settles.
-  for (let i = 0; i < 50 && !done; i++) await vi.advanceTimersByTimeAsync(1000);
+  // Signature checking is real async crypto that finishes off the main thread, so the 3s wait
+  // can start at any point. Tick the fake clock and yield a real macrotask (setImmediate is not
+  // faked) until the handler settles; a fixed tick count raced slow CI machines.
+  while (!done) {
+    await vi.advanceTimersByTimeAsync(1000);
+    if (!done) await new Promise((resolve) => setImmediate(resolve));
+  }
   return pending;
 }
 
