@@ -134,10 +134,10 @@ the button already covers the action). *Builder's call if trivial.*
   `{ subject, html, text }`. The same function feeds the Studio preview (in
   the browser), the test send, the broadcast and "view in browser".
 - HTML is table-based with inline styles, 600px max width, built from the
-  `tokens.scss` values (colours, radii) copied into one email-theme constant.
-  Exempt from the "raw values only in tokens.scss" rule because email clients
-  can't read CSS variables; the theme constant is the single place they live,
-  and a test asserts it matches `tokens.scss`.
+  `tokens.scss` values (colours, radii), read through `tokenValue` from
+  `src/lib/tokens.ts` (generated from `tokens.scss`), so there is no separate
+  theme constant and no sync test. Exempt from the "raw values only in
+  tokens.scss" rule because email clients can't read CSS variables.
 - The builder chooses between a small hand-written renderer and a library
   (e.g. React Email). Either way: no remote CSS, no web fonts required (Barlow
   Condensed via `font-family` with "Arial Narrow", Arial fallbacks), and a
@@ -154,7 +154,7 @@ the button already covers the action). *Builder's call if trivial.*
   and tests), "View in
   browser" link, and the mailing address from Settings (§6). Sending is
   blocked while the address is empty.
-- "View in browser": a public route `/newsletter/{issueId}` that renders the
+- "View in browser": a public route `/newsletter/issue/{issueId}` that renders the
   same HTML for a **sent** issue only (404 otherwise), `noindex`. This is a raw
   HTML response, not a site page, so the `src/app/**` className rule doesn't
   apply to the email markup (it's produced by the renderer module).
@@ -348,6 +348,16 @@ confirmation email simply can't go out until Postmark works (the row stays
    the whole shared project, portfolio included: accepted by Chris). Fill in
    the mailing address in Settings.
 7. Delete or re-subscribe the two test signups.
+
+### Decisions made during the build
+
+- A batch with no clear answer from Postmark (timeout, network error, any 5xx, unreadable 2xx) is marked uncertain, never re-sent, and pauses the send until "Resume sending".
+- A 4xx from Postmark puts the batch back for Resume to retry.
+- The confirmation email omits the mailing address when Settings has none.
+- `confirm_sent_at` is set only after Postmark accepts the confirmation.
+- The Postmark unsubscribe webhook returns 500 on a database error so Postmark retries.
+- "Resume sending" is offered for any failed send and for a send with no progress for 15 minutes.
+- "Send to subscribers" is disabled when there are 0 confirmed subscribers or the delivery status can't be loaded.
 
 ## Testing expectations
 
