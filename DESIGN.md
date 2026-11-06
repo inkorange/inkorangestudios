@@ -503,7 +503,7 @@ A pill-shaped native dropdown with its label, styled like `TextField`.
 
 - **Use for:** choosing one of a short fixed list (beta platform, contact topic).
 - **Don't use for:** free text (use `TextField`) or long lists and filtering (use `FilterPills`).
-- **Props / variants:** `label` (required); `hideLabel`; `name`; `options` (`{ value, label }[]`); `defaultValue`; `required`; `tone`: `on-light` (card fill, default), `on-card` and `on-dark` (paper fill; `on-dark` adds an accent focus ring), `on-accent` (same as `on-light`); optional controlled `value` / `onChange`. The chevron is an `Icon`, and the control is at least `--control-height`.
+- **Props / variants:** `label` (required); `hideLabel`; `name`; `options` (`{ value, label }[]`); `defaultValue`; `onChange`; `tone`: `on-light` (card fill, default), `on-card` and `on-dark` (paper fill; `on-dark` adds an accent focus ring), `on-accent` (same as `on-light`). It is uncontrolled and has no empty option, so there is no `required`. React 19 resets a form after its action: remember the choice via `onChange` and remount the field with a `key` tied to the action result, seeding `defaultValue` with the remembered value. The chevron is an `Icon`, and the control is at least `--control-height`.
 - **Accessibility:** a native `select` with a real linked `label`, so keyboard and screen readers work as built in. The chevron is decorative and ignores pointer events. Visible focus ring.
 
 ### Honeypot

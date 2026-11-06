@@ -2,8 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { sendContactMessage } from "@/app/actions/contact";
-import { Button, FormMessage, Honeypot, Select, Stack, TextArea, TextField, Turnstile } from "@/components/ui";
-import { turnstileActive } from "@/components/ui/Turnstile/Turnstile";
+import { Button, FormMessage, Honeypot, Select, Stack, TextArea, TextField, Turnstile, turnstileActive } from "@/components/ui";
 import type { FormState } from "@/lib/signups/types";
 
 const TOPICS = [
@@ -14,7 +13,12 @@ const TOPICS = [
 ];
 
 export function ContactForm() {
-  const [state, formAction, pending] = useActionState(sendContactMessage, { status: "idle" } as FormState);
+  const [attempt, setAttempt] = useState(0);
+  const [state, formAction, pending] = useActionState(async (prev: FormState, data: FormData) => {
+    const result = await sendContactMessage(prev, data);
+    setAttempt((n) => n + 1);
+    return result;
+  }, { status: "idle" } as FormState);
   // Controlled so a rejected submit keeps what the visitor typed.
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -39,7 +43,8 @@ export function ContactForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
-        <Select label="Topic" name="topic" options={TOPICS} value={topic} onChange={(e) => setTopic(e.target.value)} />
+        {/* Remounted per result: React resets the form after the action, and a select keeps no value of its own. */}
+        <Select key={attempt} label="Topic" name="topic" options={TOPICS} defaultValue={topic} onChange={(e) => setTopic(e.target.value)} />
         <TextArea label="Message" name="message" rows={6} required value={message} onChange={(e) => setMessage(e.target.value)} />
         <Honeypot />
         <Turnstile resetKey={state} onTokenChange={setTokenReady} />

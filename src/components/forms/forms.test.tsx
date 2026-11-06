@@ -13,6 +13,7 @@ vi.mock("@/app/actions/beta", () => ({ joinBeta }));
 vi.mock("@/app/actions/launchAlert", () => ({ requestLaunchAlert }));
 vi.mock("@/app/actions/contact", () => ({ sendContactMessage }));
 
+import { validateBeta, validateContact, validateLaunchAlert } from "@/lib/signups/validate";
 import { BetaForm } from "./BetaForm";
 import { ContactForm } from "./ContactForm";
 import { LaunchAlertForm } from "./LaunchAlertForm";
@@ -41,6 +42,7 @@ it("BetaForm renders its submit label and sends game and source", async () => {
   const fd: FormData = joinBeta.mock.calls[0][1];
   expect(fd.get("game")).toBe("terra-forge");
   expect(fd.get("source")).toBe("callout");
+  expect(validateBeta(fd)).toMatchObject({ ok: true, value: { game: "terra-forge", platform: "ios", source: "callout" } });
 });
 
 it("BetaForm shows a platform select only with more than one platform", () => {
@@ -63,6 +65,14 @@ it("BetaForm sends the chosen platform and keeps it after a failed submit", asyn
   expect(screen.getByRole("combobox", { name: "Platform" })).toHaveValue("android");
 });
 
+it("LaunchAlertForm slugifies a display label for the server", async () => {
+  render(<LaunchAlertForm game="g" platform="Android TV" />);
+  await userEvent.type(screen.getByRole("textbox"), "a@b.co");
+  await userEvent.click(screen.getByRole("button", { name: "Notify me" }));
+  await screen.findByRole("status");
+  expect(requestLaunchAlert.mock.calls[0][1].get("platform")).toBe("android-tv");
+});
+
 it("LaunchAlertForm renders Notify me and names the platform on success", async () => {
   render(<LaunchAlertForm game="g" platform="iOS" />);
   expect(screen.getByPlaceholderText("Email me at launch")).toBeInTheDocument();
@@ -71,7 +81,8 @@ it("LaunchAlertForm renders Notify me and names the platform on success", async 
   expect(await screen.findByRole("status")).toHaveTextContent("We'll email you when it launches on iOS.");
   const fd: FormData = requestLaunchAlert.mock.calls[0][1];
   expect(fd.get("game")).toBe("g");
-  expect(fd.get("platform")).toBe("iOS");
+  expect(fd.get("platform")).toBe("ios");
+  expect(validateLaunchAlert(fd)).toMatchObject({ ok: true, value: { game: "g", platform: "ios" } });
 });
 
 it("ContactForm has a Send message button and a hidden honeypot", () => {
@@ -105,6 +116,7 @@ it("ContactForm sends every field and replaces itself with the success copy", as
     "Hi there",
     "",
   ]);
+  expect(validateContact(fd)).toMatchObject({ ok: true, value: { topic: "press", name: "Ann" } });
   expect(screen.queryByRole("button", { name: "Send message" })).toBeNull();
 });
 

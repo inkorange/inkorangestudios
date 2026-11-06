@@ -41,7 +41,7 @@ export { Honeypot } from "./Honeypot/Honeypot";
 export type { HoneypotProps } from "./Honeypot/Honeypot";
 export { FormMessage } from "./FormMessage/FormMessage";
 export type { FormMessageProps } from "./FormMessage/FormMessage";
-export { Turnstile } from "./Turnstile/Turnstile";
+export { Turnstile, turnstileActive } from "./Turnstile/Turnstile";
 export type { TurnstileProps } from "./Turnstile/Turnstile";
 export { EmailSignupForm } from "./EmailSignupForm/EmailSignupForm";
 export type { EmailSignupFormProps } from "./EmailSignupForm/EmailSignupForm";

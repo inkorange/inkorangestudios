@@ -8,6 +8,14 @@ export type LaunchAlertFormProps = {
   platform: string;
 };
 
+/** Display label to the slug the server validates: "Android" -> "android". */
+function slugify(label: string): string {
+  return label
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 export function LaunchAlertForm({ game, platform }: LaunchAlertFormProps) {
   return (
     <EmailSignupForm
@@ -16,7 +24,7 @@ export function LaunchAlertForm({ game, platform }: LaunchAlertFormProps) {
       placeholder="Email me at launch"
       submitLabel="Notify me"
       tone="on-card"
-      hidden={{ game, platform }}
+      hidden={{ game, platform: slugify(platform) }}
       successMessage={`We'll email you when it launches on ${platform}.`}
     />
   );

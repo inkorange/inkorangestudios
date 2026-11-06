@@ -1,10 +1,8 @@
-import { useEffect, useId, useRef, type ChangeEventHandler } from "react";
+"use client";
+
+import { useId, type ChangeEventHandler } from "react";
 import { Icon } from "../Icon/Icon";
 import styles from "./Select.module.scss";
-
-type Controlled =
-  | { value: string; onChange: ChangeEventHandler<HTMLSelectElement> }
-  | { value?: undefined; onChange?: undefined };
 
 export type SelectProps = {
   label: string;
@@ -13,53 +11,19 @@ export type SelectProps = {
   options: { value: string; label: string }[];
   defaultValue?: string;
   tone?: "on-light" | "on-dark" | "on-card" | "on-accent";
-  required?: boolean;
-} & Controlled;
+  /** Fires on every change; use it to remember the choice and re-seed `defaultValue`. */
+  onChange?: ChangeEventHandler<HTMLSelectElement>;
+};
 
-export function Select({
-  label,
-  hideLabel = false,
-  name,
-  options,
-  defaultValue,
-  tone = "on-light",
-  required,
-  value,
-  onChange,
-}: SelectProps) {
+export function Select({ label, hideLabel = false, name, options, defaultValue, tone = "on-light", onChange }: SelectProps) {
   const id = useId();
-  const ref = useRef<HTMLSelectElement>(null);
-  const latest = useRef(value);
-  useEffect(() => {
-    latest.current = value;
-  });
-  // React 19 resets a form after its action; a controlled <select> is not re-synced
-  // by that reset (inputs are), so put the controlled value back once the reset lands.
-  useEffect(() => {
-    const form = ref.current?.form;
-    if (!form) return;
-    const restore = () =>
-      queueMicrotask(() => {
-        if (ref.current && latest.current !== undefined) ref.current.value = latest.current;
-      });
-    form.addEventListener("reset", restore);
-    return () => form.removeEventListener("reset", restore);
-  }, []);
-
   return (
     <div className={styles.root} data-tone={tone}>
       <label htmlFor={id} className={styles.label} data-hidden={hideLabel}>
         {label}
       </label>
       <div className={styles.wrap}>
-        <select
-          id={id}
-          ref={ref}
-          className={styles.input}
-          name={name}
-          required={required}
-          {...(value === undefined ? { defaultValue } : { value, onChange })}
-        >
+        <select id={id} className={styles.input} name={name} defaultValue={defaultValue} onChange={onChange}>
           {options.map((o) => (
             <option key={o.value} value={o.value}>
               {o.label}
