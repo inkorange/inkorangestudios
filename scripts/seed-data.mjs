@@ -13,9 +13,14 @@ function block(id, text) {
 
 const slug = (current) => ({ _type: "slug", current });
 
+/*
+ * Ids are hyphenated on purpose: in Sanity a dotted id ("studioGame-terraforge") is a
+ * private document, readable only with a token. The site reads unauthenticated via the
+ * CDN, so dotted ids would make every seeded document invisible.
+ */
 export function buildDocuments() {
   const terraforge = {
-    _id: "studioGame.terraforge",
+    _id: "studioGame-terraforge",
     _type: "studioGame",
     name: "TerraForge",
     slug: slug("terraforge"),
@@ -56,7 +61,7 @@ export function buildDocuments() {
   };
 
   const missionControl = {
-    _id: "studioGame.mission-control",
+    _id: "studioGame-mission-control",
     _type: "studioGame",
     name: "Mission Control",
     slug: slug("mission-control"),
@@ -70,7 +75,7 @@ export function buildDocuments() {
   };
 
   const spaceCowboy = {
-    _id: "studioGame.space-cowboy",
+    _id: "studioGame-space-cowboy",
     _type: "studioGame",
     name: "Space Cowboy",
     slug: slug("space-cowboy"),
@@ -84,7 +89,7 @@ export function buildDocuments() {
   };
 
   const exoplanetExplorer = {
-    _id: "studioGame.exoplanet-explorer",
+    _id: "studioGame-exoplanet-explorer",
     _type: "studioGame",
     name: "Exoplanet Explorer",
     slug: slug("exoplanet-explorer"),
@@ -97,7 +102,7 @@ export function buildDocuments() {
   };
 
   const strata = {
-    _id: "studioGame.strata",
+    _id: "studioGame-strata",
     _type: "studioGame",
     name: "Strata",
     slug: slug("strata"),
@@ -116,7 +121,7 @@ export function buildDocuments() {
       eyebrow: "NOW RECRUITING TESTERS",
       title: "Play Space Cowboy before anyone else.",
       body: "Join the iOS and Android beta and help shape the game before launch.",
-      game: { _type: "reference", _ref: "studioGame.space-cowboy" },
+      game: { _type: "reference", _ref: "studioGame-space-cowboy" },
       platforms: ["ios", "android"],
     },
     newsletterBlurb: "New releases, beta invites and studio news. A few emails a year.",
