@@ -798,8 +798,8 @@ The game page body: named slots placed for desktop and reordered for phones.
 
 - **Use for:** `/games/[slug]` only.
 - **Don't use for:** other two-column pages (compose `Section`, `Container` and `Grid`).
-- **Props / variants:** slots `title`, `media`, `store`, `about`, `features`, `details`, `updates`, `cards`, `beta`, `more`; any slot left out renders nothing (and an empty main column renders no wrapper). From `lg`: a grid inside the `--content-max` column with `title` and `media` full width, then the main column (`about`, `features`, `updates`, `--space-16` apart) beside a 4/11 aside with `store` and, under it, `cards` (`--space-14` column gap, `--space-18` above the columns, `--space-24` below). The main column spans both aside rows and the last row is flexible, so the cards stay tucked under the store card however long the main column runs. `details` is hidden from `lg` (the store card shows the facts there). `beta` (the game's beta tester `CalloutBand`) is a full-width row inside the content column, under both columns, `--space-16` below them. `more` sits outside the content column so it can be a full-width band. Below `lg`: one column in the phone mockup's order (media, title, store, about, features, details, updates, beta, more, cards); the frame becomes `display: contents`, each slot carries the `--gutter`, and `order` arranges them.
-- **Accessibility:** the DOM order is the desktop order (title, media, store, main column, cards, beta, band). On phones only two adjacent pairs swap visually (media above the title, the band above the cards), so focus order stays close to reading order. Wrappers are plain `div`s; headings come from the slots.
+- **Props / variants:** slots `title`, `art`, `media`, `store`, `about`, `features`, `details`, `updates`, `cards`, `beta`, `more`; any slot left out renders nothing (and an empty main column renders no wrapper). From `lg`: a grid inside the `--content-max` column with `title`, `art` (the key art `FramedPhoto`) and `media` full width, `--space-6` between art and media, then the main column (`about`, `features`, `updates`, `--space-16` apart) beside a 4/11 aside with `store` and, under it, `cards` (`--space-14` column gap, `--space-18` above the columns, `--space-24` below). The main column spans both aside rows and the last row is flexible, so the cards stay tucked under the store card however long the main column runs. `details` is hidden from `lg` (the store card shows the facts there). `beta` (the game's beta tester `CalloutBand`) is a full-width row inside the content column, under both columns, `--space-16` below them. `more` sits outside the content column so it can be a full-width band. Below `lg`: one column in the phone mockup's order (media, title, art, store, about, features, details, updates, beta, more, cards); the frame becomes `display: contents`, each slot carries the `--gutter`, and `order` arranges them.
+- **Accessibility:** the DOM order is the desktop order (title, art, media, store, main column, cards, beta, band). On phones only two moves happen visually (media above the title and key art, the band above the cards), so focus order stays close to reading order. Wrappers are plain `div`s; headings come from the slots.
 
 ### MoreGames
 
@@ -850,9 +850,9 @@ A long-form page: title, meta line and rich text in the narrow column.
 
 A wide photo in a bordered, rounded frame.
 
-- **Use for:** the About page's studio photo; a news post's cover image (the post page renders it only when the post has one).
+- **Use for:** the About page's studio photo; a news post's cover image (the post page renders it only when the post has one); a game page's key art, under the title (only when the game has key art).
 - **Don't use for:** the home studio band (`StudioTeaser` has its own photo column) or media galleries.
-- **Props / variants:** `photo` (`ImageRef`; `null` shows the hatched `Placeholder`); `label` (placeholder text). 16:9, `--radius-xl` on phone and `--radius-2xl` from `lg`.
+- **Props / variants:** `photo` (`ImageRef`; `null` shows the hatched `Placeholder`); `label` (placeholder text); `natural` (keep the photo's own proportions instead of cropping to 16:9; the placeholder stays 16:9); `priority` (load first, for a page's headline image). 16:9 by default, `--radius-xl` on phone and `--radius-2xl` from `lg`.
 - **Accessibility:** alt text comes from the CMS; the placeholder is decorative-grade.
 
 ### LinkList

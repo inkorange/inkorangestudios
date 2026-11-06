@@ -2,10 +2,13 @@
 
 .root {
   position: relative;
-  aspect-ratio: 16 / 9;
   overflow: hidden;
   border: 1px solid var(--color-line);
   border-radius: var(--radius-xl);
+
+  &[data-shape="wide"] {
+    aspect-ratio: 16 / 9;
+  }
 
   @include bp(lg) {
     border-radius: var(--radius-2xl);
@@ -14,4 +17,10 @@
 
 .image {
   object-fit: cover;
+}
+
+.natural {
+  display: block;
+  width: 100%;
+  height: auto;
 }

@@ -17,7 +17,7 @@
 .frame {
   display: contents;
 
-  // Desktop: title and media span both columns; the main column spans the store
+  // Desktop: title, key art and media span both columns; the main column spans the store
   // row and the cards row, and the flexible last row absorbs its extra height so
   // the cards stay tucked under the store card.
   @include bp(lg) {
@@ -25,6 +25,7 @@
     display: grid;
     grid-template:
       "title title" auto
+      "art art" auto
       "media media" auto
       "main store" auto
       "main cards" 1fr
@@ -37,6 +38,7 @@
 }
 
 .title,
+.art,
 .media,
 .store,
 .main,
@@ -56,6 +58,10 @@
 
   @include bp(lg) {
     grid-area: media;
+
+    .frame[data-art="true"] & {
+      margin-top: var(--space-6);
+    }
   }
 }
 
@@ -68,8 +74,17 @@
   }
 }
 
-.store {
+// The key art, right under the title on both phones and desktop.
+.art {
   order: 3;
+
+  @include bp(lg) {
+    grid-area: art;
+  }
+}
+
+.store {
+  order: 4;
 
   @include bp(lg) {
     grid-area: store;
@@ -80,7 +95,7 @@
 .main {
   display: flex;
   flex-direction: column;
-  order: 4;
+  order: 5;
   gap: var(--space-10);
   padding-top: var(--space-3);
 
@@ -100,7 +115,7 @@
 
 // Phones: after the main column. Desktop: its own full-width row under the main column and the cards.
 .beta {
-  order: 5;
+  order: 6;
 
   @include bp(lg) {
     grid-area: beta;
@@ -109,13 +124,13 @@
 }
 
 .more {
-  order: 6;
+  order: 7;
 }
 
 .cards {
   display: flex;
   flex-direction: column;
-  order: 7;
+  order: 8;
   gap: var(--space-3);
 
   @include bp(lg) {

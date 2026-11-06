@@ -10,6 +10,7 @@ import {
   Container,
   FactList,
   FeatureList,
+  FramedPhoto,
   GameLayout,
   GameTitle,
   Heading,
@@ -107,6 +108,7 @@ export default async function GamePage({ params }: Props) {
             lead={game.blurb || undefined}
           />
         }
+        art={game.keyArt ? <FramedPhoto photo={game.keyArt} label="Key art" natural priority /> : null}
         media={game.media.length > 0 ? <MediaViewer items={game.media} title={game.name} /> : null}
         store={
           hasStore ? (

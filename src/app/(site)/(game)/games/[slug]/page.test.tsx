@@ -156,6 +156,7 @@ it("a sparse game renders its h1 with no empty headings, store card or bracket t
   }
   expect(screen.queryByText("Press kit")).toBeNull();
   expect(screen.queryByRole("region", { name: "Trailer and screenshots" })).toBeNull();
+  expect(container.querySelector('[data-slot="art"]')).toBeNull();
   expect(screen.queryByRole("complementary", { name: "Get the game" })).toBeNull();
   expect(screen.queryByText("Game details")).toBeNull();
   // Help is always there.
@@ -175,6 +176,11 @@ it("the full TerraForge game renders every block in place", async () => {
   expect(within(screen.getByRole("navigation", { name: "Breadcrumb" })).getByRole("link", { name: "Games" })).toHaveAttribute("href", "/#games");
   const titleRow = screen.getByRole("heading", { level: 1, name: "TerraForge" }).parentElement!;
   for (const chip of ["OUT NOW", "Sandbox", "Creative", "Web"]) expect(within(titleRow).getByText(chip)).toBeInTheDocument();
+
+  // Key art, right under the title
+  const art = container.querySelector('[data-slot="art"]')!;
+  expect(within(art as HTMLElement).getByAltText("TerraForge key art")).toHaveAttribute("src", full.keyArt!.src);
+  expect(art.previousElementSibling).toHaveAttribute("data-slot", "title");
 
   // Media
   expect(screen.getByRole("button", { name: "Play the TerraForge trailer" })).toBeInTheDocument();

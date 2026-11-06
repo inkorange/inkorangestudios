@@ -4,6 +4,8 @@ import styles from "./GameLayout.module.scss";
 export type GameLayoutProps = {
   /** `GameTitle`. */
   title: ReactNode;
+  /** The game's key art (`FramedPhoto`), right under the title. */
+  art?: ReactNode;
   /** `MediaViewer`. */
   media?: ReactNode;
   /** `StoreCard` (right column on desktop, under the title on phones). */
@@ -23,18 +25,23 @@ export type GameLayoutProps = {
 };
 
 /**
- * The game page body. Desktop: title and media full width, then a main column
+ * The game page body. Desktop: title, key art and media full width, then a main column
  * beside the store card and info cards, then the full-width band. Phones: one
- * column in the mockup's order (media, title, store, main column, beta, band, cards).
+ * column in the mockup's order (media, title, key art, store, main column, beta, band, cards).
  */
-export function GameLayout({ title, media, store, about, features, details, updates, beta, cards, more }: GameLayoutProps) {
+export function GameLayout({ title, art, media, store, about, features, details, updates, beta, cards, more }: GameLayoutProps) {
   const hasMain = Boolean(about || features || details || updates);
   return (
     <div className={styles.root}>
-      <div className={styles.frame} data-frame="" data-store={Boolean(store)}>
+      <div className={styles.frame} data-frame="" data-store={Boolean(store)} data-art={Boolean(art)}>
         <div className={styles.title} data-slot="title">
           {title}
         </div>
+        {art ? (
+          <div className={styles.art} data-slot="art">
+            {art}
+          </div>
+        ) : null}
         {media ? (
           <div className={styles.media} data-slot="media">
             {media}
