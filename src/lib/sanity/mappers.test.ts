@@ -141,7 +141,7 @@ describe("mapGame app icon", () => {
 
 describe("mapGame store links", () => {
   const links = { googlePlay: "https://play.google.com/store/apps/details?id=x", appStore: "https://apps.apple.com/app/id1", web: "https://play.example.com" };
-  const stores = (platforms: unknown, storeLinks: unknown) => mapGame({ slug: "s", name: "S", platforms, storeLinks })!.stores;
+  const stores = (platforms: unknown, storeLinks: unknown, status = "out-now") => mapGame({ slug: "s", name: "S", status, platforms, storeLinks })!.stores;
   it("gives one link per ticked platform, in Android, iOS, Web order", () => {
     expect(stores(["Web", "iOS", "Android"], links)).toEqual([
       { platform: "Android", href: links.googlePlay },
@@ -156,6 +156,12 @@ describe("mapGame store links", () => {
     expect(stores(["iOS"], links)).toEqual([{ platform: "iOS", href: links.appStore }]);
     expect(stores(["Android", "iOS", "Web"], { googlePlay: "  ", appStore: "http://apps.apple.com/x", web: "javascript:alert(1)" })).toEqual([]);
     expect(stores(["Android"], null)).toEqual([]);
+  });
+  it("shows links only while the game is out now or coming soon (in beta)", () => {
+    expect(stores(["iOS"], links, "coming-soon")).toEqual([{ platform: "iOS", href: links.appStore }]);
+    expect(stores(["Android", "iOS", "Web"], links, "in-development")).toEqual([]);
+    expect(stores(["Android", "iOS", "Web"], links, "announcing-soon")).toEqual([]);
+    expect(mapGame({ slug: "s", name: "S", platforms: ["iOS"], storeLinks: links })!.stores).toEqual([]);
   });
 });
 

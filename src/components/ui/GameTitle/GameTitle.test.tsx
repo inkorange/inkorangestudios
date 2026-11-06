@@ -9,24 +9,33 @@ import { GameTitle } from "./GameTitle";
 
 const crumbs = [{ label: "Games", href: "/#games" }, { label: "TerraForge" }];
 
-it("renders the breadcrumb, the h1 and the chips: status in accent, tags in outline", () => {
-  const { container } = render(<GameTitle name="TerraForge" status="out-now" tags={["Sandbox", "Creative", "Web"]} crumbs={crumbs} />);
+const tones = (list: Element | null) => [...(list?.querySelectorAll("[data-tone]") ?? [])].map((el) => [el.textContent, el.getAttribute("data-tone")]);
+const follows = (a: Node, b: Node) => Boolean(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
+
+it("renders the breadcrumb, the status chip above the h1 and the genre chips under it", () => {
+  render(<GameTitle name="TerraForge" status="out-now" tags={["Sandbox", "Creative"]} crumbs={crumbs} />);
   const trail = screen.getByRole("navigation", { name: "Breadcrumb" });
   expect(within(trail).getByRole("link", { name: "Games" })).toHaveAttribute("href", "/#games");
   expect(within(trail).getByText("TerraForge")).toHaveAttribute("aria-current", "page");
-  expect(screen.getByRole("heading", { level: 1, name: "TerraForge" })).toBeInTheDocument();
-  const chips = [...container.querySelectorAll("ul [data-tone]")].map((el) => [el.textContent, el.getAttribute("data-tone")]);
-  expect(chips).toEqual([
-    ["OUT NOW", "accent"],
+  const h1 = screen.getByRole("heading", { level: 1, name: "TerraForge" });
+  const status = screen.getByRole("list", { name: "Status and platforms" });
+  const genres = screen.getByRole("list", { name: "Genres" });
+  expect(tones(status)).toEqual([["OUT NOW", "accent"]]);
+  expect(tones(genres)).toEqual([
     ["Sandbox", "outline"],
     ["Creative", "outline"],
-    ["Web", "outline"],
   ]);
+  expect(follows(trail, status) && follows(status, h1) && follows(h1, genres)).toBe(true);
+});
+
+it("has no genre list without genres", () => {
+  render(<GameTitle name="X" status="out-now" tags={[" "]} crumbs={crumbs} />);
+  expect(screen.queryByRole("list", { name: "Genres" })).toBeNull();
 });
 
 it("drops duplicate and empty tags", () => {
-  const { container } = render(<GameTitle name="X" status="coming-soon" tags={["Web", " ", "Web", "Puzzle"]} crumbs={crumbs} />);
-  expect([...container.querySelectorAll('ul [data-tone="outline"]')].map((el) => el.textContent)).toEqual(["Web", "Puzzle"]);
+  render(<GameTitle name="X" status="coming-soon" tags={["Web", " ", "Web", "Puzzle"]} crumbs={crumbs} />);
+  expect(tones(screen.getByRole("list", { name: "Genres" })).map(([text]) => text)).toEqual(["Web", "Puzzle"]);
 });
 
 it("shows the phone lead only when given", () => {
@@ -36,11 +45,12 @@ it("shows the phone lead only when given", () => {
   expect(screen.getByText("Build planets.")).toHaveAttribute("data-lead", "phone");
 });
 
-it("shows each platform last, as an outline chip with its logo", () => {
-  const { container } = render(<GameTitle name="X" status="out-now" tags={["Puzzle"]} platforms={["Android", "iOS", "Web"]} crumbs={crumbs} />);
-  const chips = [...container.querySelectorAll('ul [data-tone="outline"]')];
-  expect(chips.map((el) => el.textContent)).toEqual(["Puzzle", "Android", "iOS", "Web"]);
-  expect(chips.map((el) => el.getAttribute("data-icon"))).toEqual(["false", "true", "true", "true"]);
+it("shows each platform after the status, above the name, as an outline chip with its logo", () => {
+  render(<GameTitle name="X" status="out-now" tags={["Puzzle"]} platforms={["Android", "iOS", "Web"]} crumbs={crumbs} />);
+  const chips = [...screen.getByRole("list", { name: "Status and platforms" }).querySelectorAll("[data-tone]")];
+  expect(chips.map((el) => el.textContent)).toEqual(["OUT NOW", "Android", "iOS", "Web"]);
+  expect(chips.slice(1).map((el) => el.getAttribute("data-icon"))).toEqual(["true", "true", "true"]);
+  expect(tones(screen.getByRole("list", { name: "Genres" }))).toEqual([["Puzzle", "outline"]]);
 });
 
 it("shows the app icon beside the name, hidden from screen readers since the name is right there", () => {
