@@ -1,6 +1,6 @@
 // Pure: loads in the Studio browser bundle and on the server. No env, no server-only imports.
 import createImageUrlBuilder from "@sanity/image-url";
-import { statusLabel, toPlatform, type GameStatus } from "@/lib/games";
+import { PLATFORMS, statusLabel, toPlatform, type GameStatus } from "@/lib/games";
 import type { EmailBlock, EmailButton, EmailChip, EmailImage, EmailSection, IssueData } from "./email/types";
 
 const IMAGE_FIELDS = "asset, crop, hotspot, alt";
@@ -122,9 +122,9 @@ function gameSection(sec: Obj, opts: { siteUrl: string; images: ImageConfig }): 
       tone: g.status === "out-now" || betaOpen ? "accent" : "outline",
     });
   }
-  for (const p of Array.isArray(g.platforms) ? g.platforms : []) {
-    const label = toPlatform(p) ?? str(p);
-    if (label) chips.push({ label, tone: "outline" });
+  const known = new Set((Array.isArray(g.platforms) ? g.platforms : []).map(toPlatform));
+  for (const label of PLATFORMS) {
+    if (known.has(label)) chips.push({ label, tone: "outline" });
   }
 
   let button = overrideButton(sec, siteUrl, "accent");

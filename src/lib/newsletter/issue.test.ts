@@ -108,6 +108,12 @@ describe("resolveIssue", () => {
         ],
       });
     });
+    it("keeps only known platforms, deduped, in canonical order", () => {
+      const s = one(gameSection({}, game({ platforms: ["iOS", "Android", "ios", "Switch"] }))) as {
+        chips: { label: string }[];
+      };
+      expect(s.chips.map((c) => c.label)).toEqual(["COMING SOON", "Android", "iOS"]);
+    });
     it("status chip is accent for out-now", () => {
       expect(one(gameSection({}, game({ status: "out-now" })))).toMatchObject({
         chips: [{ label: "OUT NOW", tone: "accent" }, expect.anything(), expect.anything()],
