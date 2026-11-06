@@ -20,19 +20,27 @@ export async function insertOnce(
   row: Record<string, unknown>,
   conflict: string,
 ): Promise<StoreResult> {
-  const { data, error } = await createServiceClient()
-    .from(table)
-    .upsert(row, { onConflict: conflict, ignoreDuplicates: true })
-    .select("id");
-  if (error) return fail(table, error.message);
-  return { ok: true, isNew: (data?.length ?? 0) > 0 };
+  try {
+    const { data, error } = await createServiceClient()
+      .from(table)
+      .upsert(row, { onConflict: conflict, ignoreDuplicates: true })
+      .select("id");
+    if (error) return fail(table, error.message);
+    return { ok: true, isNew: (data?.length ?? 0) > 0 };
+  } catch (e) {
+    return fail(table, e instanceof Error ? e.message : "unknown");
+  }
 }
 
 /** Plain insert (no uniqueness): every contact message is kept. */
 export async function insertAlways(table: string, row: Record<string, unknown>): Promise<StoreResult> {
-  const { error } = await createServiceClient().from(table).insert(row).select("id");
-  if (error) return fail(table, error.message);
-  return { ok: true, isNew: true };
+  try {
+    const { error } = await createServiceClient().from(table).insert(row);
+    if (error) return fail(table, error.message);
+    return { ok: true, isNew: true };
+  } catch (e) {
+    return fail(table, e instanceof Error ? e.message : "unknown");
+  }
 }
 
 /** First entry of x-forwarded-for, or undefined. */

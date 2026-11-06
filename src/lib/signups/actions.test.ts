@@ -8,7 +8,8 @@ const notifyOwner = vi.fn();
 const headerGet = vi.fn();
 
 vi.mock("next/headers", () => ({ headers: async () => ({ get: headerGet }) }));
-vi.mock("@/lib/supabase/server", () => ({ createServiceClient: () => ({ from }) }));
+const createServiceClient = vi.fn();
+vi.mock("@/lib/supabase/server", () => ({ createServiceClient: () => createServiceClient() }));
 vi.mock("@/lib/signups/turnstile", () => ({ verifyTurnstile: (...a: unknown[]) => verifyTurnstile(...a) }));
 vi.mock("@/lib/signups/notify", () => ({ notifyOwner: (...a: unknown[]) => notifyOwner(...a) }));
 
@@ -35,8 +36,34 @@ beforeEach(() => {
   verifyTurnstile.mockResolvedValue(true);
   notifyOwner.mockResolvedValue(undefined);
   upsert.mockReturnValue({ select: async () => ({ data: [{ id: "1" }], error: null }) });
-  insert.mockReturnValue({ select: async () => ({ data: [{ id: "1" }], error: null }) });
+  insert.mockResolvedValue({ error: null });
   from.mockReturnValue({ upsert, insert });
+  createServiceClient.mockReturnValue({ from });
+});
+
+describe("infrastructure failures", () => {
+  const cases: [string, () => Promise<unknown>][] = [
+    ["beta", () => joinBeta(idle, form({ email: "a@b.co", game: "g" }))],
+    ["newsletter", () => subscribeNewsletter(idle, form({ email: "a@b.co" }))],
+    ["launch alert", () => requestLaunchAlert(idle, form({ email: "a@b.co", game: "g", platform: "ios" }))],
+    ["contact", () => sendContactMessage(idle, form({ name: "A", email: "a@b.co", message: "hi" }))],
+  ];
+  for (const [name, run] of cases) {
+    it(`${name}: createServiceClient throwing -> error state, no notify, email not logged`, async () => {
+      createServiceClient.mockImplementation(() => {
+        throw new Error("missing env");
+      });
+      expect(await run()).toEqual(FAIL);
+      expect(notifyOwner).not.toHaveBeenCalled();
+      expect(JSON.stringify((console.error as unknown as { mock: { calls: unknown[] } }).mock.calls)).not.toContain("a@b.co");
+    });
+    it(`${name}: query rejecting -> error state, no notify`, async () => {
+      upsert.mockReturnValue({ select: async () => Promise.reject(new Error("net")) });
+      insert.mockRejectedValue(new Error("net"));
+      expect(await run()).toEqual(FAIL);
+      expect(notifyOwner).not.toHaveBeenCalled();
+    });
+  }
 });
 
 describe("joinBeta", () => {
@@ -181,7 +208,7 @@ describe("sendContactMessage", () => {
     });
   });
   it("supabase error -> error state, no notify", async () => {
-    insert.mockReturnValue({ select: async () => ({ data: null, error: { message: "x" } }) });
+    insert.mockResolvedValue({ error: { message: "x" } });
     expect(await sendContactMessage(idle, fd())).toEqual(FAIL);
     expect(notifyOwner).not.toHaveBeenCalled();
   });

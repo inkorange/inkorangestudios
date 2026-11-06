@@ -3,12 +3,12 @@
 import { notifyOwner } from "@/lib/signups/notify";
 import { verifyTurnstile } from "@/lib/signups/turnstile";
 import { insertAlways, remoteIp } from "@/lib/signups/store";
-import { validateContact } from "@/lib/signups/validate";
+import { rejection, validateContact } from "@/lib/signups/validate";
 import type { FormState } from "@/lib/signups/types";
 
 export async function sendContactMessage(_prev: FormState, fd: FormData): Promise<FormState> {
   const v = validateContact(fd);
-  if (!v.ok) return v.error === "spam" ? { status: "ok" } : { status: "error", error: v.error };
+  if (!v.ok) return rejection(v);
   const { name, email, topic, message } = v.value;
 
   const token = String(fd.get("captchaToken") ?? "");

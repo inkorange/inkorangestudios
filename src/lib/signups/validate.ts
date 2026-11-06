@@ -1,8 +1,17 @@
+import type { FormState } from "./types";
+
 export const MAX_EMAIL = 254;
 export const MAX_MESSAGE = 5000;
 export const MAX_NAME = 120;
 
-export type Validation<T> = { ok: true; value: T } | { ok: false; error: string };
+export type Validation<T> =
+  | { ok: true; value: T }
+  | { ok: false; error: string; spam?: true };
+
+/** Map a failed validation to the form state: spam looks like success, so bots learn nothing. */
+export function rejection(v: { error: string; spam?: true }): FormState {
+  return v.spam ? { status: "ok" } : { status: "error", error: v.error };
+}
 
 // Deliberately loose: something, an @, something, a dot, something. `,;<>` are
 // rejected so one value can never become several ReplyTo addresses.
@@ -11,7 +20,7 @@ const SLUG = /^[a-z0-9-]{1,64}$/;
 const TOPICS = ["general", "support", "press", "business"] as const;
 export type ContactTopic = (typeof TOPICS)[number];
 
-const SPAM: { ok: false; error: string } = { ok: false, error: "spam" };
+const SPAM: { ok: false; error: string; spam: true } = { ok: false, error: "", spam: true };
 
 /** Trim + lower-case so " Name@Gmail.com " and "name@gmail.com" are one signup. */
 export function normalizeEmail(raw: unknown): string | null {

@@ -52,7 +52,8 @@ describe("validateNewsletter", () => {
   it("treats a filled honeypot as spam", () => {
     expect(validateNewsletter(form({ email: "a@b.co", website: "http://x" }))).toEqual({
       ok: false,
-      error: "spam",
+      error: "",
+      spam: true,
     });
   });
 });
@@ -71,7 +72,8 @@ describe("validateBeta", () => {
   it("honeypot", () => {
     expect(validateBeta(form({ email: "a@b.co", game: "g", website: "x" }))).toEqual({
       ok: false,
-      error: "spam",
+      error: "",
+      spam: true,
     });
   });
 });

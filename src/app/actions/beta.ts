@@ -3,12 +3,12 @@
 import { notifyOwner } from "@/lib/signups/notify";
 import { verifyTurnstile } from "@/lib/signups/turnstile";
 import { insertOnce, remoteIp } from "@/lib/signups/store";
-import { validateBeta } from "@/lib/signups/validate";
+import { rejection, validateBeta } from "@/lib/signups/validate";
 import type { FormState } from "@/lib/signups/types";
 
 export async function joinBeta(_prev: FormState, fd: FormData): Promise<FormState> {
   const v = validateBeta(fd);
-  if (!v.ok) return v.error === "spam" ? { status: "ok" } : { status: "error", error: v.error };
+  if (!v.ok) return rejection(v);
   const { email, game, platform, source } = v.value;
 
   const token = String(fd.get("captchaToken") ?? "");
