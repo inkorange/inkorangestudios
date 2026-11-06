@@ -82,7 +82,9 @@ describe("_mixins.scss", () => {
 describe("globals.scss", () => {
   it("wraps base link rules in :where() so component classes always win", () => {
     expect(globals).toMatch(/:where\(a\)\s*\{/);
-    expect(globals).toMatch(/:where\(a\):hover\s*\{/);
+    // The pseudo-class goes inside :where() too, or the selector keeps (0,1,0) specificity.
+    expect(globals).toMatch(/:where\(a:hover\)\s*\{/);
+    expect(globals).not.toMatch(/:where\([^)]*\):[a-z]/);
     expect(globals).not.toMatch(/(^|\n|,\s*)a\s*\{/);
     expect(globals).not.toMatch(/(^|\n)a:hover/);
   });

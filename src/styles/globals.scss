@@ -62,7 +62,7 @@ h6 {
   overflow-wrap: break-word;
 }
 
-// :where() keeps these at zero specificity, so any component class wins.
+// :where() (pseudo-classes inside it too) keeps these at zero specificity, so any component class wins.
 :where(a) {
   color: var(--color-ink);
   text-decoration-thickness: 1px;
@@ -70,7 +70,7 @@ h6 {
   transition: color var(--duration-fast) var(--ease-standard);
 }
 
-:where(a):hover {
+:where(a:hover) {
   color: var(--color-link);
 }
 

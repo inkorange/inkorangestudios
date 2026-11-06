@@ -15,6 +15,7 @@ const tokens = readFileSync(tokensPath, "utf8");
 // A token is "defined" when it appears as `--name:` in tokens.scss.
 const defined = new Set([...tokens.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((m) => m[1]));
 // A token is "documented" when DESIGN.md has it alone inside backticks: `--name`.
+// Backticked anywhere in DESIGN.md counts (table, prose or list).
 const documented = new Set([...design.matchAll(/`(--[a-z0-9-]+)`/g)].map((m) => m[1]));
 
 const uiFolders = existsSync(uiDir)

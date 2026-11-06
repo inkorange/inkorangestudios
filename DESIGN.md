@@ -14,7 +14,7 @@ Where things live:
 | Path | What it holds |
 |---|---|
 | `src/styles/tokens.scss` | Every raw value: colors, fonts, sizes, radii, durations, layers. The only file allowed to hold them. |
-| `src/styles/_mixins.scss` | Sass mixins (breakpoints, focus ring, visually hidden, reduced motion). The only file allowed Sass `$variables`. |
+| `src/styles/_mixins.scss` | Sass mixins (breakpoints, focus ring, visually hidden, reduced motion). With `tokens.scss`, the only files allowed Sass `$variables` (in `tokens.scss`, only inside its helper functions). |
 | `src/styles/globals.scss` | Reset and base element styles. Imported once, by `src/app/layout.tsx`. |
 | `src/app/fonts.ts` | The three font families, loaded with `next/font/google`. |
 | `src/components/ui/<Name>/` | One folder per design-system component: `<Name>.tsx` + `<Name>.module.scss` (+ test). |
@@ -110,7 +110,7 @@ another token looks close.
 | `--color-dark-stripe` | `#2A2722` | First stripe of the dark placeholder. |
 | `--color-dark-stripe-2` | `#24211D` | Second stripe of the dark placeholder. |
 
-### Brand motif
+### Brand motif tokens
 
 | Token | Value | Use for |
 |---|---|---|
@@ -210,7 +210,7 @@ them for every margin, padding and gap.
 | `--space-3` | 12px | Button rows, spotlight rail gaps, thumbnail strips, phone grid column gap. |
 | `--space-4` | 16px | Card inner padding (small), stacked list gaps. |
 | `--space-5` | 20px | Grid column gaps, header padding-bottom, card padding. |
-| `--space-6` | 24px | Card padding, news grid gap, page gutters on desktop. |
+| `--space-6` | 24px | Card padding, news grid gap. (Page gutters use `--gutter`.) |
 | `--space-7` | 28px | Tile grid row gap, space under section headers, store card padding. |
 | `--space-8` | 32px | Column gaps in two-column sections. |
 | `--space-10` | 40px | Gaps inside the callout and footer. |
@@ -429,7 +429,7 @@ paper is about 15:1). If you introduce a new pair, check it and add it here.
 - Sections that act as landmarks get an `aria-label` ("Featured games",
   "Trailer and screenshots").
 
-### Motion
+### Reduced motion
 
 Respect `prefers-reduced-motion: reduce` (see [Motion](#motion)).
 
@@ -455,7 +455,8 @@ Config: `stylelint-config-standard-scss` plus
   `animation-duration`. Shorthands are expanded and checked. The only raw
   values allowed are `0`, `auto`, `inherit`, `initial`, `unset`, `none`,
   `transparent`, `currentColor` and `100%`. `tokens.scss` is exempt.
-- **No Sass `$variables`** outside `src/styles/_mixins.scss`. Values come from
+- **No Sass `$variables`** outside `src/styles/_mixins.scss` and
+  `src/styles/tokens.scss` (function internals only). Values come from
   CSS custom properties in `tokens.scss`, not Sass variables.
 - **No `@import`.** Use `@use`.
 - Properties the linter doesn't check still follow the spirit: if a size is a
