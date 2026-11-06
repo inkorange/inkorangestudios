@@ -32,7 +32,20 @@ export const studioSettings = defineType({
         defineField({ name: "title", title: "Title", type: "string" }),
         defineField({ name: "body", title: "Body", type: "text", rows: 3 }),
         defineField({ name: "game", title: "Game", type: "reference", to: [{ type: "studioGame" }] }),
-        defineField({ name: "platforms", title: "Platforms", type: "array", of: [{ type: "string" }] }),
+        defineField({
+          name: "platforms",
+          title: "Platforms",
+          description: "Which beta platforms the signup offers. With both, visitors pick one.",
+          type: "array",
+          of: [{ type: "string" }],
+          options: {
+            list: [
+              { title: "iOS", value: "ios" },
+              { title: "Android", value: "android" },
+            ],
+          },
+          validation: (r) => r.unique(),
+        }),
       ],
     }),
     defineField({ name: "newsletterBlurb", title: "Newsletter blurb", type: "text", rows: 2 }),

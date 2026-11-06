@@ -63,4 +63,15 @@ describe("sanity schema", () => {
     expect(image.fields!.map((f) => f.name)).toEqual(["alt", "caption"]);
     expect(image.fields!.find((f) => f.name === "caption")!.validation).toBeUndefined();
   });
+
+  it("studioSettings.betaCallout.platforms is limited to iOS and Android", () => {
+    const settings = types.find((t) => t.name === "studioSettings")!;
+    const callout = settings.fields!.find((f) => f.name === "betaCallout")!;
+    const platforms = callout.fields!.find((f) => f.name === "platforms")! as Field & { options?: { list?: { title: string; value: string }[] } };
+    expect(platforms.type).toBe("array");
+    expect(platforms.options?.list).toEqual([
+      { title: "iOS", value: "ios" },
+      { title: "Android", value: "android" },
+    ]);
+  });
 });
