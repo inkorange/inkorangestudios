@@ -872,9 +872,9 @@ Filter pills that are links, so each choice is its own URL.
 
 The friendly 404 block: "Lost in space", a line of copy and a "Back to games" button.
 
-- **Use for:** the two not-found pages: `src/app/not-found.tsx` (unknown URLs; renders in the root layout only, so it passes `logo`) and `src/app/(site)/not-found.tsx` (`notFound()` from a missing game or post; renders under the site header, so no logo).
-- **Don't use for:** empty lists (use a short `Text` line) or error pages.
-- **Props / variants:** `logo` (default false): adds the `Logo` linking home. `Display` `h1` size `m`, `lead` text in `--color-ink-2`, an accent `Button` to `/#games`, all over `GuideLines` in a narrow `Section`.
+- **Use for:** the two not-found pages: `src/app/not-found.tsx` (unknown URLs; renders in the root layout only, so it passes `logo`) and `src/app/(site)/not-found.tsx` (`notFound()` from a missing game or post; renders under the site header, so no logo). Also the error page `src/app/error.tsx`, with `logo`, the title "Something went wrong" and a "Try again" button that calls Next's `retry()`. (`src/app/global-error.tsx`, for a failing root layout, is plain HTML: it renders without global styles.)
+- **Don't use for:** empty lists (use a short `Text` line).
+- **Props / variants:** `logo` (default false): adds the `Logo` linking home. `title` (default "Lost in space"), `message` (default the 404 line) and `action` (default an accent `Button` to `/#games`). `Display` `h1` size `m`, `lead` text in `--color-ink-2`, all over `GuideLines` in a narrow `Section`.
 - **Accessibility:** owns the page's `h1`; the pages wrap it in `<main>`. Next adds `noindex` to not-found responses.
 
 ### DesignGallery
@@ -935,8 +935,14 @@ How to put a page together from the parts above.
   facts, features, release date) is empty, its block and its heading don't
   render. Missing art shows the hatched `Placeholder`. Never show bracketed
   text like `[PRICE]`.
-- **Empty states** (no games, no news, Sanity unreachable) render a short
-  message in the system's style, never a crash or a blank section.
+- **Empty states** (no games, no news) render a short message in the
+  system's style, never a crash or a blank section. Sanity unreachable while
+  `next build` prerenders (`NEXT_PHASE=phase-production-build`) counts as
+  empty, so the build still succeeds. At runtime a Sanity failure is rethrown
+  instead (`src/lib/sanity/content.ts`): ISR keeps serving the last good page,
+  and a URL with nothing cached shows `src/app/error.tsx` ("Something went
+  wrong" + "Try again"), never an empty site or a false 404. A production
+  build without `NEXT_PUBLIC_SANITY_PROJECT_ID` fails loudly.
 - **Phone layouts** follow the phone mockups: hamburger + dark menu sheet; the
   hero becomes a stacked card with dots; the game grid is two columns; news
   becomes a horizontal scroller; the game page reorders to media → title and

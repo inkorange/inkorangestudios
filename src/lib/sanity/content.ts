@@ -1,5 +1,6 @@
 import "server-only";
 import { cache } from "react";
+import { publicEnv } from "@/lib/env";
 import {
   FAQS_QUERY,
   FEATURED_QUERY,
@@ -24,11 +25,31 @@ const TAGS = {
   settings: ["studioSettings", "studioGame"],
 };
 
-/** Runs a content read; logs once and returns the empty value on any failure. */
+const isTest = () => process.env.NODE_ENV === "test" || Boolean(process.env.VITEST);
+
+/*
+ * Errors are swallowed only while `next build` prerenders (and in tests), so an
+ * empty or unreachable dataset still builds: pages render their empty states
+ * (Review Focus 4). At runtime (ISR revalidation, on-demand pages, `next dev`)
+ * they are rethrown: Next keeps serving the last good page instead of caching
+ * an empty site or a 404, and a request with nothing cached shows src/app/error.tsx.
+ */
+const swallowErrors = () => process.env.NEXT_PHASE === "phase-production-build" || isTest();
+
+/** A production build or server without a Sanity project would publish an empty site: refuse. */
+function assertConfigured() {
+  if (!publicEnv.sanityProjectId && process.env.NODE_ENV === "production" && !isTest()) {
+    throw new Error("NEXT_PUBLIC_SANITY_PROJECT_ID is not set; refusing to build or serve the site without its content.");
+  }
+}
+
+/** Runs a content read. During the build (and tests) a failure logs once and returns the empty value; at runtime it throws. */
 async function safely<T>(name: string, empty: T, run: () => Promise<T>): Promise<T> {
+  assertConfigured();
   try {
     return await run();
   } catch (err) {
+    if (!swallowErrors()) throw err;
     console.error(`[content] ${name} failed`, err);
     return empty;
   }

@@ -2,8 +2,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const fetchMock = vi.hoisted(() => vi.fn());
 vi.mock("./client", () => ({ sanityFetch: fetchMock }));
+const env = vi.hoisted(() => ({ sanityProjectId: "abc123", sanityDataset: "production" }));
 vi.mock("@/lib/env", () => ({
-  publicEnv: { sanityProjectId: "abc123", sanityDataset: "production" },
+  publicEnv: env,
   readServerEnv: () => ({}),
 }));
 
@@ -20,9 +21,76 @@ afterEach(() => {
   errorSpy.mockRestore();
 });
 
-describe("when sanity is unreachable", () => {
+const everyRead: [string, () => Promise<unknown>][] = [
+  ["getGames", () => getGames()],
+  ["getFeatured", () => getFeatured()],
+  ["getGame", () => getGame("x")],
+  ["getGameSlugs", () => getGameSlugs()],
+  ["getPosts", () => getPosts()],
+  ["getPost", () => getPost("x")],
+  ["getLegalPage", () => getLegalPage("privacy")],
+  ["getFaqs", () => getFaqs()],
+  ["getSettings", () => getSettings()],
+];
+
+/** Leave the test environment: no VITEST flag, the given NODE_ENV and build phase. */
+function outsideTests(nodeEnv: "production" | "development", phase?: string) {
+  vi.stubEnv("VITEST", "");
+  vi.stubEnv("NODE_ENV", nodeEnv);
+  vi.stubEnv("NEXT_PHASE", phase ?? "");
+}
+
+describe("at runtime (not the build), a Sanity failure is rethrown so ISR keeps the last good page", () => {
   beforeEach(() => {
     fetchMock.mockRejectedValue(new Error("boom"));
+  });
+  afterEach(() => vi.unstubAllEnvs());
+
+  it.each([["production"], ["development"]] as const)("%s server: every read rethrows", async (nodeEnv) => {
+    outsideTests(nodeEnv);
+    for (const [name, run] of everyRead) {
+      await expect(run(), name).rejects.toThrow("boom");
+    }
+  });
+});
+
+describe("during next build (NEXT_PHASE=phase-production-build)", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    env.sanityProjectId = "abc123";
+  });
+
+  it("swallows fetch errors: empty content renders empty states (Review Focus 4)", async () => {
+    outsideTests("production", "phase-production-build");
+    fetchMock.mockRejectedValue(new Error("boom"));
+    expect(await getGames()).toEqual([]);
+    expect(await getGame("x")).toBeNull();
+    expect(await getSettings()).toEqual(defaults);
+    expect(errorSpy).toHaveBeenCalledTimes(3);
+  });
+
+  it("fails loudly when NEXT_PUBLIC_SANITY_PROJECT_ID is missing in a production build", async () => {
+    outsideTests("production", "phase-production-build");
+    env.sanityProjectId = "";
+    for (const [name, run] of everyRead) {
+      await expect(run(), name).rejects.toThrow(/NEXT_PUBLIC_SANITY_PROJECT_ID/);
+    }
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("in tests, when sanity is unreachable", () => {
+  beforeEach(() => {
+    fetchMock.mockRejectedValue(new Error("boom"));
+  });
+  afterEach(() => {
+    env.sanityProjectId = "abc123";
+  });
+
+  it("a missing project id is not fatal", async () => {
+    env.sanityProjectId = "";
+    fetchMock.mockRejectedValueOnce(new Error("NEXT_PUBLIC_SANITY_PROJECT_ID is not set"));
+    expect(await getGames()).toEqual([]);
   });
 
   it("returns empty values and logs once per call", async () => {

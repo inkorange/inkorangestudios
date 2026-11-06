@@ -20,3 +20,11 @@ it("adds the logo linking home when there is no site header", () => {
   render(<NotFoundMessage logo />);
   expect(screen.getByRole("link", { name: "inkOrange Studios" })).toHaveAttribute("href", "/");
 });
+
+it("takes a custom title, message and action (the error page)", () => {
+  render(<NotFoundMessage title="Something went wrong" message="Try again soon." action={<button type="button">Try again</button>} />);
+  expect(screen.getByRole("heading", { level: 1, name: "Something went wrong" })).toBeInTheDocument();
+  expect(screen.getByText("Try again soon.")).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument();
+  expect(screen.queryByRole("link", { name: "Back to games" })).toBeNull();
+});
