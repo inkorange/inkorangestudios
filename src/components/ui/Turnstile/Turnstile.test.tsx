@@ -1,7 +1,7 @@
-import { act, render, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 
-type Opts = { sitekey: string; callback: (t: string) => void; "response-field"?: boolean };
+type Opts = { sitekey: string; callback: (t: string) => void; "error-callback"?: () => void; "response-field"?: boolean };
 const SRC = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
 
 function mockRequired(required: boolean) {
@@ -106,4 +106,35 @@ it("reports token readiness", async () => {
   expect(onTokenChange).toHaveBeenLastCalledWith(false);
   act(() => opts[0].callback("tok"));
   expect(onTokenChange).toHaveBeenLastCalledWith(true);
+});
+
+const LOAD_ERROR = "We couldn't load the human check. Please refresh or try again later.";
+
+it("shows an error message when the script fails to load", async () => {
+  mockRequired(true);
+  const { Turnstile } = await import("./Turnstile");
+  render(<Turnstile />);
+  expect(screen.queryByRole("alert")).toBeNull();
+  act(() => { document.querySelector(`script[src="${SRC}"]`)!.dispatchEvent(new Event("error")); });
+  expect(await screen.findByRole("alert")).toHaveTextContent(LOAD_ERROR);
+});
+
+it("shows the error when the script loads but the API is missing", async () => {
+  mockRequired(true);
+  const { Turnstile } = await import("./Turnstile");
+  render(<Turnstile />);
+  act(() => { document.querySelector(`script[src="${SRC}"]`)!.dispatchEvent(new Event("load")); });
+  expect(await screen.findByRole("alert")).toHaveTextContent(LOAD_ERROR);
+});
+
+it("shows the error when the widget errors, and clears it once a token arrives", async () => {
+  mockRequired(true);
+  const { opts } = stubApi();
+  const { Turnstile } = await import("./Turnstile");
+  render(<Turnstile />);
+  await waitFor(() => expect(opts).toHaveLength(1));
+  act(() => opts[0]["error-callback"]?.());
+  expect(screen.getByRole("alert")).toHaveTextContent(LOAD_ERROR);
+  act(() => opts[0].callback("tok"));
+  expect(screen.queryByRole("alert")).toBeNull();
 });

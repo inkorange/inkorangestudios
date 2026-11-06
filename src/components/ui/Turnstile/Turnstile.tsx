@@ -3,7 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { publicEnv } from "@/lib/env-public";
 import { CAPTCHA_WIDGET } from "@/lib/signups/captchaEnabled";
+import { FormMessage } from "../FormMessage/FormMessage";
 import styles from "./Turnstile.module.scss";
+
+const LOAD_ERROR = "We couldn't load the human check. Please refresh or try again later.";
 
 type TurnstileApi = {
   render: (
@@ -27,21 +30,31 @@ function api(): TurnstileApi | undefined {
   return (window as unknown as { turnstile?: TurnstileApi }).turnstile;
 }
 
+let loading: Promise<void> | null = null;
+
+/** Loads api.js once for every widget on the page. Rejects (and lets a later mount retry) if it fails. */
 function ensureScript(): Promise<void> {
   if (api()) return Promise.resolve();
-  return new Promise((resolve) => {
-    const existing = document.querySelector(`script[src="${SRC}"]`);
-    if (existing) {
-      existing.addEventListener("load", () => resolve(), { once: true });
-      return;
+  if (loading) return loading;
+  loading = new Promise<void>((resolve, reject) => {
+    let s = document.querySelector<HTMLScriptElement>(`script[src="${SRC}"]`);
+    if (!s) {
+      s = document.createElement("script");
+      s.src = SRC;
+      s.async = true;
+      s.defer = true;
+      document.head.appendChild(s);
     }
-    const s = document.createElement("script");
-    s.src = SRC;
-    s.async = true;
-    s.defer = true;
-    s.onload = () => resolve();
-    document.head.appendChild(s);
+    const script = s;
+    const fail = () => {
+      loading = null;
+      script.remove();
+      reject(new Error("Turnstile script failed to load"));
+    };
+    script.addEventListener("load", () => (api() ? resolve() : fail()), { once: true });
+    script.addEventListener("error", fail, { once: true });
   });
+  return loading;
 }
 
 /** True when a widget will render, i.e. a token must be earned before submit. */
@@ -65,23 +78,36 @@ export function Turnstile({ resetKey, onTokenChange }: TurnstileProps) {
   const ref = useRef<HTMLDivElement>(null);
   const widgetId = useRef<string | null>(null);
   const [token, setToken] = useState("");
+  // The script or the widget failed: say so instead of leaving submit silently disabled.
+  const [failed, setFailed] = useState(false);
   const siteKey = CAPTCHA_WIDGET ? publicEnv.turnstileSiteKey : undefined;
 
   useEffect(() => {
     if (!siteKey || !ref.current) return;
     let cancelled = false;
-    void ensureScript().then(() => {
-      const t = api();
-      if (cancelled || !t || !ref.current || widgetId.current) return;
-      widgetId.current = t.render(ref.current, {
-        sitekey: siteKey,
-        "refresh-expired": "auto",
-        "response-field": false,
-        callback: (value) => setToken(value),
-        "expired-callback": () => setToken(""),
-        "error-callback": () => setToken(""),
-      });
-    });
+    ensureScript().then(
+      () => {
+        const t = api();
+        if (cancelled || !t || !ref.current || widgetId.current) return;
+        widgetId.current = t.render(ref.current, {
+          sitekey: siteKey,
+          "refresh-expired": "auto",
+          "response-field": false,
+          callback: (value) => {
+            setFailed(false);
+            setToken(value);
+          },
+          "expired-callback": () => setToken(""),
+          "error-callback": () => {
+            setToken("");
+            setFailed(true);
+          },
+        });
+      },
+      () => {
+        if (!cancelled) setFailed(true);
+      },
+    );
     return () => {
       cancelled = true;
       const t = api();
@@ -117,6 +143,7 @@ export function Turnstile({ resetKey, onTokenChange }: TurnstileProps) {
     <div className={styles.root}>
       <div ref={ref} />
       <input type="hidden" name="captchaToken" value={token} />
+      {failed ? <FormMessage status="error">{LOAD_ERROR}</FormMessage> : null}
     </div>
   );
 }

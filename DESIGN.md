@@ -549,7 +549,7 @@ The Cloudflare human check, invisible to the layout when off.
 - **Use for:** inside any public form that posts to a server action (`EmailSignupForm` includes it).
 - **Don't use for:** pages with no form.
 - **Props / variants:** `resetKey` (change it after each submit result to renew the single-use token). Loads `api.js?render=explicit` and writes the token into a hidden `captchaToken` input so `FormData` carries it. Site key from `publicEnv.turnstileSiteKey`, imported from the zod-free `src/lib/env-public.ts` (client components must not import `src/lib/env.ts`; `tests/enforcement/client-bundle.test.ts` checks it).
-- **Accessibility:** renders nothing when `CAPTCHA_WIDGET` is false (`next dev`, tests, no site key). Cloudflare's widget supplies its own labelling.
+- **Accessibility:** renders nothing when `CAPTCHA_WIDGET` is false (`next dev`, tests, no site key). Cloudflare's widget supplies its own labelling. If `api.js` fails to load (or loads without the API) or the widget reports an error, an error `FormMessage` says "We couldn't load the human check. Please refresh or try again later." instead of leaving submit silently disabled; it clears when a token arrives.
 - **Keys:** the server verifies tokens only when both `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` are set (`CAPTCHA_REQUIRED` in `src/lib/signups/turnstile.ts`). With neither, the check is off. With exactly one (outside `next dev`) the server logs one error and rejects every submission (fails closed); the widget still renders if the site key is set.
 
 ### SectionHeader
