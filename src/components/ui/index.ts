@@ -78,3 +78,7 @@ export { StoreCard } from "./StoreCard/StoreCard";
 export type { StoreCardProps } from "./StoreCard/StoreCard";
 export { StickyPlayBar } from "./StickyPlayBar/StickyPlayBar";
 export type { StickyPlayBarProps } from "./StickyPlayBar/StickyPlayBar";
+export { ShowcaseHero } from "./ShowcaseHero/ShowcaseHero";
+export type { ShowcaseHeroProps } from "./ShowcaseHero/ShowcaseHero";
+export { SpotlightRail } from "./SpotlightRail/SpotlightRail";
+export type { SpotlightRailProps } from "./SpotlightRail/SpotlightRail";

@@ -695,10 +695,28 @@ A floating ink pill with the game name and a "Play now" button, phone only.
 - **Props / variants:** `title`, `meta` (for example `Free · Web`), `action` (`{ label, href }`). Sits on `--z-sticky` with the system's one shadow. It overlaps the last `--sticky-bar-space` of the page, so give the page or footer `padding-bottom: var(--sticky-bar-space)` below `lg`.
 - **Accessibility:** an `aside` named "{title} quick play". The action is a real link at least `--tap-min` tall with the accent-on-ink focus ring. Only the pill takes pointer events, so it never blocks content beside it.
 
+### ShowcaseHero
+
+The big dark featured-games carousel at the top of the home page.
+
+- **Use for:** the home page's featured games (`Featured[]`), once per page.
+- **Don't use for:** a game page's media (`MediaViewer`) or anything that moves on its own. There is no autoplay, ever.
+- **Props / variants:** `games`. Radius `--radius-3xl` and 640px tall from `lg`: chips, `Display` xl name, blurb, accent CTA plus "Game details", prev/next and a mono `01 / 03` counter, art on the right. Below `lg` it is a stacked card: 300px art with the status chip, then mono genre and platform, name, blurb, full-width buttons and prev / dots / next (the active dot is `--space-7` wide, accent). One game shows a static slide with no controls and no rail; none renders nothing. Art uses `next/image` (`priority` on the first slide only); missing art shows the dark `Placeholder`. It also renders `SpotlightRail`.
+- **Accessibility:** a `section` with `aria-roledescription="carousel"` named "Featured games"; the slide is a group `aria-roledescription="slide"` named "1 of 3". A visually hidden `aria-live="polite"` region announces the game name after a change (not on first render). Left and right arrow keys move while focus is inside. Dots are buttons named "Show {name}" with `aria-current`, at least `--tap-min` square around an 8px mark.
+
+### SpotlightRail
+
+The row of selectable game cards under the hero, desktop only.
+
+- **Use for:** inside `ShowcaseHero`.
+- **Don't use for:** general game lists (`GameTile`).
+- **Props / variants:** `games`, `activeIndex`, `onPick(index)`. Each card has a 56px thumb, the name and "genre · status". The active card has the card background and an ink border. Hidden below `lg`.
+- **Accessibility:** buttons; the active one has `aria-current="true"`. The thumb is decorative.
+
 Still coming, in this order (names may change as they are built):
 
 - **Game page (coming):** ShareTitle (not yet specified).
-- **Home (coming):** ShowcaseHero (carousel), SpotlightRail, GameGrid.
+- **Home (coming):** GameGrid.
 - **Other pages (coming):** LegalEmpty, FaqList, DesignGallery.
 
 Form components that talk to the server (newsletter, beta, launch alert,

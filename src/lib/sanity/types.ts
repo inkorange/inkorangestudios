@@ -1,3 +1,5 @@
+import type { GameStatus } from "@/lib/games";
+
 export type ImageRef = { src: string; alt: string; width: number; height: number } | null;
 
 export type PostKind = "update" | "announcement" | "devlog" | "patch-notes";
@@ -16,3 +18,15 @@ export function postKindLabel(kind: PostKind): string {
 export type Media =
   | { kind: "trailer"; label: string; poster: ImageRef; url: string; duration?: string }
   | { kind: "image"; label: string; image: ImageRef };
+
+export type Featured = {
+  slug: string;
+  name: string;
+  status: GameStatus;
+  genre: string;
+  platformLabel: string;
+  blurb: string;
+  art: ImageRef;
+  cta: { label: string; href: string };
+  detailHref: string;
+};

@@ -1,0 +1,34 @@
+import Image from "next/image";
+import { statusLabel } from "@/lib/games";
+import type { Featured } from "@/lib/sanity/types";
+import styles from "./SpotlightRail.module.scss";
+
+export type SpotlightRailProps = {
+  games: Featured[];
+  activeIndex: number;
+  onPick: (index: number) => void;
+};
+
+export function SpotlightRail({ games, activeIndex, onPick }: SpotlightRailProps) {
+  return (
+    <div className={styles.root}>
+      {games.map((game, i) => (
+        <button
+          key={game.slug}
+          type="button"
+          className={styles.item}
+          aria-current={i === activeIndex ? "true" : undefined}
+          onClick={() => onPick(i)}
+        >
+          <span className={styles.thumb} aria-hidden="true">
+            {game.art ? <Image className={styles.image} src={game.art.src} alt="" width={game.art.width} height={game.art.height} sizes="56px" /> : null}
+          </span>
+          <span className={styles.text}>
+            <span className={styles.name}>{game.name}</span>
+            <span className={styles.meta}>{`${game.genre} · ${statusLabel(game.status)}`}</span>
+          </span>
+        </button>
+      ))}
+    </div>
+  );
+}
