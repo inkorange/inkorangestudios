@@ -1004,8 +1004,14 @@ Respect `prefers-reduced-motion: reduce` (see [Motion](#motion)).
 
 These rules are checked automatically by `npm run lint` (ESLint, then
 Stylelint on `src/**/*.scss`) and `npm test`. Run both (and
-`npm run typecheck`) before every commit; CI runs them too. A failing check is
-a bug in the change, not in the rule. Config lives in `stylelint.config.mjs`
+`npm run typecheck`) before every commit. They also gate every deploy:
+`npm run build` runs `prebuild` first (regenerate `tokens.json`, then
+`npm run lint`, then `npm test`), so a lint or test failure fails the Vercel
+build, and `next build` itself type-checks. GitHub Actions
+(`.github/workflows/ci.yml`, Node 24) runs `npm ci`, lint, tests and
+`next build` on every push and pull request, with no secrets (tests stub
+their env; the build uses a placeholder Sanity project id and so builds the
+empty-content site). A failing check is a bug in the change, not in the rule. Config lives in `stylelint.config.mjs`
 and `eslint.config.mjs`; `tests/enforcement/stylelint.test.ts` and
 `eslint.test.ts` prove each rule with fixtures.
 

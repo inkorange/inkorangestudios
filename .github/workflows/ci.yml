@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      # No secrets needed: lint is static, and the tests stub every env var
+      # themselves (vitest.setup.ts unsets the .env.example names).
+      - run: npm run lint
+      - run: npm test
+
+      # `next build` directly: lint and tests already ran above (`npm run build`
+      # would repeat them in prebuild; tokens.json staleness is checked by
+      # pretest). No secrets: a placeholder public Sanity project id satisfies
+      # the "project id required in production builds" guard, its reads fail,
+      # and the build-phase fallback renders empty states. So this proves the
+      # site builds with no content (Review Focus 4); Vercel builds the real one.
+      # Server-only keys (Supabase, Postmark, Turnstile secret) are read at
+      # request time, never at build.
+      - name: next build (no secrets)
+        run: npx next build
+        env:
+          NEXT_PUBLIC_SANITY_PROJECT_ID: ciplaceholder
+          NEXT_PUBLIC_SANITY_DATASET: production
+          NEXT_PUBLIC_SITE_URL: https://inkorangestudios.com
+          NEXT_TELEMETRY_DISABLED: "1"

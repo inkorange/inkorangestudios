@@ -9,7 +9,7 @@ Work top to bottom. Env var names all come from `.env.example`.
 - [ ] Point DNS at Vercel as the dashboard instructs; wait for the certificate.
 - [ ] Add every env var below to Vercel (Production and Preview). Preview deploys share the production secrets, and Turnstile will not pass on random preview hostnames unless you add them (section 5).
   - [ ] `NEXT_PUBLIC_SITE_URL` = `https://inkorangestudios.com`
-  - [ ] `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET` (same project and dataset as the portfolio)
+  - [ ] `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET` (same project and dataset as the portfolio). Required: a production build without the project id fails on purpose.
   - [ ] `SANITY_API_TOKEN`: optional, not used by the site (content reads are unauthenticated). Do not put an Editor token in Vercel.
   - [ ] `SANITY_REVALIDATE_SECRET` (a long random string; see section 3)
   - [ ] `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
@@ -17,7 +17,8 @@ Work top to bottom. Env var names all come from `.env.example`.
   - [ ] `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` (set both; see section 5)
   - [ ] `NEXT_PUBLIC_GTM_ID` (Google Tag Manager container id; it only loads after a visitor accepts cookies)
   - `SANITY_WRITE_TOKEN` is only for seeding on your machine. Do not put it in Vercel.
-- [ ] Deploy, then open the production URL and click through every page.
+- [ ] Deploy, then open the production URL and click through every page. Every build runs `npm run lint` and `npm test` first (`prebuild`), so a failing check stops the deploy; read the Vercel build log if it does.
+- [ ] On GitHub, the CI workflow (`.github/workflows/ci.yml`) runs lint, tests and a build on every push and pull request. It needs no secrets. Optionally make it a required check for `main` (Settings, Branches).
 
 ## 2. Seed the starting content
 
