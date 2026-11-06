@@ -62,19 +62,5 @@ export function readRevalidateSecret(): string | undefined {
   return clean(process.env.SANITY_REVALIDATE_SECRET);
 }
 
-export type PublicEnv = {
-  siteUrl: string;
-  sanityProjectId: string;
-  sanityDataset: string;
-  turnstileSiteKey?: string;
-  gtmId?: string;
-};
-
-/** Public values. Literal `process.env.NEXT_PUBLIC_*` access so Next can inline them. */
-export const publicEnv: PublicEnv = {
-  siteUrl: clean(process.env.NEXT_PUBLIC_SITE_URL) ?? "https://inkorangestudios.com",
-  sanityProjectId: clean(process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) ?? "",
-  sanityDataset: clean(process.env.NEXT_PUBLIC_SANITY_DATASET) ?? "production",
-  turnstileSiteKey: clean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY),
-  gtmId: clean(process.env.NEXT_PUBLIC_GTM_ID),
-};
+// Public values live in a zod-free module so client components can import them; re-exported for server code.
+export { publicEnv, type PublicEnv } from "./env-public";

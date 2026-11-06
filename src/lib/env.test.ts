@@ -42,3 +42,22 @@ describe("env", () => {
     expect(env.SANITY_API_TOKEN).toBeUndefined();
   });
 });
+
+describe("env-public", () => {
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("is the same publicEnv that env.ts re-exports for server code", async () => {
+    vi.resetModules();
+    const [server, pub] = await Promise.all([import("./env"), import("./env-public")]);
+    expect(server.publicEnv).toBe(pub.publicEnv);
+  });
+
+  it("trims and drops blank public values", async () => {
+    vi.resetModules();
+    vi.stubEnv("NEXT_PUBLIC_TURNSTILE_SITE_KEY", "  ");
+    vi.stubEnv("NEXT_PUBLIC_GTM_ID", " GTM-X ");
+    const { publicEnv } = await import("./env-public");
+    expect(publicEnv.turnstileSiteKey).toBeUndefined();
+    expect(publicEnv.gtmId).toBe("GTM-X");
+  });
+});

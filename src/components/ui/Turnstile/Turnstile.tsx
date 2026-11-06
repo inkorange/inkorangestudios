@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { publicEnv } from "@/lib/env";
+import { publicEnv } from "@/lib/env-public";
 import { CAPTCHA_REQUIRED } from "@/lib/signups/captchaEnabled";
 import styles from "./Turnstile.module.scss";
 

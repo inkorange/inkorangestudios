@@ -548,7 +548,7 @@ The Cloudflare human check, invisible to the layout when off.
 
 - **Use for:** inside any public form that posts to a server action (`EmailSignupForm` includes it).
 - **Don't use for:** pages with no form.
-- **Props / variants:** `resetKey` (change it after each submit result to renew the single-use token). Loads `api.js?render=explicit` and writes the token into a hidden `captchaToken` input so `FormData` carries it. Site key from `publicEnv.turnstileSiteKey`.
+- **Props / variants:** `resetKey` (change it after each submit result to renew the single-use token). Loads `api.js?render=explicit` and writes the token into a hidden `captchaToken` input so `FormData` carries it. Site key from `publicEnv.turnstileSiteKey`, imported from the zod-free `src/lib/env-public.ts` (client components must not import `src/lib/env.ts`; `tests/enforcement/client-bundle.test.ts` checks it).
 - **Accessibility:** renders nothing when `CAPTCHA_REQUIRED` is false (`next dev`, tests, no keys). Cloudflare's widget supplies its own labelling.
 
 ### SectionHeader

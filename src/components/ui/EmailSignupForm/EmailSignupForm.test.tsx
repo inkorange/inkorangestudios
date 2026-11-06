@@ -55,7 +55,7 @@ it("disables submit while pending", async () => {
 it("holds submit until the human check has produced a token", async () => {
   vi.resetModules();
   vi.doMock("@/lib/signups/captchaEnabled", () => ({ CAPTCHA_REQUIRED: true }));
-  vi.doMock("@/lib/env", () => ({ publicEnv: { turnstileSiteKey: "site-key" } }));
+  vi.doMock("@/lib/env-public", () => ({ publicEnv: { turnstileSiteKey: "site-key" } }));
   let callback: (t: string) => void = () => {};
   (window as unknown as { turnstile: unknown }).turnstile = {
     render: (_el: HTMLElement, o: { callback: (t: string) => void }) => { callback = o.callback; return "w1"; },
@@ -71,7 +71,7 @@ it("holds submit until the human check has produced a token", async () => {
   await vi.waitFor(() => expect(callback).not.toBe(undefined));
   await vi.waitFor(() => { act(() => callback("tok")); expect(screen.getByRole("button", { name: "Subscribe" })).toBeEnabled(); });
   vi.doUnmock("@/lib/signups/captchaEnabled");
-  vi.doUnmock("@/lib/env");
+  vi.doUnmock("@/lib/env-public");
   delete (window as unknown as { turnstile?: unknown }).turnstile;
 });
 

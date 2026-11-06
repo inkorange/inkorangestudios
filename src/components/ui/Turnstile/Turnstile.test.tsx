@@ -6,7 +6,7 @@ const SRC = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explic
 
 function mockRequired(required: boolean) {
   vi.doMock("@/lib/signups/captchaEnabled", () => ({ CAPTCHA_REQUIRED: required }));
-  vi.doMock("@/lib/env", () => ({ publicEnv: { turnstileSiteKey: "site-key" } }));
+  vi.doMock("@/lib/env-public", () => ({ publicEnv: { turnstileSiteKey: "site-key" } }));
 }
 function stubApi() {
   const opts: Opts[] = [];
@@ -27,7 +27,7 @@ const tokens = (c: HTMLElement) =>
 beforeEach(() => vi.resetModules());
 afterEach(() => {
   vi.doUnmock("@/lib/signups/captchaEnabled");
-  vi.doUnmock("@/lib/env");
+  vi.doUnmock("@/lib/env-public");
   delete (window as unknown as { turnstile?: unknown }).turnstile;
   document.head.querySelectorAll("script").forEach((s) => s.remove());
 });
