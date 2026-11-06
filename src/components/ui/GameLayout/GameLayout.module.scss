@@ -27,7 +27,8 @@
       "title title" auto
       "media media" auto
       "main store" auto
-      "main cards" 1fr / minmax(0, 7fr) minmax(0, 4fr);
+      "main cards" 1fr
+      "beta beta" auto / minmax(0, 7fr) minmax(0, 4fr);
     column-gap: var(--space-14);
     max-width: var(--content-max);
     margin: 0 auto;
@@ -39,7 +40,8 @@
 .media,
 .store,
 .main,
-.cards {
+.cards,
+.beta {
   padding-right: var(--gutter);
   padding-left: var(--gutter);
 
@@ -96,14 +98,24 @@
   }
 }
 
-.more {
+// Phones: after the main column. Desktop: its own full-width row under the main column and the cards.
+.beta {
   order: 5;
+
+  @include bp(lg) {
+    grid-area: beta;
+    margin-top: var(--space-16);
+  }
+}
+
+.more {
+  order: 6;
 }
 
 .cards {
   display: flex;
   flex-direction: column;
-  order: 6;
+  order: 7;
   gap: var(--space-3);
 
   @include bp(lg) {

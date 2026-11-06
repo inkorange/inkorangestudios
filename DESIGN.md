@@ -633,9 +633,9 @@ A small sand card with a title, a line of copy and an action link.
 
 The big accent band with a mono eyebrow, a Display title, body copy and an action slot.
 
-- **Use for:** the one beta / recruiting callout per page.
+- **Use for:** the one beta / recruiting callout per page: the home page beta signup, and on a game page its tester signup or the "Testing is now closed." notice.
 - **Don't use for:** several per page, or small notices (use `FormMessage` or `InfoCard`).
-- **Props / variants:** `eyebrow` (optional, hidden when empty), `title`, `body` (optional, hidden when empty), `action` (a node, usually a `Button variant="ink"` or an `EmailSignupForm tone="on-accent"`), `paint` (watercolor on the right half at `--wash-opacity`, fading in from the left so it has no hard edge).
+- **Props / variants:** `eyebrow` (optional, hidden when empty), `title`, `body` (optional, hidden when empty), `action` (optional; a node, usually a `Button variant="ink"` or an `EmailSignupForm tone="on-accent"`; left out, the band is a notice and renders no action wrapper), `paint` (watercolor on the right half at `--wash-opacity`, fading in from the left so it has no hard edge).
 - **Radius:** `--radius-2xl` below `md`, `--radius-3xl` from `md`.
 - **Accessibility:** all text is `--color-ink` on the accent. The wash is decorative, low opacity and sits behind the content; do not raise its opacity.
 
@@ -798,8 +798,8 @@ The game page body: named slots placed for desktop and reordered for phones.
 
 - **Use for:** `/games/[slug]` only.
 - **Don't use for:** other two-column pages (compose `Section`, `Container` and `Grid`).
-- **Props / variants:** slots `title`, `media`, `store`, `about`, `features`, `details`, `updates`, `cards`, `more`; any slot left out renders nothing (and an empty main column renders no wrapper). From `lg`: a grid inside the `--content-max` column with `title` and `media` full width, then the main column (`about`, `features`, `updates`, `--space-16` apart) beside a 4/11 aside with `store` and, under it, `cards` (`--space-14` column gap, `--space-18` above the columns, `--space-24` below). The main column spans both aside rows and the last row is flexible, so the cards stay tucked under the store card however long the main column runs. `details` is hidden from `lg` (the store card shows the facts there). `more` sits outside the content column so it can be a full-width band. Below `lg`: one column in the phone mockup's order (media, title, store, about, features, details, updates, more, cards); the frame becomes `display: contents`, each slot carries the `--gutter`, and `order` arranges them.
-- **Accessibility:** the DOM order is the desktop order (title, media, store, main column, cards, band). On phones only two adjacent pairs swap visually (media above the title, the band above the cards), so focus order stays close to reading order. Wrappers are plain `div`s; headings come from the slots.
+- **Props / variants:** slots `title`, `media`, `store`, `about`, `features`, `details`, `updates`, `cards`, `beta`, `more`; any slot left out renders nothing (and an empty main column renders no wrapper). From `lg`: a grid inside the `--content-max` column with `title` and `media` full width, then the main column (`about`, `features`, `updates`, `--space-16` apart) beside a 4/11 aside with `store` and, under it, `cards` (`--space-14` column gap, `--space-18` above the columns, `--space-24` below). The main column spans both aside rows and the last row is flexible, so the cards stay tucked under the store card however long the main column runs. `details` is hidden from `lg` (the store card shows the facts there). `beta` (the game's beta tester `CalloutBand`) is a full-width row inside the content column, under both columns, `--space-16` below them. `more` sits outside the content column so it can be a full-width band. Below `lg`: one column in the phone mockup's order (media, title, store, about, features, details, updates, beta, more, cards); the frame becomes `display: contents`, each slot carries the `--gutter`, and `order` arranges them.
+- **Accessibility:** the DOM order is the desktop order (title, media, store, main column, cards, beta, band). On phones only two adjacent pairs swap visually (media above the title, the band above the cards), so focus order stays close to reading order. Wrappers are plain `div`s; headings come from the slots.
 
 ### MoreGames
 

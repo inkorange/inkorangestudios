@@ -18,6 +18,7 @@ const game: Game = {
   priceLabel: null,
   primaryCta: null,
   notify: null,
+  beta: null,
   pressKitUrl: null,
   featured: false,
 };

@@ -5,6 +5,7 @@ import type {
   Faq,
   Featured,
   Game,
+  GameBeta,
   GameSummary,
   ImageRef,
   LegalPage,
@@ -107,9 +108,18 @@ const gameShape = lenient({
   priceLabel: str,
   primaryCta: obj,
   notifyPlatform: obj,
+  betaTesting: obj,
   pressKitUrl: str,
   featured: bool,
 });
+
+/** "yes" opens the signup, "closed" shows the closed notice; "no", unset or anything else shows nothing. */
+function mapBeta(o: Record<string, unknown> | null): GameBeta | null {
+  const copy = { title: clean(o?.title), body: clean(o?.body) };
+  if (o?.signup === "yes") return { state: "open", platforms: strList.parse(o.platforms), ...copy };
+  if (o?.signup === "closed") return { state: "closed", ...copy };
+  return null;
+}
 
 function mapMedia(trailer: Record<string, unknown> | null, screenshots: unknown[]): Media[] {
   const media: Media[] = [];
@@ -160,6 +170,7 @@ export function mapGame(raw: unknown): Game | null {
     priceLabel: d.priceLabel,
     primaryCta: ctaLabel && ctaHref ? { label: ctaLabel, href: ctaHref } : null,
     notify: d.notifyPlatform?.enabled === true && notifyPlatform ? { platform: notifyPlatform } : null,
+    beta: mapBeta(d.betaTesting),
     pressKitUrl: d.pressKitUrl,
     featured: d.featured,
   };
@@ -258,7 +269,9 @@ export function mapSettings(raw: unknown): SiteSettings {
   const title = clean(callout?.title);
   const body = clean(callout?.body);
   const platforms = strList.parse(callout?.platforms);
-  const betaCallout = callout && (eyebrow || title || body) ? { eyebrow, title, body, game: slugName(callout.game), platforms } : null;
+  // A game whose testing has closed no longer recruits from the home page either.
+  const closed = obj.parse(callout?.game)?.betaSignup === "closed";
+  const betaCallout = callout && !closed && (eyebrow || title || body) ? { eyebrow, title, body, game: slugName(callout.game), platforms } : null;
 
   return {
     supportEmail: d.supportEmail,

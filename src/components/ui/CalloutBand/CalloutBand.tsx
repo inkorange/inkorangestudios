@@ -7,7 +7,8 @@ export type CalloutBandProps = {
   eyebrow?: string | null;
   title: string;
   body?: string | null;
-  action: ReactNode;
+  /** Usually a form or a button; leave out for a notice with nothing to do. */
+  action?: ReactNode;
   /** Watercolor wash along the right edge, kept subtle so ink text keeps its contrast. */
   paint?: boolean;
 };
@@ -20,7 +21,7 @@ export function CalloutBand({ eyebrow, title, body, action, paint = false }: Cal
         <Display size="m">{title}</Display>
         {body ? <p className={styles.body}>{body}</p> : null}
       </div>
-      <div className={styles.action}>{action}</div>
+      {action ? <div className={styles.action}>{action}</div> : null}
     </section>
   );
 }

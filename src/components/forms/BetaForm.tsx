@@ -3,16 +3,17 @@
 import { useState } from "react";
 import { joinBeta } from "@/app/actions/beta";
 import { EmailSignupForm, Select } from "@/components/ui";
+import { betaPlatformLabel } from "@/lib/games";
 import type { FormState } from "@/lib/signups/types";
 
 export type BetaFormProps = {
   game: string;
   platforms: string[];
+  /** Where the signup happened, named in the owner's email: the home page "callout" or a "game-page". */
+  source?: "callout" | "game-page";
 };
 
-const PLATFORM_LABELS: Record<string, string> = { ios: "iOS", android: "Android" };
-
-export function BetaForm({ game, platforms }: BetaFormProps) {
+export function BetaForm({ game, platforms, source = "callout" }: BetaFormProps) {
   // React resets the form after each submit: remember the choice and remount the select per result.
   const [platform, setPlatform] = useState(platforms[0] ?? "");
   const [attempt, setAttempt] = useState(0);
@@ -22,7 +23,7 @@ export function BetaForm({ game, platforms }: BetaFormProps) {
     return result;
   };
   const choose = platforms.length > 1;
-  const hidden: Record<string, string> = { game, source: "callout" };
+  const hidden: Record<string, string> = { game, source };
   if (!choose && platforms[0]) hidden.platform = platforms[0];
 
   return (
@@ -42,7 +43,7 @@ export function BetaForm({ game, platforms }: BetaFormProps) {
             hideLabel
             name="platform"
             tone="on-accent"
-            options={platforms.map((p) => ({ value: p, label: PLATFORM_LABELS[p] ?? p }))}
+            options={platforms.map((p) => ({ value: p, label: betaPlatformLabel(p) }))}
             defaultValue={platform}
             onChange={setPlatform}
           />

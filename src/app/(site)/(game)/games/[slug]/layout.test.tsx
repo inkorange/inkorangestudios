@@ -30,6 +30,7 @@ const game: Game = {
   priceLabel: "Free",
   primaryCta: { label: "Play in browser", href: "https://www.terraforgeworlds.com" },
   notify: null,
+  beta: null,
   pressKitUrl: null,
   featured: false,
 };

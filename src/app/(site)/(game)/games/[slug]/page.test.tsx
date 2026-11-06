@@ -11,6 +11,7 @@ const content = vi.hoisted(() => ({
 }));
 vi.mock("@/lib/sanity/content", () => content);
 vi.mock("@/app/actions/launchAlert", () => ({ requestLaunchAlert: vi.fn() }));
+vi.mock("@/app/actions/beta", () => ({ joinBeta: vi.fn() }));
 const navigation = vi.hoisted(() => ({
   notFound: vi.fn(() => {
     throw new Error("NEXT_NOT_FOUND");
@@ -69,6 +70,7 @@ const full: Game = {
   priceLabel: "Free",
   primaryCta: { label: "Play in browser", href: "https://www.terraforgeworlds.com" },
   notify: { platform: "Android" },
+  beta: null,
   pressKitUrl: "https://inkorangestudios.com/press/terraforge.zip",
   featured: true,
 };
@@ -231,4 +233,55 @@ it("the full TerraForge game renders every block in place", async () => {
   });
 
   expect(visibleText(container)).not.toContain("[");
+});
+
+describe("beta tester band", () => {
+  const renderWith = async (game: Game) => {
+    content.getGame.mockResolvedValue(game);
+    content.getPosts.mockResolvedValue([]);
+    content.getGames.mockResolvedValue([]);
+    return render(await GamePage(params(game.slug)));
+  };
+  const band = () => screen.queryByText(/NOW RECRUITING TESTERS|BETA TESTING/)?.closest("section") ?? null;
+
+  it("shows nothing when the signup is No", async () => {
+    await renderWith({ ...full, beta: null });
+    expect(band()).toBeNull();
+    expect(screen.queryByRole("button", { name: "Join the beta" })).toBeNull();
+  });
+
+  it("Yes shows the signup for this game, tagged as from the game page", async () => {
+    await renderWith({ ...full, beta: { state: "open", platforms: ["ios", "android"], title: null, body: null } });
+    const b = band()!;
+    expect(within(b).getByText("Play TerraForge before anyone else.")).toBeInTheDocument();
+    expect(within(b).getByText("Join the beta and help shape the game before launch.")).toBeInTheDocument();
+    expect(within(b).getByRole("button", { name: "Join the beta" })).toBeInTheDocument();
+    expect(within(b).getByRole("combobox", { name: "Platform" })).toHaveTextContent("iOS");
+    expect(b.querySelector('input[name="game"]')).toHaveValue("terraforge");
+    expect(b.querySelector('input[name="source"]')).toHaveValue("game-page");
+  });
+
+  it("uses the Studio's title and body when set", async () => {
+    await renderWith({ ...full, beta: { state: "open", platforms: ["android"], title: "Test it first", body: "Android only." } });
+    const b = band()!;
+    expect(within(b).getByText("Test it first")).toBeInTheDocument();
+    expect(within(b).getByText("Android only.")).toBeInTheDocument();
+    expect(b.querySelector('input[name="platform"]')).toHaveValue("android");
+  });
+
+  it("Closed says testing is over and links to the game, with no form", async () => {
+    await renderWith({ ...full, beta: { state: "closed", title: null, body: null } });
+    const b = band()!;
+    expect(within(b).getByText("Testing is now closed.")).toBeInTheDocument();
+    expect(within(b).getByText("Thanks to everyone who helped test TerraForge. General release is open.")).toBeInTheDocument();
+    expect(within(b).getByRole("link", { name: "Play in browser" })).toHaveAttribute("href", "https://www.terraforgeworlds.com");
+    expect(within(b).queryByRole("textbox")).toBeNull();
+  });
+
+  it("Closed without a call to action is just the notice", async () => {
+    await renderWith({ ...full, primaryCta: null, beta: { state: "closed", title: null, body: null } });
+    const b = band()!;
+    expect(within(b).getByText("Testing is now closed.")).toBeInTheDocument();
+    expect(within(b).queryByRole("link")).toBeNull();
+  });
 });

@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { BetaForm } from "@/components/forms/BetaForm";
 import { LaunchAlertForm } from "@/components/forms/LaunchAlertForm";
 import { JsonLd } from "@/components/site/JsonLd";
 import {
   Accordion,
+  Button,
+  CalloutBand,
   Container,
   FactList,
   FeatureList,
@@ -25,6 +28,7 @@ import { publicEnv } from "@/lib/env";
 import { videoGameJsonLd } from "@/lib/jsonLd";
 import { splitLead } from "@/lib/portableText";
 import { getGame, getGames, getGameSlugs, getPosts } from "@/lib/sanity/content";
+import type { Game } from "@/lib/sanity/types";
 import { notFoundMetadata, pageMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
@@ -46,6 +50,37 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     path: `/games/${game.slug}`,
     image: game.keyArt,
   });
+}
+
+/** The beta tester band: the signup while testing is open, a closed notice once it ends. */
+function BetaBand({ game }: { game: Game }) {
+  const beta = game.beta;
+  if (!beta) return null;
+  if (beta.state === "open") {
+    return (
+      <CalloutBand
+        eyebrow="NOW RECRUITING TESTERS"
+        title={beta.title ?? `Play ${game.name} before anyone else.`}
+        body={beta.body ?? "Join the beta and help shape the game before launch."}
+        action={<BetaForm game={game.slug} platforms={beta.platforms} source="game-page" />}
+      />
+    );
+  }
+  const cta = game.primaryCta;
+  return (
+    <CalloutBand
+      eyebrow="BETA TESTING"
+      title={beta.title ?? "Testing is now closed."}
+      body={beta.body ?? `Thanks to everyone who helped test ${game.name}. General release is open.`}
+      action={
+        cta ? (
+          <Button variant="ink" size="l" href={cta.href} external={/^https?:/.test(cta.href)}>
+            {cta.label}
+          </Button>
+        ) : undefined
+      }
+    />
+  );
 }
 
 export default async function GamePage({ params }: Props) {
@@ -130,6 +165,7 @@ export default async function GamePage({ params }: Props) {
             </>
           ) : null
         }
+        beta={game.beta ? <BetaBand game={game} /> : null}
         cards={
           <>
             {game.pressKitUrl ? (

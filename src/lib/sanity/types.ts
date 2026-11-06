@@ -42,6 +42,14 @@ export type Featured = {
 
 export type Cta = { label: string; href: string };
 
+/**
+ * The game page's beta tester band. "open" shows the signup form; "closed" says testing is over
+ * and general release is open. Titles and bodies are the Studio's overrides (null: use the default).
+ */
+export type GameBeta =
+  | { state: "open"; platforms: string[]; title: string | null; body: string | null }
+  | { state: "closed"; title: string | null; body: string | null };
+
 export type Game = {
   slug: string;
   name: string;
@@ -58,6 +66,8 @@ export type Game = {
   priceLabel: string | null;
   primaryCta: Cta | null;
   notify: { platform: string } | null;
+  /** Null when the Studio's "Tester signup" is No (or unset). */
+  beta: GameBeta | null;
   pressKitUrl: string | null;
   featured: boolean;
 };
