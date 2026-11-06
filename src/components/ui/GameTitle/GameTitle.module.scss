@@ -51,6 +51,9 @@
   flex: none;
   width: var(--app-icon-size);
   height: var(--app-icon-size);
+
+  // Up a touch, so it sits level with the top row of letters by eye.
+  margin-top: calc(var(--app-icon-nudge) * -1);
   border-radius: var(--radius-app-icon);
 }
 
