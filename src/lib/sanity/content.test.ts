@@ -64,7 +64,7 @@ describe("with data", () => {
     const games = await getGames();
     expect(games.map((g) => g.slug)).toEqual(["a"]);
     const [query, , tags] = fetchMock.mock.calls[0];
-    expect(query).toContain("sortOrder asc, name asc");
+    expect(query).toContain("coalesce(sortOrder, 9999) asc, name asc");
     expect(tags).toEqual(["studioGame"]);
   });
 
@@ -72,7 +72,7 @@ describe("with data", () => {
     fetchMock.mockResolvedValue([{ slug: "a", name: "A", genres: ["Sim"] }]);
     const f = await getFeatured();
     expect(f[0]).toMatchObject({ genre: "SIM", detailHref: "/games/a" });
-    expect(fetchMock.mock.calls[0][0]).toContain("featuredOrder asc");
+    expect(fetchMock.mock.calls[0][0]).toContain("coalesce(featuredOrder, 9999) asc");
   });
 
   it("getGame passes the slug param; getGameSlugs filters blanks", async () => {

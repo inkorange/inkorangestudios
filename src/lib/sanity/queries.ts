@@ -23,11 +23,11 @@ const GAME_FIELDS = `
   pressKitUrl,
   featured`;
 
-const GAME_ORDER = `order(sortOrder asc, name asc)`;
+const GAME_ORDER = `order(coalesce(sortOrder, 9999) asc, name asc)`;
 
 export const GAMES_QUERY = `*[_type == "studioGame" && defined(slug.current)] | ${GAME_ORDER}{${GAME_FIELDS}}`;
 
-export const FEATURED_QUERY = `*[_type == "studioGame" && featured == true && defined(slug.current)] | order(featuredOrder asc, name asc){${GAME_FIELDS}}`;
+export const FEATURED_QUERY = `*[_type == "studioGame" && featured == true && defined(slug.current)] | order(coalesce(featuredOrder, 9999) asc, name asc){${GAME_FIELDS}}`;
 
 export const GAME_QUERY = `*[_type == "studioGame" && slug.current == $slug][0]{${GAME_FIELDS}}`;
 
@@ -45,7 +45,9 @@ const POST_SUMMARY_FIELDS = `
 /** `limit` must be a positive integer; it is inlined because GROQ slices cannot take null. */
 export function postsQuery(opts: { limit?: number; filterByGame: boolean }): string {
   const filter = opts.filterByGame ? ` && game->slug.current == $gameSlug` : "";
-  const limit = opts.limit && opts.limit > 0 ? `[0...${Math.floor(opts.limit)}]` : "";
+  const limit = opts.limit !== undefined && Number.isFinite(opts.limit) && Math.floor(opts.limit) >= 1
+      ? `[0...${Math.floor(opts.limit)}]`
+      : "";
   return `*[_type == "studioPost" && defined(slug.current)${filter}] | order(date desc)${limit}{${POST_SUMMARY_FIELDS}}`;
 }
 
