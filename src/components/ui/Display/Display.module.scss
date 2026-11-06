@@ -42,9 +42,12 @@
   color: var(--color-ink);
   box-decoration-break: clone;
 
+  // The stroke image carries its own orange and fades to transparent, so the
+  // flat accent fill is dropped; stretching keeps the fade across each line.
   &[data-paint="true"] {
-    background-image: var(--texture-watercolor);
-    background-size: cover;
-    background-position: center;
+    background-color: transparent;
+    background-image: var(--texture-watercolor-stroke);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
   }
 }
