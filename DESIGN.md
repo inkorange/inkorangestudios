@@ -116,7 +116,7 @@ another token looks close.
 | Token | Value | Use for |
 |---|---|---|
 | `--color-guide` | `#B9C4CC` | The faint blue-grey construction lines (`GuideLines`). Decorative only. |
-| `--color-shadow` | ink at 25% | The one shadow in the system: under the floating sticky play bar. |
+| `--color-shadow` | ink at 25% | The one shadow in the system, for floating layers only: the sticky play bar and the open `Select` menu. |
 | `--texture-watercolor` | `url(/brand/watercolor-wash.webp)` | The watercolor wash for the callout band. Layer it over `--color-accent` so the band still reads if the image fails to load. |
 | `--texture-watercolor-stroke` | `url(/brand/watercolor-stroke.webp)` | The painted highlight behind the one highlighted phrase: solid `--color-accent` on the left that blotches and fades to paper on the right. Transparent where it fades, so it sits directly on the paper with no accent fill underneath. |
 
@@ -323,6 +323,7 @@ Rules:
 | `--z-sticky` | 10 | The sticky play bar on phone game pages. |
 | `--z-header` | 20 | The site header. |
 | `--z-sheet` | 30 | The phone menu sheet. |
+| `--z-popover` | 35 | The open `Select` menu (in a portal on `<body>`): above the header and sheet, below the cookie banner. |
 | `--z-banner` | 40 | The cookie consent banner, which sits above everything. |
 
 Use only these. `--z-behind` never escapes its component (the parent sets `isolation: isolate`). If a component needs a new layer, add a token.
@@ -450,7 +451,7 @@ The inline SVG icon set, drawn from the mockups.
 
 - **Use for:** icons inside `Button` and `IconButton`, or beside a label.
 - **Don't use for:** art or logos; icon-only controls need `IconButton` for the label.
-- **Props / variants:** `name`: `chevron-left`, `chevron-right`, `play`, `globe`, `phone`, `menu`, `close`, `arrow-right`; `size`: 16, 18 (default), 20, 26, 34. Uses `currentColor`.
+- **Props / variants:** `name`: `chevron-left`, `chevron-right`, `play`, `globe`, `phone`, `menu`, `close`, `arrow-right`, `check`; `size`: 16, 18 (default), 20, 26, 34. Uses `currentColor`.
 - **Accessibility:** always `aria-hidden`; the control around it carries the name.
 
 ### Button
@@ -509,12 +510,13 @@ A multi-line input with its label.
 
 ### Select
 
-A pill-shaped native dropdown with its label, styled like `TextField`.
+A pill-shaped dropdown with its label, styled like `TextField`, with a custom menu (no native `select`).
 
 - **Use for:** choosing one of a short fixed list (beta platform, contact topic).
 - **Don't use for:** free text (use `TextField`) or long lists and filtering (use `FilterPills`).
-- **Props / variants:** `label` (required); `hideLabel`; `name`; `options` (`{ value, label }[]`); `defaultValue`; `onChange`; `tone`: `on-light` (card fill, default), `on-card` and `on-dark` (paper fill; `on-dark` adds an accent focus ring), `on-accent` (same as `on-light`). It is uncontrolled and has no empty option, so there is no `required`. React 19 resets a form after its action: remember the choice via `onChange` and remount the field with a `key` tied to the action result, seeding `defaultValue` with the remembered value. The chevron is an `Icon`, and the control is at least `--control-height`.
-- **Accessibility:** a native `select` with a real linked `label`, so keyboard and screen readers work as built in. The chevron is decorative and ignores pointer events. Visible focus ring.
+- **Props / variants:** `label` (required); `hideLabel`; `name`; `options` (`{ value, label }[]`); `defaultValue` (an unknown value falls back to the first option); `onChange(value: string)`; `tone`: `on-light` (card fill, default), `on-card` and `on-dark` (paper fill; `on-dark` adds an accent focus ring), `on-accent` (same as `on-light`). It is uncontrolled and has no empty option, so there is no `required`. The value is submitted through a hidden input named `name`, so it works in plain forms and server actions. React 19 resets a form after its action: remember the choice via `onChange` and remount the field with a `key` tied to the action result, seeding `defaultValue` with the remembered value.
+- **Menu:** a `--color-card` panel (paper on `on-card` / `on-dark`) with a `--color-line` border, `--radius-xl` corners and the system shadow. Options are at least `--tap-min` tall with `--radius-m` corners; the highlighted option gets `--color-sand`, and the chosen one is semibold with a `check` icon. It renders in a portal on `<body>` at `--z-popover`, so clipped parents (the callout band) can't cut it off. It drops down when the whole menu fits below the field, drops up when it only fits above, and otherwise takes the roomier side and scrolls; it stays inside the viewport horizontally and follows the field on scroll and resize. It fades in over `--duration-fast` (off under reduced motion). The chevron turns to point up while open.
+- **Accessibility:** the WAI-ARIA select-only combobox pattern: a focusable `combobox` labelled by the visible (or visually hidden) label, `aria-expanded`, and a `listbox` of `option`s with `aria-selected`; the highlighted option is announced through `aria-activedescendant`, so focus never leaves the field. Keys: Down, Up, Enter, Space, Home and End open it; in the menu, Up/Down/Home/End/PageUp/PageDown move, Enter or Space picks, Escape closes without changing, Tab picks the highlighted option and moves on, and typing jumps to the first label starting with those letters. Enter never submits the form. Clicking outside closes it. Visible focus ring.
 
 ### Honeypot
 
@@ -631,7 +633,7 @@ The big accent band with a mono eyebrow, a Display title, body copy and an actio
 
 - **Use for:** the one beta / recruiting callout per page.
 - **Don't use for:** several per page, or small notices (use `FormMessage` or `InfoCard`).
-- **Props / variants:** `eyebrow` (optional, hidden when empty), `title`, `body` (optional, hidden when empty), `action` (a node, usually a `Button variant="ink"` or an `EmailSignupForm tone="on-accent"`), `paint` (watercolor along the right edge at `--wash-opacity`).
+- **Props / variants:** `eyebrow` (optional, hidden when empty), `title`, `body` (optional, hidden when empty), `action` (a node, usually a `Button variant="ink"` or an `EmailSignupForm tone="on-accent"`), `paint` (watercolor on the right half at `--wash-opacity`, fading in from the left so it has no hard edge).
 - **Radius:** `--radius-2xl` below `md`, `--radius-3xl` from `md`.
 - **Accessibility:** all text is `--color-ink` on the accent. The wash is decorative, low opacity and sits behind the content; do not raise its opacity.
 

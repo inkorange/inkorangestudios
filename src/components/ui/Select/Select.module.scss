@@ -24,16 +24,20 @@
   display: flex;
 }
 
-.input {
+.trigger {
+  display: flex;
+  align-items: center;
   width: 100%;
+  min-width: 0;
   min-height: var(--control-height);
   padding: var(--space-3) var(--space-10) var(--space-3) var(--space-5);
   font-family: var(--font-sans);
   font-size: var(--text-body);
   line-height: var(--leading-normal);
   color: var(--color-ink);
+  text-align: start;
   cursor: pointer;
-  appearance: none;
+  user-select: none;
   background-color: var(--color-card);
   border: 1px solid var(--color-line);
   border-radius: var(--radius-pill);
@@ -41,6 +45,12 @@
   &:focus-visible {
     @include focus-ring;
   }
+}
+
+.value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .chevron {
@@ -54,11 +64,17 @@
 
   svg {
     transform: rotate(90deg);
+    transition: transform var(--duration-fast) var(--ease-standard);
   }
 }
 
-.root[data-tone="on-card"] .input,
-.root[data-tone="on-dark"] .input {
+.trigger[data-open="true"] + .chevron svg,
+.trigger[data-open="true"] .chevron svg {
+  transform: rotate(-90deg);
+}
+
+.root[data-tone="on-card"] .trigger,
+.root[data-tone="on-dark"] .trigger {
   background-color: var(--color-paper);
 }
 
@@ -67,11 +83,89 @@
     color: var(--color-on-dark-3);
   }
 
-  .input {
+  .trigger {
     border-color: var(--color-paper);
 
     &:focus-visible {
       outline-color: var(--color-accent);
     }
+  }
+}
+
+// The open menu lives in a portal on <body>, positioned from the trigger by Select.tsx.
+.menu {
+  position: fixed;
+  inset-block: var(--select-top) var(--select-bottom);
+  inset-inline-start: var(--select-left);
+  z-index: var(--z-popover);
+  box-sizing: border-box;
+  width: var(--select-width);
+  max-height: var(--select-max-height);
+  padding: var(--space-1);
+  margin: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+  background-color: var(--color-card);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 var(--space-2) var(--space-6) var(--color-shadow);
+  animation: menu-in var(--duration-fast) var(--ease-out);
+
+  &[data-placement="top"] {
+    animation-name: menu-in-up;
+  }
+
+  &[data-tone="on-card"],
+  &[data-tone="on-dark"] {
+    background-color: var(--color-paper);
+  }
+
+  @include reduced-motion {
+    animation: none;
+  }
+}
+
+.option {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  min-height: var(--tap-min);
+  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: var(--color-ink);
+  cursor: pointer;
+  border-radius: var(--radius-m);
+
+  &[data-active="true"] {
+    background-color: var(--color-sand);
+  }
+
+  &[aria-selected="true"] {
+    font-weight: var(--weight-semibold);
+  }
+}
+
+.check {
+  display: flex;
+  flex: none;
+  justify-content: center;
+  width: var(--space-5);
+  color: var(--color-ink);
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(calc(var(--space-1) * -1));
+  }
+}
+
+@keyframes menu-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-1));
   }
 }

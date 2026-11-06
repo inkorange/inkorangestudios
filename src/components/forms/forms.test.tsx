@@ -13,6 +13,20 @@ vi.mock("@/app/actions/beta", () => ({ joinBeta }));
 vi.mock("@/app/actions/launchAlert", () => ({ requestLaunchAlert }));
 vi.mock("@/app/actions/contact", () => ({ sendContactMessage }));
 
+/** The custom Select: open it and pick an option by its label. */
+async function choose(name: string, option: string) {
+  await userEvent.click(screen.getByRole("combobox", { name }));
+  await userEvent.click(screen.getByRole("option", { name: option }));
+}
+
+/** The custom Select's option labels, read by opening and closing the menu. */
+async function optionLabels(name: string) {
+  await userEvent.click(screen.getByRole("combobox", { name }));
+  const labels = screen.getAllByRole("option").map((o) => o.textContent);
+  await userEvent.keyboard("{Escape}");
+  return labels;
+}
+
 import { validateBeta, validateContact, validateLaunchAlert } from "@/lib/signups/validate";
 import { BetaForm } from "./BetaForm";
 import { ContactForm } from "./ContactForm";
@@ -45,10 +59,9 @@ it("BetaForm renders its submit label and sends game and source", async () => {
   expect(validateBeta(fd)).toMatchObject({ ok: true, value: { game: "terra-forge", platform: "ios", source: "callout" } });
 });
 
-it("BetaForm shows a platform select only with more than one platform", () => {
+it("BetaForm shows a platform select only with more than one platform", async () => {
   const { unmount } = render(<BetaForm game="g" platforms={["ios", "android"]} />);
-  const select = screen.getByRole("combobox", { name: "Platform" });
-  expect([...select.querySelectorAll("option")].map((o) => o.textContent)).toEqual(["iOS", "Android"]);
+  expect(await optionLabels("Platform")).toEqual(["iOS", "Android"]);
   unmount();
   render(<BetaForm game="g" platforms={["ios"]} />);
   expect(screen.queryByRole("combobox")).toBeNull();
@@ -57,12 +70,12 @@ it("BetaForm shows a platform select only with more than one platform", () => {
 it("BetaForm sends the chosen platform and keeps it after a failed submit", async () => {
   joinBeta.mockResolvedValue({ status: "error", error: "Nope" });
   render(<BetaForm game="g" platforms={["ios", "android"]} />);
-  await userEvent.selectOptions(screen.getByRole("combobox", { name: "Platform" }), "android");
+  await choose("Platform", "Android");
   await userEvent.type(screen.getByRole("textbox", { name: "Email address" }), "a@b.co");
   await userEvent.click(screen.getByRole("button", { name: "Join the beta" }));
   await screen.findByRole("alert");
   expect(joinBeta.mock.calls[0][1].get("platform")).toBe("android");
-  expect(screen.getByRole("combobox", { name: "Platform" })).toHaveValue("android");
+  expect(screen.getByRole("combobox", { name: "Platform" })).toHaveTextContent("Android");
 });
 
 it("LaunchAlertForm slugifies a display label for the server", async () => {
@@ -85,14 +98,14 @@ it("LaunchAlertForm renders Notify me and names the platform on success", async 
   expect(validateLaunchAlert(fd)).toMatchObject({ ok: true, value: { game: "g", platform: "ios" } });
 });
 
-it("ContactForm has a Send message button and a hidden honeypot", () => {
+it("ContactForm has a Send message button and a hidden honeypot", async () => {
   render(<ContactForm />);
   expect(screen.getByRole("button", { name: "Send message" })).toBeInTheDocument();
   const honeypot = document.querySelector<HTMLInputElement>('input[name="website"]')!;
   expect(honeypot).toHaveAttribute("tabindex", "-1");
   expect(honeypot).toHaveAttribute("autocomplete", "off");
   expect(honeypot.closest('[aria-hidden="true"]')).not.toBeNull();
-  expect([...screen.getByRole("combobox", { name: "Topic" }).querySelectorAll("option")].map((o) => o.textContent)).toEqual([
+  expect(await optionLabels("Topic")).toEqual([
     "General",
     "Player support",
     "Press",
@@ -104,7 +117,7 @@ it("ContactForm sends every field and replaces itself with the success copy", as
   render(<ContactForm />);
   await userEvent.type(screen.getByRole("textbox", { name: "Name" }), "Ann");
   await userEvent.type(screen.getByRole("textbox", { name: "Email" }), "a@b.co");
-  await userEvent.selectOptions(screen.getByRole("combobox", { name: "Topic" }), "press");
+  await choose("Topic", "Press");
   await userEvent.type(screen.getByRole("textbox", { name: "Message" }), "Hi there");
   await userEvent.click(screen.getByRole("button", { name: "Send message" }));
   expect(await screen.findByRole("status")).toHaveTextContent("Thanks — your message is on its way. We'll reply by email.");
@@ -125,12 +138,12 @@ it("ContactForm keeps typed values after an error", async () => {
   render(<ContactForm />);
   await userEvent.type(screen.getByRole("textbox", { name: "Name" }), "Ann");
   await userEvent.type(screen.getByRole("textbox", { name: "Email" }), "a@b.co");
-  await userEvent.selectOptions(screen.getByRole("combobox", { name: "Topic" }), "business");
+  await choose("Topic", "Business");
   await userEvent.type(screen.getByRole("textbox", { name: "Message" }), "Hi there");
   await userEvent.click(screen.getByRole("button", { name: "Send message" }));
   expect(await screen.findByRole("alert")).toHaveTextContent("Nope");
   expect(screen.getByRole("textbox", { name: "Name" })).toHaveValue("Ann");
   expect(screen.getByRole("textbox", { name: "Email" })).toHaveValue("a@b.co");
-  expect(screen.getByRole("combobox", { name: "Topic" })).toHaveValue("business");
+  expect(screen.getByRole("combobox", { name: "Topic" })).toHaveTextContent("Business");
   expect(screen.getByRole("textbox", { name: "Message" })).toHaveValue("Hi there");
 });

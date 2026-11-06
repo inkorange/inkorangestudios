@@ -44,7 +44,7 @@ export function BetaForm({ game, platforms }: BetaFormProps) {
             tone="on-accent"
             options={platforms.map((p) => ({ value: p, label: PLATFORM_LABELS[p] ?? p }))}
             defaultValue={platform}
-            onChange={(e) => setPlatform(e.target.value)}
+            onChange={setPlatform}
           />
         ) : null
       }

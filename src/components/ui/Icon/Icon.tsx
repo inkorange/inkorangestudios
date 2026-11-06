@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-export type IconName = "chevron-left" | "chevron-right" | "play" | "globe" | "phone" | "menu" | "close" | "arrow-right";
+export type IconName = "chevron-left" | "chevron-right" | "play" | "globe" | "phone" | "menu" | "close" | "arrow-right" | "check";
 export type IconSize = 16 | 18 | 20 | 26 | 34;
 
 export type IconProps = {
@@ -28,6 +28,7 @@ const paths: Record<IconName, ReactNode> = {
   menu: <path d="M4 6h16M4 12h16M4 18h16" />,
   close: <path d="M18 6 6 18M6 6l12 12" />,
   "arrow-right": <path d="M5 12h14m-7-7 7 7-7 7" />,
+  check: <path d="M20 6 9 17l-5-5" />,
 };
 
 export function Icon({ name, size = 18 }: IconProps) {

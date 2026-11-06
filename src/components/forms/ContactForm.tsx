@@ -44,7 +44,7 @@ export function ContactForm() {
           onChange={(e) => setEmail(e.target.value)}
         />
         {/* Remounted per result: React resets the form after the action, and a select keeps no value of its own. */}
-        <Select key={attempt} label="Topic" name="topic" options={TOPICS} defaultValue={topic} onChange={(e) => setTopic(e.target.value)} />
+        <Select key={attempt} label="Topic" name="topic" options={TOPICS} defaultValue={topic} onChange={setTopic} />
         <TextArea label="Message" name="message" rows={6} required value={message} onChange={(e) => setMessage(e.target.value)} />
         <Honeypot />
         <Turnstile resetKey={state} onTokenChange={setTokenReady} />
