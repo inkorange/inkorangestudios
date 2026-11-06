@@ -435,30 +435,48 @@ Respect `prefers-reduced-motion: reduce` (see [Motion](#motion)).
 
 ## Enforcement
 
-These rules are checked automatically by `npm run lint` and `npm test`. Run
-both (and `npm run typecheck`) before every commit; CI runs them too. A failing check is a bug in the change, not
-in the rule. (Stylelint and the ESLint rules below land with the enforcement
-task; until then, follow them by hand.)
+These rules are checked automatically by `npm run lint` (ESLint, then
+Stylelint on `src/**/*.scss`) and `npm test`. Run both (and
+`npm run typecheck`) before every commit; CI runs them too. A failing check is
+a bug in the change, not in the rule. Config lives in `stylelint.config.mjs`
+and `eslint.config.mjs`; `tests/enforcement/stylelint.test.ts` and
+`eslint.test.ts` prove each rule with fixtures.
 
-### Stylelint (`*.scss` in `src/`)
+**Reading an error.** Every message ends in `(see DESIGN.md#enforcement)`.
+Stylelint names the property and value, e.g. `Use a design token via var(--…)
+for "padding", not "12px"`, plus the rule name in brackets. Fix it by using the
+token from the tables above, not by disabling the rule.
+
+### Stylelint (`src/**/*.scss`)
 
 Config: `stylelint-config-standard-scss` plus
-`stylelint-declaration-strict-value`.
+`stylelint-declaration-strict-value` (rule
+`scale-unlimited/declaration-strict-value`).
 
-- **No raw colors.** Hex colors, named colors and `rgb()`/`rgba()`/`hsl()`/
-  `hsla()` are errors everywhere except `src/styles/tokens.scss`.
-- **Strict values.** These properties must use `var(--…)`: anything ending in
-  `color`, `fill`, `stroke`, `background`, `background-color`, `font-size`,
-  `font-family`, `font-weight`, `line-height`, `letter-spacing`,
-  `border-radius`, `gap`, `row-gap`, `column-gap`, every `margin*` and
-  `padding*`, `box-shadow`, `z-index`, `transition-duration` and
-  `animation-duration`. Shorthands are expanded and checked. The only raw
-  values allowed are `0`, `auto`, `inherit`, `initial`, `unset`, `none`,
-  `transparent`, `currentColor` and `100%`. `tokens.scss` is exempt.
-- **No Sass `$variables`** outside `src/styles/_mixins.scss` and
-  `src/styles/tokens.scss` (function internals only). Values come from
-  CSS custom properties in `tokens.scss`, not Sass variables.
-- **No `@import`.** Use `@use`.
+- **No raw colors** (`color-no-hex`, `color-named`, `function-disallowed-list`).
+  Hex colors, named colors and `rgb()`/`rgba()`/`hsl()`/`hsla()` are errors
+  everywhere except `src/styles/tokens.scss`. This includes `globals.scss`.
+- **Strict values** (`scale-unlimited/declaration-strict-value`). These
+  properties must use `var(--…)`: anything ending in `color`, `fill`, `stroke`,
+  `background`, `background-color`, `font-size`, `font-family`, `font-weight`,
+  `line-height`, `letter-spacing`, `border-radius`, `gap`, `row-gap`,
+  `column-gap`, every `margin*` and `padding*`, `box-shadow`, `z-index`,
+  `transition-duration` and `animation-duration`. Shorthands are expanded and
+  checked. The only raw values allowed are `0`, `auto`, `inherit`, `initial`,
+  `unset`, `none`, `transparent`, `currentColor` and `100%`. `tokens.scss` is
+  exempt. `globals.scss` needs no exemption: it passes as written.
+- **No Sass `$variables`** (`scss/dollar-variable-pattern`) outside
+  `src/styles/_mixins.scss` and `src/styles/tokens.scss` (function internals
+  only). Values come from CSS custom properties in `tokens.scss`.
+- **No `@import`** (`at-rule-disallowed-list`). Use `@use`.
+- **`tokens.scss` also skips** the stylistic color-notation and
+  keyword-case rules (`color-function-notation`, `color-function-alias-notation`,
+  `alpha-value-notation`, `value-keyword-case`), since raw values and font names
+  live there.
+- Rare, justified escapes use an inline
+  `/* stylelint-disable-next-line <rule> -- reason */`. Only two exist:
+  the negative margin and deprecated `clip` in the `visually-hidden` mixin, and
+  the vendor-prefixed `-webkit-text-size-adjust` in `globals.scss`.
 - Properties the linter doesn't check still follow the spirit: if a size is a
   design decision (a card min-width, a media height), make it a token. Plain
   geometry such as `1fr`, `aspect-ratio: 3 / 4` and 1–3px border widths is
@@ -466,18 +484,24 @@ Config: `stylelint-config-standard-scss` plus
 
 ### ESLint (`*.ts`, `*.tsx`)
 
+All selectors are `no-restricted-syntax` (plus `no-restricted-imports` for
+pages), defined once in `eslint.config.mjs` and shared between blocks.
+
 - **No inline styles.** A `style` prop is an error, with one escape hatch in
   components: an object whose keys are all CSS custom properties, e.g.
   `style={{ "--progress": "40%" }}`, so a component can pass a runtime value to
-  its own SCSS.
-- **No raw color literals** (`"#E08D00"`, `"rgb(…)"`, `"hsl(…)"`) in `src/`.
-  Test files (`*.test.ts`, `*.test.tsx`) and everything in `tests/` are exempt
-  because fixtures and token tests need literals.
-- **Pages don't style.** Files in `src/app/**` may not import `.scss` or `.css`
-  files and may not use `className` or `style` at all.
+  its own SCSS. A non-object value (`style={props.s}`) is an error.
+- **No raw color literals** (`"#E08D00"`, `"rgb(…)"`, `"hsl(…)"`) in
+  `src/**/*.{ts,tsx}`. Test files (`*.test.ts`, `*.test.tsx`) and everything in
+  `tests/` are exempt because fixtures and token tests need literals.
+- **Pages don't style.** Files in `src/app/**` may not import `*.scss` or
+  `*.css` (`no-restricted-imports`) and may not use `className` or `style` at
+  all.
 - **Exemptions:** `src/app/layout.tsx` may import `@/styles/globals.scss` and
-  may set the font-variable classes on `<html>`. `src/app/studio/**` (Sanity's
-  own UI) and `sanity.config.ts` are not checked by these rules.
+  may set `className` on `<html>` for the font variables (it still may not use
+  `style` or import any other stylesheet). `src/app/studio/**` (Sanity's own UI)
+  and `sanity.config.ts` are ignored by ESLint entirely.
+- `node_modules/`, `.next/`, `.superpowers/` and `docs/` are not linted.
 
 ### Tests (`tests/enforcement/`)
 
