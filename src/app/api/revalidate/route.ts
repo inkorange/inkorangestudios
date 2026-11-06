@@ -8,8 +8,9 @@ type WebhookBody = { _type?: unknown };
 /**
  * Sanity GROQ webhook: POST with the document as the body (projection `{_type, _id}` is enough).
  * The dataset is shared with the portfolio, so only `studio*` types revalidate; their tag is the
- * type name (see TAGS in src/lib/sanity/content.ts). "max" marks the data stale so the next visit
- * serves it once while fresh content loads in the background.
+ * type name (see TAGS in src/lib/sanity/content.ts). `{ expire: 0 }` expires the data outright, so
+ * the first visit after publishing waits for fresh content instead of being served the stale copy
+ * ("max" would show the old version once more while revalidating in the background).
  */
 export async function POST(req: NextRequest) {
   const secret = readRevalidateSecret();
@@ -29,6 +30,6 @@ export async function POST(req: NextRequest) {
   if (typeof type !== "string" || type === "") return Response.json({ message: "Missing _type" }, { status: 400 });
   if (!type.startsWith("studio")) return Response.json({ revalidated: false });
 
-  revalidateTag(type, "max");
+  revalidateTag(type, { expire: 0 });
   return Response.json({ revalidated: true, tag: type });
 }

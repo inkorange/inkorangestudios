@@ -59,7 +59,7 @@ it("revalidates the document type's tag for studio types", async () => {
   expect(res.status).toBe(200);
   expect(await res.json()).toEqual({ revalidated: true, tag: "studioGame" });
   expect(cache.revalidateTag).toHaveBeenCalledTimes(1);
-  expect(cache.revalidateTag).toHaveBeenCalledWith("studioGame", "max");
+  expect(cache.revalidateTag).toHaveBeenCalledWith("studioGame", { expire: 0 });
 });
 
 it("ignores the portfolio's types in the shared dataset", async () => {

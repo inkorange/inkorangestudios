@@ -41,7 +41,7 @@ Work top to bottom. Env var names all come from `.env.example`.
   - Filter: `_type match "studio*"`
   - Projection: `{_type, _id}`
   - Secret: the same value as `SANITY_REVALIDATE_SECRET` in Vercel
-- [ ] Publish a small edit in Studio and confirm it shows on the live site within a minute.
+- [ ] Publish a small edit in Studio, then refresh the page on the live site: the first refresh should show it (the webhook expires the cached data outright; allow a few seconds for Sanity's CDN).
 
 ## 4. Postmark (notification emails)
 
