@@ -31,6 +31,8 @@ export function ShowcaseHero({ games }: ShowcaseHeroProps) {
   // The list can shrink under a kept index (e.g. after revalidation); clamp instead of falling back.
   const current = Math.min(index, count - 1);
   const active = games[current];
+  // Phone meta line: "GENRE · PLATFORM", without a stray separator when either is empty.
+  const meta = [active.genre, active.platformLabel].filter(Boolean).join(" · ");
 
   function go(to: number) {
     const target = (to + count) % count;
@@ -82,10 +84,10 @@ export function ShowcaseHero({ games }: ShowcaseHeroProps) {
           <div className={styles.body}>
             <div className={styles.chips}>
               <Chip tone="accent">{statusLabel(active.status)}</Chip>
-              <Chip tone="outline-on-dark">{active.genre}</Chip>
-              <Chip tone="plain-on-dark">{active.platformLabel}</Chip>
+              {active.genre ? <Chip tone="outline-on-dark">{active.genre}</Chip> : null}
+              {active.platformLabel ? <Chip tone="plain-on-dark">{active.platformLabel}</Chip> : null}
             </div>
-            <p className={styles.meta}>{`${active.genre} · ${active.platformLabel}`}</p>
+            {meta ? <p className={styles.meta}>{meta}</p> : null}
             <Display as="h1" size="hero" tone="on-dark">
               {active.name}
             </Display>

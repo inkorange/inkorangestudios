@@ -167,3 +167,25 @@ it("wraps the spotlight rail in a labelled group", () => {
   const rail = screen.getByRole("group", { name: "Choose a featured game" });
   expect(rail).toContainElement(screen.getByRole("button", { name: /^Mission Control/ }));
 });
+
+it("hides an empty genre or platform: no empty chip, no stray separator", () => {
+  const { container, rerender } = render(<ShowcaseHero games={[{ ...make(1, "Solo"), genre: "", platformLabel: "WEB" }]} />);
+  expect(container.querySelector('[data-tone="outline-on-dark"]')).toBeNull();
+  expect(container.querySelector('[data-tone="plain-on-dark"]')).toHaveTextContent("WEB");
+  expect(screen.queryByText(/·/)).toBeNull();
+  expect(screen.getAllByText("WEB")).toHaveLength(2); // chip (desktop) + meta line (phone)
+
+  rerender(<ShowcaseHero games={[{ ...make(1, "Solo"), genre: "SIM", platformLabel: "" }]} />);
+  expect(container.querySelector('[data-tone="plain-on-dark"]')).toBeNull();
+  expect(screen.queryByText(/·/)).toBeNull();
+  expect(screen.getAllByText("SIM")).toHaveLength(2);
+
+  rerender(<ShowcaseHero games={[{ ...make(1, "Solo"), genre: "", platformLabel: "" }]} />);
+  expect(container.querySelector('[data-tone="outline-on-dark"], [data-tone="plain-on-dark"]')).toBeNull();
+  expect(screen.queryByText(/·/)).toBeNull();
+});
+
+it("joins genre and platform with a separator when both exist", () => {
+  render(<ShowcaseHero games={[make(1, "Solo")]} />);
+  expect(screen.getByText("SANDBOX · WEB")).toBeInTheDocument();
+});
