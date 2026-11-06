@@ -74,3 +74,26 @@ it("holds submit until the human check has produced a token", async () => {
   vi.doUnmock("@/lib/env");
   delete (window as unknown as { turnstile?: unknown }).turnstile;
 });
+
+it("renders extraFields inside the form before the submit button and sends them", async () => {
+  const action = vi.fn<(prev: FormState, data: FormData) => Promise<FormState>>(async () => ({ status: "error", error: "Nope" }));
+  render(
+    <EmailSignupForm
+      action={action}
+      label="Email address"
+      placeholder="p"
+      submitLabel="Subscribe"
+      tone="on-dark"
+      successMessage="Done"
+      extraFields={<input aria-label="Extra" name="extra" defaultValue="x1" />}
+    />,
+  );
+  const extra = screen.getByRole("textbox", { name: "Extra" });
+  const button = screen.getByRole("button", { name: "Subscribe" });
+  expect(extra.compareDocumentPosition(button) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  await userEvent.type(screen.getByRole("textbox", { name: "Email address" }), "a@b.co");
+  await userEvent.click(button);
+  await screen.findByRole("alert");
+  expect(action.mock.calls[0][1].get("extra")).toBe("x1");
+  expect(screen.getByRole("textbox", { name: "Extra" })).toBeInTheDocument();
+});

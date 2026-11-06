@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, type ReactNode } from "react";
 import type { FormState } from "@/lib/signups/types";
 import { Button } from "../Button/Button";
 import { FormMessage } from "../FormMessage/FormMessage";
@@ -17,6 +17,8 @@ export type EmailSignupFormProps = {
   layout?: "inline" | "stacked";
   hidden?: Record<string, string>;
   successMessage: string;
+  /** Extra controls rendered inside the form, before the submit button. */
+  extraFields?: ReactNode;
 };
 
 const FIELD_TONE = { "on-dark": "on-dark", "on-card": "on-card", "on-accent": "on-light" } as const;
@@ -31,6 +33,7 @@ export function EmailSignupForm({
   layout = "inline",
   hidden,
   successMessage,
+  extraFields,
 }: EmailSignupFormProps) {
   const [state, formAction, pending] = useActionState(action, { status: "idle" } as FormState);
   // Controlled so a rejected submit keeps what the visitor typed.
@@ -63,6 +66,7 @@ export function EmailSignupForm({
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
+        {extraFields}
         <Button variant={BUTTON_VARIANT[tone]} type="submit" disabled={pending || !tokenReady} block={layout === "stacked"}>
           {submitLabel}
         </Button>

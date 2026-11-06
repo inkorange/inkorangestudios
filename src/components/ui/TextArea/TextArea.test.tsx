@@ -14,3 +14,7 @@ it("links an error to the textarea", () => {
   expect(t).toHaveAttribute("aria-invalid", "true");
   expect(t).toHaveAccessibleDescription("Too short");
 });
+it("can be controlled", () => {
+  render(<TextArea label="Message" name="message" value="hello" onChange={() => {}} />);
+  expect(screen.getByRole("textbox", { name: "Message" })).toHaveValue("hello");
+});

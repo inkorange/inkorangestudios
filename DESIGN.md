@@ -494,8 +494,26 @@ A multi-line input with its label.
 
 - **Use for:** the contact message and other free text.
 - **Don't use for:** single-line values (use `TextField`).
-- **Props / variants:** `label`, `name`, `rows` (default 5), `required`, `error`.
+- **Props / variants:** `label`, `name`, `rows` (default 5), `required`, `error`; optional controlled `value` / `onChange`.
 - **Accessibility:** same label, `aria-invalid` and `aria-describedby` wiring as `TextField`. Resizes vertically only.
+
+### Select
+
+A pill-shaped native dropdown with its label, styled like `TextField`.
+
+- **Use for:** choosing one of a short fixed list (beta platform, contact topic).
+- **Don't use for:** free text (use `TextField`) or long lists and filtering (use `FilterPills`).
+- **Props / variants:** `label` (required); `hideLabel`; `name`; `options` (`{ value, label }[]`); `defaultValue`; `required`; `tone`: `on-light` (card fill, default), `on-card` and `on-dark` (paper fill; `on-dark` adds an accent focus ring), `on-accent` (same as `on-light`); optional controlled `value` / `onChange`. The chevron is an `Icon`, and the control is at least `--control-height`.
+- **Accessibility:** a native `select` with a real linked `label`, so keyboard and screen readers work as built in. The chevron is decorative and ignores pointer events. Visible focus ring.
+
+### Honeypot
+
+A hidden spam-trap input.
+
+- **Use for:** inside public forms whose server action checks the `website` field (the contact form).
+- **Don't use for:** anything a person should fill in.
+- **Props / variants:** `name` (default `website`).
+- **Accessibility:** the wrapper is `aria-hidden` and visually hidden; the input has `tabIndex={-1}` and `autoComplete="off"`, so it is skipped by keyboard and screen readers.
 
 ### FormMessage
 
@@ -512,7 +530,7 @@ An email input plus submit button bound to a server action.
 
 - **Use for:** the footer newsletter, the beta signup and the launch-alert ("Notify me") box.
 - **Don't use for:** forms with more than an email (build those from `TextField` / `TextArea`).
-- **Props / variants:** `action(prev, data)` returning a `FormState`; `label` (visually hidden); `placeholder`; `submitLabel`; `tone`: `on-dark` (footer: paper input, accent button), `on-card` (store card box: paper input, ink button), `on-accent` (callout band: card input, ink button); `layout`: `inline` (row that wraps when narrow, default) or `stacked` (phone / footer column, full-width button); `hidden` (extra fields sent with the form); `successMessage`.
+- **Props / variants:** `action(prev, data)` returning a `FormState`; `label` (visually hidden); `placeholder`; `submitLabel`; `tone`: `on-dark` (footer: paper input, accent button), `on-card` (store card box: paper input, ink button), `on-accent` (callout band: card input, ink button); `layout`: `inline` (row that wraps when narrow, default) or `stacked` (phone / footer column, full-width button); `hidden` (extra fields sent with the form); `extraFields` (controls such as a `Select`, rendered inside the form before the submit button; make them controlled if their value must survive a failed submit); `successMessage`.
 - **Accessibility:** the label stays the input's accessible name. Submit is disabled while pending. Success replaces the form with a `status` message; an error shows in an `alert` and keeps what was typed. Includes `Turnstile`, which renders only when `CAPTCHA_REQUIRED`.
 
 ### Turnstile

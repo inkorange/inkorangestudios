@@ -1,5 +1,9 @@
-import { useId } from "react";
+import { useId, type ChangeEventHandler } from "react";
 import styles from "./TextArea.module.scss";
+
+type Controlled =
+  | { value: string; onChange: ChangeEventHandler<HTMLTextAreaElement> }
+  | { value?: undefined; onChange?: undefined };
 
 export type TextAreaProps = {
   label: string;
@@ -7,9 +11,9 @@ export type TextAreaProps = {
   rows?: number;
   required?: boolean;
   error?: string;
-};
+} & Controlled;
 
-export function TextArea({ label, name, rows = 5, required, error }: TextAreaProps) {
+export function TextArea({ label, name, rows = 5, required, error, value, onChange }: TextAreaProps) {
   const id = useId();
   const errorId = `${id}-error`;
   return (
@@ -23,6 +27,8 @@ export function TextArea({ label, name, rows = 5, required, error }: TextAreaPro
         name={name}
         rows={rows}
         required={required}
+        value={value}
+        onChange={onChange}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? errorId : undefined}
       />
