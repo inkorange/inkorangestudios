@@ -633,7 +633,7 @@ Three-up (or fewer) values, each under a 3px ink rule.
 
 The pill-shaped primary navigation for desktop.
 
-- **Use for:** the five site sections (Games, Studio, News, Press, Support), from `src/lib/nav.ts`. `SiteHeader` shows it from `md` up.
+- **Use for:** the five site sections (Games, Studio, News, Press, Support), from `src/lib/nav.ts`. `SiteHeader` shows it from `lg` (1024px) up.
 - **Don't use for:** in-page filters (use `FilterPills`) or the phone menu (use the sheet in `SiteHeader`).
 - **Props / variants:** `active`: a `NavKey`; the active pill is ink with paper text.
 - **Accessibility:** a `nav` labelled "Primary"; the active link has `aria-current="page"`. Each link is at least `--tap-min` tall with a visible focus ring.
@@ -644,7 +644,7 @@ The top bar: logo, nav and the newsletter call to action.
 
 - **Use for:** the top of every page, once.
 - **Don't use for:** anything inside a page body.
-- **Props / variants:** `active` (a `NavKey`); `variant`: `default` or `game` (phone shows a "‹ Games" back link and the compact logo); `backLink` (`{ label, href }`, defaults to Games). Both layouts are in the markup and CSS switches them at `md`, so server and client markup match. Below `md` a menu button opens a dark sheet (`--z-sheet`) with Barlow 34px links and an accent newsletter button. The sheet is a client island; body scroll is not locked.
+- **Props / variants:** `active` (a `NavKey`); `variant`: `default` or `game` (phone shows a "‹ Games" back link and the compact logo); `backLink` (`{ label, href }`, defaults to Games). Both layouts are in the markup and CSS switches them at `lg`, so server and client markup match. Below `lg` a menu button opens a dark sheet (`--z-sheet`) with Barlow 34px links and an accent newsletter button. The sheet is a client island, closes if the viewport reaches `lg`, and body scroll is not locked.
 - **Accessibility:** the toggle has `aria-expanded` and `aria-controls`. Opening moves focus to the first sheet link; Escape closes and returns focus to the toggle; choosing a link closes the sheet. Focus rings on the dark sheet use the accent color.
 
 ### SiteFooter
@@ -663,7 +663,7 @@ The cookie consent sheet fixed to the bottom of the viewport.
 - **Use for:** once, in the root layout.
 - **Don't use for:** other notices (use `FormMessage` or page copy).
 - **Props / variants:** none. Shown when no choice is stored (`io-consent` in localStorage) or when "Cookie settings" is clicked. "Accept" (accent) stores `granted`; "Decline" (outline on ink) stores `denied`. `Analytics` loads Google Tag Manager only after `granted`.
-- **Accessibility:** a labelled region; it does not steal focus. Sits on `--z-banner`, above everything.
+- **Accessibility:** a labelled region; it does not steal focus. Sits on `--z-banner`, above everything. When reopened from "Cookie settings" focus moves to the banner; on first visit it does not. Consent Mode defaults (denied) come from the server component `ConsentDefaults` (`src/components/analytics/`), which the root layout renders; `Analytics` loads GTM after consent.
 
 Still coming, in this order (names may change as they are built):
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { CONSENT_OPEN_EVENT, readConsent, subscribeConsent, writeConsent, type Consent } from "@/lib/consent";
 import { Button } from "../Button/Button";
 import styles from "./ConsentBanner.module.scss";
@@ -18,6 +18,13 @@ export function ConsentBanner() {
     return () => window.removeEventListener(CONSENT_OPEN_EVENT, open);
   }, []);
 
+  const rootRef = useRef<HTMLElement>(null);
+
+  // Reopened from "Cookie settings": bring the banner into focus. First-visit display never does.
+  useEffect(() => {
+    if (reopened) rootRef.current?.focus();
+  }, [reopened]);
+
   if (stored !== null && !reopened) return null;
 
   const choose = (consent: Consent) => {
@@ -26,7 +33,7 @@ export function ConsentBanner() {
   };
 
   return (
-    <section className={styles.root} aria-label="Cookie consent">
+    <section ref={rootRef} tabIndex={-1} className={styles.root} aria-label="Cookie consent">
       <p className={styles.text}>We use cookies to understand how the site is used. You can change this anytime in Cookie settings.</p>
       <div className={styles.actions}>
         <Button variant="accent" size="s" onClick={() => choose("granted")}>

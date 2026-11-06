@@ -25,6 +25,17 @@ export function MobileMenu({ active }: { active?: NavKey }) {
     return () => document.removeEventListener("keydown", onKey);
   }, [open]);
 
+  // The sheet is hidden by CSS at the desktop breakpoint; don't leave it open behind that.
+  useEffect(() => {
+    if (!open || typeof window.matchMedia !== "function") return;
+    const query = window.matchMedia("(min-width: 64rem)");
+    const onChange = (e: { matches: boolean }) => {
+      if (e.matches) setOpen(false);
+    };
+    query.addEventListener("change", onChange);
+    return () => query.removeEventListener("change", onChange);
+  }, [open]);
+
   const close = () => setOpen(false);
 
   return (

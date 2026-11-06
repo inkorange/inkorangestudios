@@ -15,9 +15,8 @@
 
 .desktop {
   display: none;
-  flex-wrap: wrap;
 
-  @include bp(md) {
+  @include bp(lg) {
     display: flex;
   }
 }
@@ -25,7 +24,7 @@
 .phone {
   display: flex;
 
-  @include bp(md) {
+  @include bp(lg) {
     display: none;
   }
 }

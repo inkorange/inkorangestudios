@@ -16,6 +16,12 @@
   color: var(--color-on-dark);
   background-color: var(--color-ink);
   border-radius: var(--radius-2xl);
+
+  &:focus-visible {
+    @include focus-ring;
+
+    outline-color: var(--color-accent);
+  }
 }
 
 .text {

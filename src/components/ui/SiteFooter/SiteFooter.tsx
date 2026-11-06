@@ -64,7 +64,6 @@ export function SiteFooter({ newsletter, variant = "full", socialLinks, supportE
   const helpLinks: FooterLink[] = [
     { label: "Support", href: "/support" },
     ...(supportEmail ? [{ label: "Player support", href: `mailto:${supportEmail}` }] : []),
-    { label: "FAQ", href: "/faq" },
     { label: "Privacy", href: "/privacy" },
     { label: "Terms", href: "/terms" },
   ];

@@ -27,3 +27,13 @@ it("is hidden when a choice exists, and reopens on io:consent-open", () => {
   act(() => openConsent());
   expect(screen.getByRole("region", { name: "Cookie consent" })).toBeVisible();
 });
+
+it("moves focus into the banner when reopened, but not on first visit", () => {
+  const { unmount } = render(<ConsentBanner />);
+  expect(screen.getByRole("region", { name: "Cookie consent" })).not.toContainElement(document.activeElement as HTMLElement);
+  unmount();
+  localStorage.setItem("io-consent", "denied");
+  render(<ConsentBanner />);
+  act(() => openConsent());
+  expect(screen.getByRole("region", { name: "Cookie consent" })).toHaveFocus();
+});

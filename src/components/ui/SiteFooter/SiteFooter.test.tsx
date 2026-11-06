@@ -16,6 +16,11 @@ it("renders the newsletter slot and the four columns", () => {
   expect(screen.getByRole("link", { name: "Player support" })).toHaveAttribute("href", "mailto:help@example.com");
 });
 
+it("does not link to a FAQ route", () => {
+  render(<SiteFooter newsletter={null} socialLinks={[]} />);
+  expect(screen.queryByRole("link", { name: "FAQ" })).toBeNull();
+});
+
 it("hides Follow without social links and Player support without an email", () => {
   render(<SiteFooter newsletter={null} socialLinks={[]} />);
   expect(screen.queryByText("Follow")).toBeNull();

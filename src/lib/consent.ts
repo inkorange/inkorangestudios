@@ -6,21 +6,27 @@ const OPEN_EVENT = "io:consent-open";
 
 export const CONSENT_OPEN_EVENT = OPEN_EVENT;
 
+// Used when localStorage is blocked, so the choice still holds for this page view.
+let memory: Consent | null = null;
+
 export function readConsent(): Consent | null {
   if (typeof window === "undefined") return null;
   try {
     const value = window.localStorage.getItem(KEY);
-    return value === "granted" || value === "denied" ? value : null;
+    if (value === "granted" || value === "denied") return value;
+    return memory;
   } catch {
-    return null;
+    return memory;
   }
 }
 
 export function writeConsent(consent: Consent): void {
   try {
     window.localStorage.setItem(KEY, consent);
+    memory = null;
   } catch {
-    // Storage blocked: the choice still applies for this page view via the event.
+    memory = consent;
+    // Storage blocked: the in-memory copy above keeps the choice for this page view.
   }
   window.dispatchEvent(new Event(CHANGE_EVENT));
 }

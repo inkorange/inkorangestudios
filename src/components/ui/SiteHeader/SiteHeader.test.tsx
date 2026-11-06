@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, it, vi } from "vitest";
 
@@ -38,6 +38,24 @@ it("closes when a sheet link is clicked", async () => {
   await userEvent.click(screen.getByRole("button", { name: "Open menu" }));
   await userEvent.click(within(screen.getByRole("navigation", { name: "Menu" })).getByRole("link", { name: "News" }));
   expect(screen.getByRole("button", { name: "Open menu" })).toHaveAttribute("aria-expanded", "false");
+});
+
+it("closes the sheet when the viewport reaches the desktop breakpoint", async () => {
+  let listener: ((e: { matches: boolean }) => void) | undefined;
+  window.matchMedia = ((query: string) => ({
+    matches: false,
+    media: query,
+    addEventListener: (_: string, cb: (e: { matches: boolean }) => void) => {
+      listener = cb;
+    },
+    removeEventListener: () => {},
+  })) as unknown as typeof window.matchMedia;
+  render(<SiteHeader />);
+  await userEvent.click(screen.getByRole("button", { name: "Open menu" }));
+  act(() => listener?.({ matches: true }));
+  expect(screen.getByRole("button", { name: "Open menu" })).toHaveAttribute("aria-expanded", "false");
+  // @ts-expect-error restore jsdom default (no matchMedia)
+  delete window.matchMedia;
 });
 
 it("marks the active item in the desktop bar and the sheet", async () => {

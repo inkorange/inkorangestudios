@@ -32,3 +32,17 @@ it("openConsent dispatches io:consent-open", () => {
   expect(cb).toHaveBeenCalledOnce();
   window.removeEventListener("io:consent-open", cb);
 });
+
+it("keeps the choice in memory when localStorage is blocked", () => {
+  const set = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+    throw new Error("blocked");
+  });
+  const get = vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+    throw new Error("blocked");
+  });
+  writeConsent("denied");
+  expect(readConsent()).toBe("denied");
+  set.mockRestore();
+  get.mockRestore();
+  writeConsent("granted"); // storage works again: clears the in-memory copy
+});

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { display, sans, mono } from "./fonts";
+import { ConsentDefaults } from "@/components/analytics/ConsentDefaults";
 import "@/styles/globals.scss";
 
 export const metadata: Metadata = {
@@ -10,7 +11,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${display.variable} ${sans.variable} ${mono.variable}`}>
-      <body>{children}</body>
+      <body>
+        <ConsentDefaults />
+        {children}
+      </body>
     </html>
   );
 }

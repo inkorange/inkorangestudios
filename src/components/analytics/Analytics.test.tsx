@@ -5,11 +5,6 @@ import { writeConsent } from "@/lib/consent";
 vi.mock("@next/third-parties/google", () => ({
   GoogleTagManager: ({ gtmId }: { gtmId: string }) => <div data-testid="gtm" data-id={gtmId} />,
 }));
-vi.mock("next/script", () => ({
-  default: ({ id, strategy, children }: { id: string; strategy: string; children: string }) => (
-    <script id={id} data-strategy={strategy} dangerouslySetInnerHTML={{ __html: children }} />
-  ),
-}));
 
 import { Analytics } from "./Analytics";
 
@@ -25,13 +20,19 @@ it("renders nothing without a gtmId", () => {
   expect(container).toBeEmptyDOMElement();
 });
 
-it("sets denied defaults before interactive and does not load GTM without consent", () => {
-  const { container, queryByTestId } = render(<Analytics gtmId="GTM-TEST" />);
-  const script = container.querySelector("script#consent-default");
-  expect(script).toHaveAttribute("data-strategy", "beforeInteractive");
-  expect(script?.innerHTML).toContain("'consent','default'");
-  expect(script?.innerHTML).toContain("analytics_storage:'denied'");
+it("does not load GTM without consent", () => {
+  const { queryByTestId } = render(<Analytics gtmId="GTM-TEST" />);
   expect(queryByTestId("gtm")).toBeNull();
+});
+
+it("creates dataLayer and a gtag shim if the defaults script did not run", () => {
+  delete window.gtag;
+  delete (window as { dataLayer?: unknown }).dataLayer;
+  localStorage.setItem("io-consent", "denied");
+  render(<Analytics gtmId="GTM-TEST" />);
+  const layer = (window as unknown as { dataLayer: unknown[] }).dataLayer;
+  expect(layer).toHaveLength(1);
+  expect(Array.from(layer[0] as ArrayLike<unknown>).slice(0, 2)).toEqual(["consent", "update"]);
 });
 
 it("loads GTM and updates consent once granted", () => {
