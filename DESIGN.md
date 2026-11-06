@@ -850,7 +850,7 @@ A long-form page: title, meta line and rich text in the narrow column.
 
 A wide photo in a bordered, rounded frame.
 
-- **Use for:** the About page's studio photo; a news post's cover image (the post page renders it only when the post has one); a game page's key art, under the title (only when the game has key art).
+- **Use for:** the About page's studio photo; a news post's cover image (the post page renders it only when the post has one); a game page's key art, under the title (only when the game has key art and no trailer: a trailer takes its place, with the key art as its poster when it has none).
 - **Don't use for:** the home studio band (`StudioTeaser` has its own photo column) or media galleries.
 - **Props / variants:** `photo` (`ImageRef`; `null` shows the hatched `Placeholder`); `label` (placeholder text); `natural` (keep the photo's own proportions instead of cropping to 16:9; the placeholder stays 16:9); `priority` (load first, for a page's headline image). 16:9 by default, `--radius-xl` on phone and `--radius-2xl` from `lg`.
 - **Accessibility:** alt text comes from the CMS; the placeholder is decorative-grade.

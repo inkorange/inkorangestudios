@@ -177,10 +177,9 @@ it("the full TerraForge game renders every block in place", async () => {
   const titleRow = screen.getByRole("heading", { level: 1, name: "TerraForge" }).parentElement!;
   for (const chip of ["OUT NOW", "Sandbox", "Creative", "Web"]) expect(within(titleRow).getByText(chip)).toBeInTheDocument();
 
-  // Key art, right under the title
-  const art = container.querySelector('[data-slot="art"]')!;
-  expect(within(art as HTMLElement).getByAltText("TerraForge key art")).toHaveAttribute("src", full.keyArt!.src);
-  expect(art.previousElementSibling).toHaveAttribute("data-slot", "title");
+  // The trailer takes the key art's place under the title
+  expect(container.querySelector('[data-slot="art"]')).toBeNull();
+  expect(container.querySelector('[data-slot="media"]')!.previousElementSibling).toHaveAttribute("data-slot", "title");
 
   // Media
   expect(screen.getByRole("button", { name: "Play the TerraForge trailer" })).toBeInTheDocument();
@@ -239,6 +238,28 @@ it("the full TerraForge game renders every block in place", async () => {
   });
 
   expect(visibleText(container)).not.toContain("[");
+});
+
+describe("key art", () => {
+  beforeEach(() => {
+    content.getPosts.mockResolvedValue([]);
+    content.getGames.mockResolvedValue([]);
+  });
+
+  it("shows right under the title when there is no trailer, above any screenshots", async () => {
+    content.getGame.mockResolvedValue({ ...full, media: full.media.filter((m) => m.kind !== "trailer") });
+    const { container } = render(await GamePage(params("terraforge")));
+    const art = container.querySelector('[data-slot="art"]')!;
+    expect(within(art as HTMLElement).getByAltText("TerraForge key art")).toHaveAttribute("src", full.keyArt!.src);
+    expect(art.previousElementSibling).toHaveAttribute("data-slot", "title");
+    expect(art.nextElementSibling).toHaveAttribute("data-slot", "media");
+  });
+
+  it("is left out when the game has no key art", async () => {
+    content.getGame.mockResolvedValue({ ...full, keyArt: null, media: [] });
+    const { container } = render(await GamePage(params("terraforge")));
+    expect(container.querySelector('[data-slot="art"]')).toBeNull();
+  });
 });
 
 describe("beta tester band", () => {

@@ -124,12 +124,13 @@ function mapBeta(o: Record<string, unknown> | null): GameBeta | null {
   return null;
 }
 
-function mapMedia(trailer: Record<string, unknown> | null, screenshots: unknown[]): Media[] {
+/** `fallbackPoster` (the key art) stands in when the trailer has no poster of its own. */
+function mapMedia(trailer: Record<string, unknown> | null, screenshots: unknown[], fallbackPoster: ImageRef = null): Media[] {
   const media: Media[] = [];
   const url = clean(trailer?.url);
   if (trailer && url) {
     const duration = clean(trailer.duration);
-    media.push({ kind: "trailer", label: "Trailer", poster: image(trailer.poster, WIDE), url, ...(duration ? { duration } : {}) });
+    media.push({ kind: "trailer", label: "Trailer", poster: image(trailer.poster, WIDE) ?? fallbackPoster, url, ...(duration ? { duration } : {}) });
   }
   screenshots.forEach((s, i) => {
     const o = obj.parse(s);
@@ -147,6 +148,7 @@ export function mapGame(raw: unknown): Game | null {
   const ctaLabel = clean(cta?.label);
   const ctaHref = clean(cta?.url);
   const notifyPlatform = clean(d.notifyPlatform?.platform);
+  const keyArt = image(d.keyArt, WIDE);
 
   return {
     slug: d.slug,
@@ -156,9 +158,9 @@ export function mapGame(raw: unknown): Game | null {
     platforms: d.platforms,
     blurb: d.blurb ?? "",
     description: d.description,
-    keyArt: image(d.keyArt, WIDE),
+    keyArt,
     coverArt: image(d.coverArt, COVER),
-    media: mapMedia(d.trailer, d.screenshots),
+    media: mapMedia(d.trailer, d.screenshots, keyArt),
     features: d.features.flatMap((f) => {
       const o = obj.parse(f);
       const title = clean(o?.title);

@@ -91,6 +91,8 @@ export default async function GamePage({ params }: Props) {
 
   const { lead, rest } = splitLead(game.description);
   const hasAbout = Boolean(lead) || rest.length > 0;
+  // A trailer takes the key art's place under the title (the key art becomes its poster when it has none).
+  const showKeyArt = !game.media.some((m) => m.kind === "trailer");
   const hasStore = Boolean(game.priceLabel || game.primaryCta || game.notify || game.facts.length > 0);
   const others = games.filter((other) => other.slug !== game.slug);
 
@@ -108,7 +110,7 @@ export default async function GamePage({ params }: Props) {
             lead={game.blurb || undefined}
           />
         }
-        art={game.keyArt ? <FramedPhoto photo={game.keyArt} label="Key art" natural priority /> : null}
+        art={showKeyArt && game.keyArt ? <FramedPhoto photo={game.keyArt} label="Key art" natural priority /> : null}
         media={game.media.length > 0 ? <MediaViewer items={game.media} title={game.name} /> : null}
         store={
           hasStore ? (

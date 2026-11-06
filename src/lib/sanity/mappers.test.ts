@@ -53,6 +53,13 @@ describe("mapGame", () => {
     expect(g.media[2]).toMatchObject({ kind: "image", label: "Screenshot 2" });
   });
 
+  it("uses the key art as the trailer's poster when the trailer has none", () => {
+    const g = mapGame({ ...base, keyArt: img("Key art"), trailer: { url: "https://youtu.be/abc" } })!;
+    expect(g.media[0]).toMatchObject({ kind: "trailer", poster: { alt: "Key art" } });
+    const own = mapGame({ ...base, keyArt: img("Key art"), trailer: { url: "https://youtu.be/abc", poster: img("Poster") } })!;
+    expect(own.media[0]).toMatchObject({ kind: "trailer", poster: { alt: "Poster" } });
+  });
+
   it("skips a trailer without a url and screenshots without usable images", () => {
     const g = mapGame({ ...base, trailer: { poster: img() }, screenshots: [{ caption: "x" }, { image: { alt: "" } }] })!;
     expect(g.media).toEqual([]);
