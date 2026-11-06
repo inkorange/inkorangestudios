@@ -249,7 +249,7 @@ them for every margin, padding and gap.
 | `--play-button-size` | 68 → 96px (fluid) | Diameter of the accent play button on the `MediaViewer` stage. |
 | `--app-icon-size` | 56 → 96px (fluid) | The game's app icon beside its name in `GameTitle`. |
 | `--app-icon-size-s` | 40px | The app icon at the start of the phone `StickyPlayBar`. |
-| `--app-icon-nudge` | 2px | How far `GameTitle` lifts the app icon so it sits level with the top row of the name's letters. |
+| `--app-icon-nudge` | 4px | How far `GameTitle` lifts the app icon so it sits level with the top row of the name's letters. |
 | `--thumb-height` | 60 → 92px (fluid) | Height of `MediaViewer` thumbnails; phone strip thumbs are 1.6 times this wide. |
 | `--sticky-bar-space` | 96px | Room the `StickyPlayBar` occupies at the bottom of a phone page. The game layout renders the bar after a `SiteFooter` with `stickyBarSpace`, which adds this much bottom padding below `lg` so the footer's last line scrolls clear of the bar. |
 | `--statement-body-max` | 400px | Maximum width of the paragraph beside a `Statement` heading. |
