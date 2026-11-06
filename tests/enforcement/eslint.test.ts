@@ -52,4 +52,14 @@ describe("eslint design-system rules", () => {
   it("ignores src/app/studio and sanity.config.ts", async () => {
     expect(await lint('export default function S() { return <p className="x" style={{color:"red"}}/>; }', "src/app/studio/[[...tool]]/page.tsx")).toEqual([]);
   });
+
+  it("rejects .sass and query-suffixed style imports in pages", async () => {
+    for (const spec of ["./a.sass", "./a.scss?x", "./a.css?inline", "./a.module.css"]) {
+      expect((await lint(`import "${spec}";\nexport const a = 1;`, "src/app/page.tsx")).length, spec).toBeGreaterThan(0);
+    }
+  });
+  it("layout.tsx still allows only globals.scss", async () => {
+    expect((await lint('import "./a.sass";\nexport const a = 1;', "src/app/layout.tsx")).length).toBeGreaterThan(0);
+    expect(await lint('import "@/styles/globals.scss";\nexport const a = 1;', "src/app/layout.tsx")).toEqual([]);
+  });
 });

@@ -23,7 +23,7 @@ $breakpoints: (
   width: 1px;
   height: 1px;
   padding: 0;
-  /* stylelint-disable-next-line scale-unlimited/declaration-strict-value -- visually-hidden geometry */
+  /* stylelint-disable-next-line scale-unlimited/declaration-strict-value, declaration-property-unit-disallowed-list -- visually-hidden geometry */
   margin: -1px;
   overflow: hidden;
   /* stylelint-disable-next-line property-no-deprecated -- legacy fallback for visually-hidden */

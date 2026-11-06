@@ -447,15 +447,16 @@ Stylelint names the property and value, e.g. `Use a design token via var(--…)
 for "padding", not "12px"`, plus the rule name in brackets. Fix it by using the
 token from the tables above, not by disabling the rule.
 
-### Stylelint (`src/**/*.scss`)
+### Stylelint (`src/**/*.{scss,css,sass}`)
 
 Config: `stylelint-config-standard-scss` plus
 `stylelint-declaration-strict-value` (rule
 `scale-unlimited/declaration-strict-value`).
 
 - **No raw colors** (`color-no-hex`, `color-named`, `function-disallowed-list`).
-  Hex colors, named colors and `rgb()`/`rgba()`/`hsl()`/`hsla()` are errors
-  everywhere except `src/styles/tokens.scss`. This includes `globals.scss`.
+  Hex colors, named colors and the functions `rgb()`, `rgba()`, `hsl()`,
+  `hsla()`, `oklch()`, `oklab()`, `lab()`, `lch()`, `hwb()`, `color()` and
+  `color-mix()` are errors everywhere except `src/styles/tokens.scss`. This includes `globals.scss`.
 - **Strict values** (`scale-unlimited/declaration-strict-value`). These
   properties must use `var(--…)`: anything ending in `color`, `fill`, `stroke`,
   `background`, `background-color`, `font-size`, `font-family`, `font-weight`,
@@ -465,6 +466,16 @@ Config: `stylelint-config-standard-scss` plus
   checked. The only raw values allowed are `0`, `auto`, `inherit`, `initial`,
   `unset`, `none`, `transparent`, `currentColor` and `100%`. `tokens.scss` is
   exempt. `globals.scss` needs no exemption: it passes as written.
+- **No literal units inside functions** (`declaration-property-unit-disallowed-list`).
+  On the same spacing, type, radius, shadow and duration properties (everything
+  in the list above except colors, `font-family`, `font-weight` and `z-index`),
+  `px`, `rem`, `em`, `ms` and `s` are errors, so `calc(12px * 2)`,
+  `min(10px, 2vw)` and `clamp(1rem, 2vw, 3rem)` fail while
+  `calc(var(--space-4) * 2)` passes. `tokens.scss` is exempt.
+- **Unknown pseudo-classes** are errors, except `:global()` and `:local()`.
+- **Disables must be justified.** `reportDescriptionlessDisables` and
+  `reportNeedlessDisables` are on: an inline disable needs a `-- reason` and
+  must actually suppress something.
 - **No Sass `$variables`** (`scss/dollar-variable-pattern`) outside
   `src/styles/_mixins.scss` and `src/styles/tokens.scss` (function internals
   only). Values come from CSS custom properties in `tokens.scss`.
@@ -494,14 +505,22 @@ pages), defined once in `eslint.config.mjs` and shared between blocks.
 - **No raw color literals** (`"#E08D00"`, `"rgb(…)"`, `"hsl(…)"`) in
   `src/**/*.{ts,tsx}`. Test files (`*.test.ts`, `*.test.tsx`) and everything in
   `tests/` are exempt because fixtures and token tests need literals.
-- **Pages don't style.** Files in `src/app/**` may not import `*.scss` or
-  `*.css` (`no-restricted-imports`) and may not use `className` or `style` at
+- **Pages don't style.** Files in `src/app/**` may not import any `.scss`, `.sass` or
+  `.css` file, query suffixes included (`no-restricted-imports`) and may not use `className` or `style` at
   all.
 - **Exemptions:** `src/app/layout.tsx` may import `@/styles/globals.scss` and
   may set `className` on `<html>` for the font variables (it still may not use
   `style` or import any other stylesheet). `src/app/studio/**` (Sanity's own UI)
   and `sanity.config.ts` are ignored by ESLint entirely.
 - `node_modules/`, `.next/`, `.superpowers/` and `docs/` are not linted.
+
+### What lint can't catch (reviewers check)
+
+- `className` or `style` smuggled into pages through spread props
+  (`{...props}`) or `React.createElement`.
+- Color strings built with template literals (`` `#${hex}` ``).
+- Properties outside the checked list: `width`, `height`, `inset`, `top`,
+  `min-width` and the like. Make design-decision sizes tokens anyway.
 
 ### Tests (`tests/enforcement/`)
 

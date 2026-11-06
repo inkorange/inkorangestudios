@@ -71,7 +71,7 @@ const eslintConfig = defineConfig([
         "error",
         {
           patterns: [
-            { group: ["*.scss", "*.css"], message: `Pages compose components; they don't style ${SEE}.` },
+            { group: ["*.scss*", "*.sass*", "*.css*"], message: `Pages compose components; they don't style ${SEE}.` },
           ],
         },
       ],
@@ -87,7 +87,7 @@ const eslintConfig = defineConfig([
         {
           patterns: [
             {
-              group: ["*.scss", "*.css", "!@/styles/globals.scss"],
+              group: ["*.scss*", "*.sass*", "*.css*", "!@/styles/globals.scss"],
               message: `Only @/styles/globals.scss may be imported here ${SEE}.`,
             },
           ],
