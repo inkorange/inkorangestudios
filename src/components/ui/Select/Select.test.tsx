@@ -129,7 +129,7 @@ describe("placeMenu", () => {
   const at = (top: number) => ({ top, bottom: top + 48, left: 20, width: 300 });
 
   it("drops down when the menu fits below", () => {
-    expect(placeMenu(at(100), 200, viewport)).toMatchObject({ top: 154, left: 20, width: 300 });
+    expect(placeMenu(at(100), 200, viewport)).toMatchObject({ top: 154, left: 20, minWidth: 300 });
   });
 
   it("drops up near the bottom edge when the menu fits above", () => {
@@ -145,6 +145,12 @@ describe("placeMenu", () => {
   });
 
   it("stays inside the viewport horizontally", () => {
-    expect(placeMenu({ top: 100, bottom: 148, left: 200, width: 300 }, 100, viewport)).toMatchObject({ left: 88, width: 300 });
+    expect(placeMenu({ top: 100, bottom: 148, left: 200, width: 300 }, 100, viewport)).toMatchObject({ left: 88, minWidth: 300 });
+  });
+
+  it("is at least as wide as the field and grows to fit its options, shifting left to stay on screen", () => {
+    const narrow = { top: 100, bottom: 148, left: 300, width: 80 };
+    expect(placeMenu(narrow, 100, viewport, 60)).toMatchObject({ minWidth: 80, left: 300 });
+    expect(placeMenu(narrow, 100, viewport, 160)).toMatchObject({ minWidth: 80, maxWidth: 376, left: 400 - 12 - 160 });
   });
 });

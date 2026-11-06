@@ -1,3 +1,5 @@
-.root {
+// No space is reserved while the check runs silently; it only takes room when the widget
+// asks the visitor to interact, or to show the load error.
+.root[data-visible="true"] {
   margin-block-start: var(--space-3);
 }

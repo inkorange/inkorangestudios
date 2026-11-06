@@ -1,7 +1,15 @@
 import { act, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 
-type Opts = { sitekey: string; callback: (t: string) => void; "error-callback"?: () => void; "response-field"?: boolean };
+type Opts = {
+  sitekey: string;
+  callback: (t: string) => void;
+  "error-callback"?: () => void;
+  "response-field"?: boolean;
+  appearance?: string;
+  "before-interactive-callback"?: () => void;
+  "after-interactive-callback"?: () => void;
+};
 const SRC = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
 
 function mockRequired(required: boolean) {
@@ -38,6 +46,21 @@ it("renders nothing and loads no script when CAPTCHA is not required", async () 
   const { container } = render(<Turnstile />);
   expect(container).toBeEmptyDOMElement();
   expect(document.querySelector('script[src*="turnstile"]')).toBeNull();
+});
+
+it("stays silent unless Cloudflare needs the visitor to interact", async () => {
+  mockRequired(true);
+  const { api, opts } = stubApi();
+  const { Turnstile } = await import("./Turnstile");
+  const { container } = render(<Turnstile />);
+  await waitFor(() => expect(api.render).toHaveBeenCalledOnce());
+  expect(opts[0].appearance).toBe("interaction-only");
+  const root = container.firstElementChild!;
+  expect(root).toHaveAttribute("data-visible", "false");
+  act(() => opts[0]["before-interactive-callback"]!());
+  expect(root).toHaveAttribute("data-visible", "true");
+  act(() => opts[0]["after-interactive-callback"]!());
+  expect(root).toHaveAttribute("data-visible", "false");
 });
 
 it("renders explicitly with the site key, without Cloudflare's own response field", async () => {
