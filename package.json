@@ -13,11 +13,16 @@
   "dependencies": {
     "@next/third-parties": "^16.4.5",
     "@portabletext/react": "^8.0.1",
+    "@sanity/image-url": "^2.1.1",
+    "@sanity/vision": "^6.22.0",
     "next": "16.4.5",
+    "next-sanity": "^13.4.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "sanity": "^6.22.0",
     "sass": "^1.108.0",
     "server-only": "^0.0.1",
+    "styled-components": "^6.6.0",
     "zod": "^4.6.7"
   },
   "devDependencies": {
