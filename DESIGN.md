@@ -228,6 +228,15 @@ them for every margin, padding and gap.
 | `--section-y` | 48 → 96px (fluid) | Vertical padding of a standard section. Use this rather than picking phone and desktop spaces. |
 | `--gutter` | 16 → 24px (fluid) | Left and right page padding inside `Container`. |
 | `--content-max` | 1320px | Maximum content width. Everything lines up to this column. |
+| `--content-narrow` | 760px | Maximum width of a narrow `Container` (long-form text, legal pages). |
+| `--grid-min-tile` | 260px | Minimum column width of a `Grid` of game tiles. |
+| `--grid-min-tile-s` | 240px | Minimum column width of a denser `Grid` of tiles. |
+| `--grid-min-card` | 300px | Minimum column width of a `Grid` of news cards. |
+| `--grid-min-rail` | 240px | Minimum column width of the spotlight rail `Grid`. |
+| `--grid-min-thumb` | 150px | Minimum column width of a `Grid` of media thumbnails. |
+| `--logo-width-s` | 120px | `Logo` width at size `s`. |
+| `--logo-width-m` | 160px | `Logo` width at size `m` (default). |
+| `--logo-width-l` | 220px | `Logo` width at size `l`. |
 
 ### Breakpoints
 
@@ -319,12 +328,107 @@ What it is in one sentence.
 - **Accessibility:** …
 ```
 
-No components have landed yet. These are coming, in this order (names may
-change as they are built):
+### Container
 
-- **Layout and type (coming):** Container, Section (paper / sand / ink), Stack,
-  Grid, Display (with Highlight), Heading, Text, Eyebrow, Logo, Placeholder
-  (light / dark), GuideLines.
+Centers content to `--content-max` with `--gutter` padding on each side.
+
+- **Use for:** the inside of every `Section`, so every page lines up to one column.
+- **Don't use for:** full-bleed art (put it directly in the `Section`).
+- **Props / variants:** `width`: `content` (default) or `narrow` (`--content-narrow`, for long-form text).
+- **Accessibility:** a plain `div`; no landmark role.
+
+### Section
+
+A full-width horizontal band with `--section-y` vertical padding and a background tone.
+
+- **Use for:** each block of a page. Wrap a `Container` inside it.
+- **Don't use for:** cards or inner groupings (use `Stack`); two `sand` sections side by side.
+- **Props / variants:** `tone`: `paper` (default), `sand`, `ink` (sets light text); `space`: `default`, `tight` (half), `none`; `id`; `aria-label`.
+- **Accessibility:** renders a `<section>`; give it an `aria-label` when it should be a landmark ("Featured games"). Exposes `data-tone` and `data-space`.
+
+### Stack
+
+A flex container with token gaps.
+
+- **Use for:** vertical or horizontal groups with consistent spacing (chip rows, button rows, lists).
+- **Don't use for:** responsive card layouts (use `Grid`).
+- **Props / variants:** `gap`: 1, 2, 3, 4 (default), 5, 6, 8, 10, 12, 14, 16 (the `--space-*` scale); `direction`: `column` (default) or `row`; `align`; `justify` (`start`, `center`, `end`, `between`); `wrap`; `as`: `div` (default), `ul`, `ol`, `li`, `nav`, `header`, `footer`, `span`.
+- **Accessibility:** list and nav semantics come from `as`; list bullets are removed, so only use `ul`/`ol` for real lists.
+
+### Grid
+
+An intrinsic auto-fill grid: columns are at least the chosen minimum, then stretch.
+
+- **Use for:** game tiles, news cards, thumbnails, the spotlight rail.
+- **Don't use for:** a fixed number of columns, or one-dimensional rows (use `Stack`).
+- **Props / variants:** `min` (required): `tile` (260), `tile-s` (240), `card` (300), `rail` (240), `thumb` (150), from the `--grid-min-*` tokens; `gap`: a `--space-*` step (default 5).
+- **Accessibility:** a plain `div`; no breakpoints needed, so reflow works at any zoom.
+
+### Display
+
+The condensed uppercase display heading, with `Highlight` for the one accent phrase.
+
+- **Use for:** page titles, the hero game name, the studio one-liner, the callout heading.
+- **Don't use for:** section headers (use `Heading`) or anything smaller than a heading.
+- **Props / variants:** `as`: `h2` (default) or `h1`; `size`: `xl`, `l`, `m`; `tone`: `ink` (default) or `on-dark`. `Highlight` takes `paint` to layer `--texture-watercolor` over the accent; use at most one per page.
+- **Accessibility:** renders a real heading; keep one `h1` per page. `Highlight` is a plain `span`, text stays selectable and readable (ink on accent is 6.6:1).
+
+### Heading
+
+The standard section heading in the display face.
+
+- **Use for:** section titles, store price, game names under tiles.
+- **Don't use for:** page titles (use `Display`) or body text.
+- **Props / variants:** `as` (required): `h2` or `h3`; `size` (required): `l`, `m`, `s`, `title`, `title-s`. Color is inherited, so it works on ink sections.
+- **Accessibility:** choose the level for document outline, not size.
+
+### Text
+
+Body copy in Inter.
+
+- **Use for:** paragraphs, lead text, metadata lines.
+- **Don't use for:** headings, or mono labels (use `Eyebrow`).
+- **Props / variants:** `as`: `p` (default), `span`, `div`; `size`: `lead`, `body-l`, `body`, `body-s`, `meta`; `tone`: `ink`, `ink-2`, `ink-3`, `on-dark`, `on-dark-2`, `on-dark-3` (inherits when omitted); `weight`: `regular`, `medium`, `semibold`.
+- **Accessibility:** do not use `ink-3` on a tone it does not pass on; see [Contrast](#contrast).
+
+### Eyebrow
+
+A small mono, tracked, uppercase label above a heading.
+
+- **Use for:** "THE STUDIO", "NOW RECRUITING TESTERS", footer column labels.
+- **Don't use for:** status chips (use `Chip`) or anything a reader must act on.
+- **Props / variants:** `tone`: `ink-3` (default), `link`, `on-dark-4`.
+- **Accessibility:** renders a `<p>`; text is in the source in normal case, uppercase is CSS only.
+
+### Logo
+
+The supplied inkOrange Studios logo PNG, with an optional one-time reveal.
+
+- **Use for:** the header, footer and intro. Always use this instead of rebuilding the wordmark.
+- **Don't use for:** recoloring, stretching, or placing on the accent or busy art.
+- **Props / variants:** `size`: `s`, `m` (default), `l` (`--logo-width-*`); `href` wraps it in a link; `animate` plays a once-only sketch (grey, drawn left to right), paint (softening) and digital (flat orange) reveal using `--duration-draw`, off under reduced motion.
+- **Accessibility:** `alt="inkOrange Studios"`; when linked, the link's name is the alt text, with a visible focus ring.
+
+### Placeholder
+
+The hatched stripe stand-in for art that does not exist yet.
+
+- **Use for:** missing covers, key art, photos.
+- **Don't use for:** loading skeletons or empty states with text (use a message).
+- **Props / variants:** `tone`: `light` (default) or `dark`; `ratio`: `3/4`, `16/9`, `16/7.5`, `16/10`, `1/1` (fills its parent when omitted); `label` (mono caption in `--color-ink-4`); `radius`: `l` (default), `xl`, `2xl`, `3xl`, `none`.
+- **Accessibility:** `aria-hidden` unless a label is given. The label is decorative-grade contrast (3.28:1), so never put needed information in it.
+
+### GuideLines
+
+Decorative faint construction lines drawn behind its children.
+
+- **Use for:** a few hero edges and dividers, the `/design` page, empty states.
+- **Don't use for:** content, or more than one or two surfaces per page.
+- **Props / variants:** `children` only. Lines are CSS gradients in `--color-guide`.
+- **Accessibility:** the lines layer is `aria-hidden` and ignores pointer events.
+
+Still coming, in this order (names may change as they are built):
+
 - **Actions (coming):** Button (accent / ink / outline on light / outline on
   dark; link or button; sizes), IconButton (round), Icon, Chip (status accent /
   status ink / outline / mono plain), FilterPills.

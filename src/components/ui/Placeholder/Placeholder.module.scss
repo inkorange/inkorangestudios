@@ -1,0 +1,66 @@
+.root {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 100%;
+  padding: var(--space-4);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-l);
+  background-image: repeating-linear-gradient(135deg, var(--color-sand) 0 12px, var(--color-stripe) 12px 24px);
+  text-align: center;
+
+  &[data-tone="dark"] {
+    border-color: var(--color-dark-line);
+    background-image: repeating-linear-gradient(135deg, var(--color-dark-stripe) 0 12px, var(--color-dark-stripe-2) 12px 24px);
+  }
+
+  &[data-radius="l"] {
+    border-radius: var(--radius-l);
+  }
+
+  &[data-radius="xl"] {
+    border-radius: var(--radius-xl);
+  }
+
+  &[data-radius="2xl"] {
+    border-radius: var(--radius-2xl);
+  }
+
+  &[data-radius="3xl"] {
+    border-radius: var(--radius-3xl);
+  }
+
+  &[data-radius="none"] {
+    border-radius: 0;
+  }
+
+  &[data-ratio="3/4"] {
+    aspect-ratio: 3 / 4;
+  }
+
+  &[data-ratio="16/9"] {
+    aspect-ratio: 16 / 9;
+  }
+
+  &[data-ratio="16/7.5"] {
+    aspect-ratio: 16 / 7.5;
+  }
+
+  &[data-ratio="16/10"] {
+    aspect-ratio: 16 / 10;
+  }
+
+  &[data-ratio="1/1"] {
+    aspect-ratio: 1 / 1;
+  }
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-s);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--color-ink-4);
+}

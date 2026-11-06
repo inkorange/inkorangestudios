@@ -99,6 +99,15 @@
   --section-y: #{fluid(48, 96)};
   --gutter: #{fluid(16, 24)};
   --content-max: 1320px;
+  --content-narrow: 760px;
+  --grid-min-tile: 260px;
+  --grid-min-tile-s: 240px;
+  --grid-min-card: 300px;
+  --grid-min-rail: 240px;
+  --grid-min-thumb: 150px;
+  --logo-width-s: 120px;
+  --logo-width-m: 160px;
+  --logo-width-l: 220px;
 
   // Radius
   --radius-xs: 10px;
