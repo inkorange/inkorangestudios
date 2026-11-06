@@ -693,8 +693,8 @@ The cookie consent sheet fixed to the bottom of the viewport.
 
 - **Use for:** once, in the site layout (`src/app/(site)/layout.tsx`), next to `Analytics`.
 - **Don't use for:** other notices (use `FormMessage` or page copy).
-- **Props / variants:** none. Shown when no choice is stored (`io-consent` in localStorage) or when "Cookie settings" is clicked. "Accept" (accent) stores `granted`; "Decline" (outline on ink) stores `denied`. `Analytics` loads Google Tag Manager only after `granted`.
-- **Accessibility:** a labelled region; it does not steal focus. Sits on `--z-banner`, above everything. When reopened from "Cookie settings" focus moves to the banner; on first visit it does not. Consent Mode defaults (denied) come from the server component `ConsentDefaults` (`src/components/analytics/`), which the root layout renders; `Analytics` (mounted by the site layout with `publicEnv.gtmId`) loads GTM after consent.
+- **Props / variants:** none. Shown when no choice is stored (`io-consent` in localStorage) or when "Cookie settings" is clicked. "Accept" (accent) stores `granted`; "Decline" (outline on ink) stores `denied`; either choice pushes the Consent Mode update synchronously (`writeConsent` in `src/lib/consent.ts`). `Analytics` loads Google Tag Manager only after `granted` and only once that update is in `dataLayer`, so GTM's first page view is never recorded under denied.
+- **Accessibility:** a labelled region; it does not steal focus. Sits on `--z-banner`, above everything. When reopened from "Cookie settings" focus moves to the banner; on first visit it does not. Consent Mode defaults come from the server component `ConsentDefaults` (`src/components/analytics/`), which the root layout renders: denied, or granted when `io-consent` is already `granted` (its inline script reads localStorage, guarded by try/catch); `Analytics` (mounted by the site layout with `publicEnv.gtmId`) loads GTM after consent.
 
 ### MediaViewer
 

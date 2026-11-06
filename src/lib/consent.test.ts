@@ -46,3 +46,15 @@ it("keeps the choice in memory when localStorage is blocked", () => {
   get.mockRestore();
   writeConsent("granted"); // storage works again: clears the in-memory copy
 });
+
+it("writeConsent pushes the Consent Mode update synchronously, creating gtag if needed", async () => {
+  vi.resetModules();
+  const fresh = await import("./consent");
+  delete window.gtag;
+  (window as unknown as { dataLayer: unknown[] }).dataLayer = [];
+  fresh.writeConsent("granted");
+  expect(fresh.readAppliedConsent()).toBe("granted");
+  const layer = (window as unknown as { dataLayer: ArrayLike<unknown>[] }).dataLayer;
+  expect(layer).toHaveLength(1);
+  expect(Array.from(layer[0])).toEqual(["consent", "update", { analytics_storage: "granted", ad_storage: "granted", ad_user_data: "granted", ad_personalization: "granted" }]);
+});
