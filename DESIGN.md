@@ -242,7 +242,7 @@ them for every margin, padding and gap.
 | `--date-column` | 120px | Width of the mono date column in `UpdateRow`. |
 | `--wash-opacity` | 0.35 | Opacity of the watercolor edge on `CalloutBand`; keeps ink text above 4.5:1 on the accent. |
 | `--highlight-bleed` | 0.12em | How far the painted `Highlight` stroke reaches above and below its text. In `em`, so it scales with the heading. Inline padding, so line spacing is unchanged. |
-| `--highlight-bleed-inline` | 0.25em | How far the painted stroke reaches past the end of its text (the start gets one extra `--space-2` of paint instead). Added as padding and taken back as negative margin, so the words don't move. |
+| `--highlight-bleed-inline` | 0.25em | How far the painted stroke reaches past the end of its text (the start gets an extra `--space-6` of paint instead). Added as padding and taken back as negative margin, so the words don't move. |
 | `--logo-width-s` | 120px | `Logo` width at size `s`. |
 | `--logo-width-m` | 160px | `Logo` width at size `m` (default). |
 | `--logo-width-l` | 220px | `Logo` width at size `l`. |
