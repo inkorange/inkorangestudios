@@ -40,8 +40,9 @@
   }
 
   &[aria-invalid="true"] {
+    // Same border width as valid; the extra weight is an outline so layout never shifts.
     border-color: var(--color-ink);
-    border-width: 2px;
+    outline: var(--focus-ring-width) solid var(--color-ink);
   }
 }
 

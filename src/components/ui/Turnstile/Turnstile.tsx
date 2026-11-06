@@ -44,7 +44,14 @@ function ensureScript(): Promise<void> {
   });
 }
 
+/** True when a widget will render, i.e. a token must be earned before submit. */
+export function turnstileActive(): boolean {
+  return CAPTCHA_REQUIRED && Boolean(publicEnv.turnstileSiteKey);
+}
+
 export type TurnstileProps = {
+  /** Reports whether a token is currently held (false while waiting/expired). */
+  onTokenChange?: (hasToken: boolean) => void;
   /** Change after each submit result so the single-use token is renewed. */
   resetKey?: unknown;
 };
@@ -54,7 +61,7 @@ export type TurnstileProps = {
  * the surrounding form's FormData carries it. Renders nothing when
  * CAPTCHA_REQUIRED is false (tests, `next dev`, no keys).
  */
-export function Turnstile({ resetKey }: TurnstileProps) {
+export function Turnstile({ resetKey, onTokenChange }: TurnstileProps) {
   const ref = useRef<HTMLDivElement>(null);
   const widgetId = useRef<string | null>(null);
   const [token, setToken] = useState("");
@@ -88,6 +95,10 @@ export function Turnstile({ resetKey }: TurnstileProps) {
       widgetId.current = null;
     };
   }, [siteKey]);
+
+  useEffect(() => {
+    if (siteKey) onTokenChange?.(token !== "");
+  }, [siteKey, token, onTokenChange]);
 
   const first = useRef(true);
   useEffect(() => {

@@ -5,7 +5,7 @@ import type { FormState } from "@/lib/signups/types";
 import { Button } from "../Button/Button";
 import { FormMessage } from "../FormMessage/FormMessage";
 import { TextField } from "../TextField/TextField";
-import { Turnstile } from "../Turnstile/Turnstile";
+import { Turnstile, turnstileActive } from "../Turnstile/Turnstile";
 import styles from "./EmailSignupForm.module.scss";
 
 export type EmailSignupFormProps = {
@@ -35,6 +35,8 @@ export function EmailSignupForm({
   const [state, formAction, pending] = useActionState(action, { status: "idle" } as FormState);
   // Controlled so a rejected submit keeps what the visitor typed.
   const [email, setEmail] = useState("");
+  // When a human check is on, hold submit until it has produced a token.
+  const [tokenReady, setTokenReady] = useState(() => !turnstileActive());
 
   if (state.status === "ok") {
     return (
@@ -61,14 +63,14 @@ export function EmailSignupForm({
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
-        <Button variant={BUTTON_VARIANT[tone]} type="submit" disabled={pending} block={layout === "stacked"}>
+        <Button variant={BUTTON_VARIANT[tone]} type="submit" disabled={pending || !tokenReady} block={layout === "stacked"}>
           {submitLabel}
         </Button>
       </div>
       {hidden
         ? Object.entries(hidden).map(([name, value]) => <input key={name} type="hidden" name={name} value={value} />)
         : null}
-      <Turnstile resetKey={state} />
+      <Turnstile resetKey={state} onTokenChange={setTokenReady} />
       {state.status === "error" ? <FormMessage status="error">{state.error}</FormMessage> : null}
     </form>
   );

@@ -1,6 +1,10 @@
 import { useId, type ChangeEventHandler } from "react";
 import styles from "./TextField.module.scss";
 
+type Controlled =
+  | { value: string; onChange: ChangeEventHandler<HTMLInputElement> }
+  | { value?: undefined; onChange?: undefined };
+
 export type TextFieldProps = {
   label: string;
   hideLabel?: boolean;
@@ -12,9 +16,7 @@ export type TextFieldProps = {
   size?: "m" | "s";
   error?: string;
   autoComplete?: string;
-  value?: string;
-  onChange?: ChangeEventHandler<HTMLInputElement>;
-};
+} & Controlled;
 
 export function TextField({
   label,
