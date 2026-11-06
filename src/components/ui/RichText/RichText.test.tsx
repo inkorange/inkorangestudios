@@ -1,5 +1,13 @@
 import { render, screen } from "@testing-library/react";
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
+vi.mock("next/link", () => ({
+  default: ({ href, className, children }: { href: string; className?: string; children: React.ReactNode }) => (
+    <a href={href} className={className} data-next-link="true">
+      {children}
+    </a>
+  ),
+}));
+
 import { RichText } from "./RichText";
 
 const block = (style: string, text: string, extra: object = {}) => ({
@@ -45,5 +53,8 @@ it("opens external links in a new tab with rel noopener", () => {
   const ext = screen.getByRole("link", { name: "Ext" });
   expect(ext).toHaveAttribute("target", "_blank");
   expect(ext.getAttribute("rel")).toContain("noopener");
-  expect(screen.getByRole("link", { name: "Int" })).not.toHaveAttribute("target");
+  const int = screen.getByRole("link", { name: "Int" });
+  expect(int).not.toHaveAttribute("target");
+  expect(int).toHaveAttribute("href", "/about");
+  expect(int).toHaveAttribute("data-next-link", "true");
 });

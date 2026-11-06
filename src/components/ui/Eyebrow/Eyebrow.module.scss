@@ -11,6 +11,10 @@
     color: var(--color-link);
   }
 
+  &[data-tone="on-accent"] {
+    color: var(--color-ink);
+  }
+
   &[data-tone="on-dark-4"] {
     color: var(--color-on-dark-4);
   }

@@ -1,0 +1,138 @@
+@use "../../../styles/mixins" as *;
+
+.root {
+  color: var(--color-on-dark);
+  background-color: var(--color-ink);
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding-block: var(--space-12) var(--space-10);
+
+  @include bp(md) {
+    gap: var(--space-14);
+    padding-block: var(--space-22) var(--space-10);
+  }
+
+  .root[data-variant="compact"] & {
+    gap: var(--space-8);
+    padding-block: var(--space-16) var(--space-8);
+  }
+}
+
+.signup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.copy {
+  display: flex;
+  flex: 1 1 420px;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-heading-l);
+  font-weight: var(--weight-black);
+  line-height: var(--leading-tight);
+  text-transform: uppercase;
+}
+
+.intro {
+  margin: 0;
+  font-size: var(--text-body-l);
+  color: var(--color-on-dark-3);
+}
+
+.form {
+  flex: 1 1 420px;
+  max-width: 520px;
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-6) var(--space-4);
+  padding-top: var(--space-8);
+  border-top: 1px solid var(--color-dark-line);
+
+  @include bp(md) {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-8);
+    padding-top: var(--space-10);
+  }
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.links,
+.row {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  flex-flow: row wrap;
+  gap: var(--space-1) var(--space-6);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-dark-line);
+}
+
+.link,
+.action {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
+  padding: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  color: var(--color-on-dark);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--color-accent);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+
+    outline-color: var(--color-accent);
+  }
+}
+
+.action {
+  font-size: var(--text-meta);
+  color: var(--color-on-dark-3);
+  cursor: pointer;
+  background: none;
+  border: 0;
+}
+
+.bottom {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-6);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.copyright {
+  margin: 0;
+  font-size: var(--text-meta);
+  color: var(--color-on-dark-4);
+}

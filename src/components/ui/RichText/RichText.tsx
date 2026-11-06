@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { PortableText, type PortableTextBlock, type PortableTextComponents } from "@portabletext/react";
 import styles from "./RichText.module.scss";
 
@@ -25,6 +26,14 @@ const components: PortableTextComponents = {
     link: ({ value, children }) => {
       const href: string = typeof value?.href === "string" ? value.href : "#";
       const external = /^https?:\/\//.test(href);
+      const internal = href.startsWith("/") && !href.startsWith("//");
+      if (internal) {
+        return (
+          <Link className={styles.link} href={href}>
+            {children}
+          </Link>
+        );
+      }
       return external ? (
         <a className={styles.link} href={href} target="_blank" rel="noopener noreferrer">
           {children}

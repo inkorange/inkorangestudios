@@ -22,7 +22,9 @@ export function GameTile({ name, href, cover, status, meta, size = "m" }: GameTi
         {cover ? (
           <Image className={styles.image} src={cover.src} alt={cover.alt} width={cover.width} height={cover.height} sizes="(min-width: 1024px) 300px, 50vw" />
         ) : (
-          <Placeholder ratio="3/4" label={name} />
+          <span aria-hidden="true">
+            <Placeholder ratio="3/4" label={name} />
+          </span>
         )}
         <span className={styles.chip}>
           <Chip tone={status === "out-now" ? "accent" : "ink"} size="s">

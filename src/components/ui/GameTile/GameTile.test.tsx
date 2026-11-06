@@ -24,6 +24,8 @@ it("shows an ink chip for other statuses", () => {
 it("renders a labelled placeholder when there is no cover", () => {
   render(<GameTile name="Strata" href="/g" cover={null} status="in-development" meta="Educational" size="s" />);
   expect(screen.queryByRole("img")).not.toBeInTheDocument();
-  expect(screen.getAllByText("Strata").length).toBeGreaterThan(1);
+  expect(screen.getByRole("link", { name: /Strata/ }).textContent?.match(/Strata/g)).toHaveLength(2);
+  expect(screen.getByRole("link").querySelector('[aria-hidden="true"]')).not.toBeNull();
+  expect(screen.getByRole("link", { name: /^IN DEVELOPMENT\s*Strata\s*Educational$/ })).toBeVisible();
   expect(screen.getByText("IN DEVELOPMENT")).toBeVisible();
 });

@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import styles from "./Eyebrow.module.scss";
 
 export type EyebrowProps = {
-  tone?: "ink-3" | "link" | "on-dark-4";
+  tone?: "ink-3" | "link" | "on-dark-4" | "on-accent";
   children: ReactNode;
 };
 

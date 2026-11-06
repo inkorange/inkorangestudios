@@ -16,7 +16,7 @@ export function CalloutBand({ eyebrow, title, body, action, paint = false }: Cal
   return (
     <section className={styles.root} data-paint={paint}>
       <div className={styles.text}>
-        <Eyebrow>{eyebrow}</Eyebrow>
+        <Eyebrow tone="on-accent">{eyebrow}</Eyebrow>
         <Display size="m">{title}</Display>
         <p className={styles.body}>{body}</p>
       </div>

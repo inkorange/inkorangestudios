@@ -401,7 +401,7 @@ A small mono, tracked, uppercase label above a heading.
 
 - **Use for:** "THE STUDIO", "NOW RECRUITING TESTERS", footer column labels.
 - **Don't use for:** status chips (use `Chip`) or anything a reader must act on.
-- **Props / variants:** `tone`: `ink-3` (default), `link`, `on-dark-4`.
+- **Props / variants:** `tone`: `ink-3` (default), `link`, `on-dark-4`, `on-accent` (ink, for the accent callout band).
 - **Accessibility:** renders a `<p>`; text is in the source in normal case, uppercase is CSS only.
 
 ### Logo
@@ -608,7 +608,7 @@ Portable Text rendered with the design system's type.
 
 - **Use for:** CMS body copy: news posts, game "About", legal pages.
 - **Don't use for:** hand-written UI copy (use `Text` and `Heading`).
-- **Props / variants:** `value` (`PortableTextBlock[]`). Supports h2-h4, paragraphs, bullet and numbered lists, blockquote and links. External links open in a new tab with `rel="noopener noreferrer"`.
+- **Props / variants:** `value` (`PortableTextBlock[]`). Supports h2-h4, paragraphs, bullet and numbered lists, blockquote and links. External links open in a new tab with `rel="noopener noreferrer"`; internal links (starting with `/`) use `next/link`.
 - **Accessibility:** headings keep their level (h2-h4) so the author controls the outline. Links are `--color-link` and underlined.
 
 ### Breadcrumb
@@ -629,10 +629,44 @@ Three-up (or fewer) values, each under a 3px ink rule.
 - **Props / variants:** `items` of `{ title, body }`; columns wrap automatically.
 - **Accessibility:** a list; the title is a paragraph, not a heading.
 
+### NavPillBar
+
+The pill-shaped primary navigation for desktop.
+
+- **Use for:** the five site sections (Games, Studio, News, Press, Support), from `src/lib/nav.ts`. `SiteHeader` shows it from `md` up.
+- **Don't use for:** in-page filters (use `FilterPills`) or the phone menu (use the sheet in `SiteHeader`).
+- **Props / variants:** `active`: a `NavKey`; the active pill is ink with paper text.
+- **Accessibility:** a `nav` labelled "Primary"; the active link has `aria-current="page"`. Each link is at least `--tap-min` tall with a visible focus ring.
+
+### SiteHeader
+
+The top bar: logo, nav and the newsletter call to action.
+
+- **Use for:** the top of every page, once.
+- **Don't use for:** anything inside a page body.
+- **Props / variants:** `active` (a `NavKey`); `variant`: `default` or `game` (phone shows a "‹ Games" back link and the compact logo); `backLink` (`{ label, href }`, defaults to Games). Both layouts are in the markup and CSS switches them at `md`, so server and client markup match. Below `md` a menu button opens a dark sheet (`--z-sheet`) with Barlow 34px links and an accent newsletter button. The sheet is a client island; body scroll is not locked.
+- **Accessibility:** the toggle has `aria-expanded` and `aria-controls`. Opening moves focus to the first sheet link; Escape closes and returns focus to the toggle; choosing a link closes the sheet. Focus rings on the dark sheet use the accent color.
+
+### SiteFooter
+
+The ink footer with the newsletter signup, link columns and legal row.
+
+- **Use for:** the bottom of every page, once. Its `id="newsletter"` is where every "Get the newsletter" link lands.
+- **Don't use for:** page-level calls to action.
+- **Props / variants:** `newsletter` (a node: the signup form); `variant`: `full` (Games / Studio / Help / Follow columns) or `compact` (one row of links, for game pages); `socialLinks` (the Follow column is hidden when empty); `supportEmail` (the "Player support" link is hidden without it); `games` (optional links added to the Games column). Includes a "Cookie settings" button that reopens the consent banner.
+- **Accessibility:** column labels are mono eyebrows in `--color-on-dark-4`; links are at least `--tap-min` tall, with accent focus rings.
+
+### ConsentBanner
+
+The cookie consent sheet fixed to the bottom of the viewport.
+
+- **Use for:** once, in the root layout.
+- **Don't use for:** other notices (use `FormMessage` or page copy).
+- **Props / variants:** none. Shown when no choice is stored (`io-consent` in localStorage) or when "Cookie settings" is clicked. "Accept" (accent) stores `granted`; "Decline" (outline on ink) stores `denied`. `Analytics` loads Google Tag Manager only after `granted`.
+- **Accessibility:** a labelled region; it does not steal focus. Sits on `--z-banner`, above everything.
+
 Still coming, in this order (names may change as they are built):
 
-- **Site chrome (coming):** NavPillBar, SiteHeader (desktop pill nav + CTA;
-  phone hamburger + sheet), SiteFooter (with newsletter), ConsentBanner.
 - **Game page (coming):** MediaViewer (trailer + thumbnails), StoreCard,
   StickyPlayBar, ShareTitle.
 - **Home (coming):** ShowcaseHero (carousel), SpotlightRail, GameGrid.
