@@ -150,3 +150,8 @@ it("hides the callout when the configured callout has no game to sign up for", a
   render(await Home());
   expect(screen.queryByRole("button", { name: "Join the beta" })).toBeNull();
 });
+
+it("has its own title", async () => {
+  const { metadata } = await import("./page");
+  expect(metadata.title).toBe("inkOrange Studios — Games that make you think");
+});

@@ -8,7 +8,8 @@ export const metadata: Metadata = {
   // Resolves relative OG image URLs (the generated /opengraph-image) to the real site.
   metadataBase: new URL(publicEnv.siteUrl),
   title: "inkOrange Studios",
-  description: "inkOrange Studios",
+  description:
+    "An independent studio making games that make you think. Sandboxes, puzzlers, simulations and more — for web, iOS and Android.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

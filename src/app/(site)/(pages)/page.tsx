@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { BetaForm } from "@/components/forms/BetaForm";
 import {
   CalloutBand,
@@ -15,6 +16,8 @@ import {
 import { getFeatured, getGames, getPosts, getSettings } from "@/lib/sanity/content";
 
 export const revalidate = 3600;
+
+export const metadata: Metadata = { title: "inkOrange Studios — Games that make you think" };
 
 const VALUES = [
   { title: "Play first", body: "Fun in the first minute." },
