@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
-import { NAV_ITEMS, type NavKey } from "@/lib/nav";
+import { NAV_ITEMS, type NavCurrent, type NavKey } from "@/lib/nav";
 import { Button } from "../Button/Button";
 import { IconButton } from "../IconButton/IconButton";
 import styles from "./SiteHeader.module.scss";
 
-export function MobileMenu({ active }: { active?: NavKey }) {
+export function MobileMenu({ active, current = "page" }: { active?: NavKey; current?: NavCurrent }) {
   const [open, setOpen] = useState(false);
   const sheetId = useId();
   const sheetRef = useRef<HTMLElement>(null);
@@ -56,7 +56,7 @@ export function MobileMenu({ active }: { active?: NavKey }) {
               key={item.key}
               href={item.href}
               className={styles.item}
-              aria-current={item.key === active ? "page" : undefined}
+              aria-current={item.key === active ? current : undefined}
               onClick={close}
             >
               {item.label}

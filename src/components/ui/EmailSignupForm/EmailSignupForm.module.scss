@@ -1,3 +1,5 @@
+@use "../../../styles/mixins" as *;
+
 .root {
   display: flex;
   flex-direction: column;
@@ -16,6 +18,16 @@
 .field {
   flex: 1 1 var(--space-24);
   min-width: 0;
+}
+
+// Phone: with extra fields (the beta platform select) the email gets its own
+// line, so its placeholder isn't squeezed beside them.
+.root[data-extra="true"] .field {
+  flex-basis: 100%;
+
+  @include bp(md) {
+    flex-basis: var(--space-24);
+  }
 }
 
 .root[data-layout="stacked"] .row {

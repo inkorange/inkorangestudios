@@ -14,3 +14,8 @@ it("renders all five items in a labelled nav", () => {
   expect(screen.getAllByRole("link").map((a) => a.textContent)).toEqual(["Games", "Studio", "News", "Press", "Support"]);
   expect(screen.getByRole("link", { name: "Studio" })).toHaveAttribute("href", "/about");
 });
+
+it("uses aria-current=true for a section-level match", () => {
+  render(<NavPillBar active="news" current="true" />);
+  expect(screen.getByRole("link", { name: "News" })).toHaveAttribute("aria-current", "true");
+});

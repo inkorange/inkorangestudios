@@ -50,7 +50,7 @@ export function EmailSignupForm({
   }
 
   return (
-    <form className={styles.root} data-tone={tone} data-layout={layout} action={formAction}>
+    <form className={styles.root} data-tone={tone} data-layout={layout} data-extra={extraFields ? "true" : "false"} action={formAction}>
       <div className={styles.row}>
         <div className={styles.field}>
           <TextField

@@ -1,6 +1,6 @@
 import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { expect, it, vi } from "vitest";
+import { afterEach, expect, it, vi } from "vitest";
 
 vi.mock("next/image", () => ({
   // eslint-disable-next-line @next/next/no-img-element -- plain img stands in for next/image in jsdom
@@ -11,6 +11,10 @@ const nav = vi.hoisted(() => ({ pathname: null as string | null }));
 vi.mock("next/navigation", () => ({ usePathname: () => nav.pathname }));
 
 import { SiteHeader } from "./SiteHeader";
+
+afterEach(() => {
+  nav.pathname = null;
+});
 
 it("opens the menu sheet from the toggle", async () => {
   render(<SiteHeader />);
@@ -84,16 +88,15 @@ it("has the desktop newsletter CTA", () => {
 it("derives the active section from the pathname", () => {
   nav.pathname = "/news/some-post";
   render(<SiteHeader />);
-  expect(within(screen.getByRole("navigation", { name: "Primary" })).getByRole("link", { name: "News" })).toHaveAttribute("aria-current", "page");
-  nav.pathname = null;
+  // A post is inside News, not the News page itself.
+  expect(within(screen.getByRole("navigation", { name: "Primary" })).getByRole("link", { name: "News" })).toHaveAttribute("aria-current", "true");
 });
 
 it("uses the game variant with Games active on a game page", () => {
   nav.pathname = "/games/terraforge";
   const { container } = render(<SiteHeader />);
   expect(container.querySelector("header")).toHaveAttribute("data-variant", "game");
-  expect(within(screen.getByRole("navigation", { name: "Primary" })).getByRole("link", { name: "Games" })).toHaveAttribute("aria-current", "page");
-  nav.pathname = null;
+  expect(within(screen.getByRole("navigation", { name: "Primary" })).getByRole("link", { name: "Games" })).toHaveAttribute("aria-current", "true");
 });
 
 it("lets explicit props override the pathname", () => {
@@ -101,5 +104,19 @@ it("lets explicit props override the pathname", () => {
   const { container } = render(<SiteHeader active="press" variant="default" />);
   expect(container.querySelector("header")).toHaveAttribute("data-variant", "default");
   expect(within(screen.getByRole("navigation", { name: "Primary" })).getByRole("link", { name: "Press" })).toHaveAttribute("aria-current", "page");
-  nav.pathname = null;
+});
+
+it("marks an exact section page with aria-current=page in the bar and the sheet", async () => {
+  nav.pathname = "/about";
+  render(<SiteHeader />);
+  expect(within(screen.getByRole("navigation", { name: "Primary" })).getByRole("link", { name: "Studio" })).toHaveAttribute("aria-current", "page");
+  await userEvent.click(screen.getByRole("button", { name: "Open menu" }));
+  expect(within(screen.getByRole("navigation", { name: "Menu" })).getByRole("link", { name: "Studio" })).toHaveAttribute("aria-current", "page");
+});
+
+it("marks Games with aria-current=true on the home page, in the sheet too", async () => {
+  nav.pathname = "/";
+  render(<SiteHeader />);
+  await userEvent.click(screen.getByRole("button", { name: "Open menu" }));
+  expect(within(screen.getByRole("navigation", { name: "Menu" })).getByRole("link", { name: "Games" })).toHaveAttribute("aria-current", "true");
 });

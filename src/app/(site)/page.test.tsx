@@ -135,7 +135,8 @@ it("with no content renders the empty grid message and no hero, callout or news"
   const { container } = render(await Home());
   expect(screen.getByText("New games are on the way.")).toBeInTheDocument();
   expect(screen.queryByRole("region", { name: "Featured games" })).toBeNull();
-  expect(screen.queryByRole("heading", { level: 1 })).toBeNull();
+  expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+  expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("An independent studio making games that make you think.");
   expect(screen.queryByRole("button", { name: "Join the beta" })).toBeNull();
   expect(container.querySelector("#news")).toBeNull();
   // The studio teaser is static copy and still shows.

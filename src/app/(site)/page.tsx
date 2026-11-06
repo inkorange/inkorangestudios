@@ -41,7 +41,8 @@ export default async function Home() {
         <Container>
           <Statement
             title={
-              <Display size="l">
+              // Without featured games there is no hero, so the one-liner is the page's h1.
+              <Display as={featured.length > 0 ? "h2" : "h1"} size="l">
                 An independent studio making games that <Highlight paint>make you think.</Highlight>
               </Display>
             }

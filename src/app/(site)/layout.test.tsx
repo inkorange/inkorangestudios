@@ -12,6 +12,10 @@ vi.mock("next/image", () => ({
 }));
 const analytics = vi.hoisted(() => vi.fn((props: { gtmId?: string }) => <span data-testid="analytics" data-gtm={props.gtmId ?? ""} />));
 vi.mock("@/components/analytics/Analytics", () => ({ Analytics: analytics }));
+vi.mock("@/lib/env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/env")>();
+  return { ...actual, publicEnv: { ...actual.publicEnv, gtmId: "GTM-TEST123" } };
+});
 
 import SiteLayout from "./layout";
 
@@ -35,12 +39,12 @@ beforeEach(() => {
 it("wraps the page in the header, main, footer, consent banner and analytics", async () => {
   render(await SiteLayout({ children: <p>Page body</p> }));
   expect(screen.getByRole("banner")).toBeInTheDocument();
-  expect(within(screen.getByRole("navigation", { name: "Primary" })).getByRole("link", { name: "Games" })).toHaveAttribute("aria-current", "page");
+  expect(within(screen.getByRole("navigation", { name: "Primary" })).getByRole("link", { name: "Games" })).toHaveAttribute("aria-current", "true");
   expect(within(screen.getByRole("main")).getByText("Page body")).toBeInTheDocument();
   expect(screen.getByRole("contentinfo")).toHaveAttribute("id", "newsletter");
   expect(screen.getByRole("region", { name: "Cookie consent" })).toBeInTheDocument();
-  expect(screen.getByTestId("analytics")).toBeInTheDocument();
-  expect(analytics).toHaveBeenCalled();
+  expect(screen.getByTestId("analytics")).toHaveAttribute("data-gtm", "GTM-TEST123");
+  expect(analytics.mock.calls[0][0]).toEqual({ gtmId: "GTM-TEST123" });
 });
 
 it("fills the footer from content: newsletter form, game links, socials, support email, press anchor", async () => {

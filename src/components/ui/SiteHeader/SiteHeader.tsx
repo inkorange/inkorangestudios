@@ -29,13 +29,15 @@ const DEFAULT_BACK = { label: "Games", href: "/#games" };
 export function SiteHeader({ active: activeProp, variant: variantProp, backLink = DEFAULT_BACK }: SiteHeaderProps) {
   const fromPath = navStateForPath(usePathname());
   const active = activeProp ?? fromPath.active;
+  // An explicit `active` names the page itself; a derived one may be a section-level match.
+  const current = activeProp ? "page" : fromPath.current;
   const variant = variantProp ?? fromPath.variant;
   return (
     <header className={styles.root} data-variant={variant}>
       <Container>
         <div className={styles.desktop}>
           <Logo href="/" />
-          <NavPillBar active={active} />
+          <NavPillBar active={active} current={current} />
           <Button variant="accent" href="#newsletter">
             Get the newsletter
           </Button>
@@ -52,7 +54,7 @@ export function SiteHeader({ active: activeProp, variant: variantProp, backLink 
           ) : (
             <Logo href="/" />
           )}
-          <MobileMenu active={active} />
+          <MobileMenu active={active} current={current} />
         </div>
       </Container>
     </header>

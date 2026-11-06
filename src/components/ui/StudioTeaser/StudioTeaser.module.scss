@@ -9,7 +9,7 @@
 
 .photo {
   position: relative;
-  flex: 1 1 420px;
+  flex: 1 1 var(--teaser-photo-min);
   height: var(--teaser-photo-height);
   overflow: hidden;
   border: 1px solid var(--color-line);
@@ -26,7 +26,7 @@
 
 .text {
   display: flex;
-  flex: 1 1 480px;
+  flex: 1 1 var(--teaser-text-min);
   flex-direction: column;
   gap: var(--space-5);
 }

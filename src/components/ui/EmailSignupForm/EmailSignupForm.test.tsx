@@ -97,3 +97,13 @@ it("renders extraFields inside the form before the submit button and sends them"
   expect(action.mock.calls[0][1].get("extra")).toBe("x1");
   expect(screen.getByRole("textbox", { name: "Extra" })).toBeInTheDocument();
 });
+
+it("flags forms that carry extra fields (phone stacks the email above them)", () => {
+  const action = vi.fn(async () => ({ status: "idle" }) as FormState);
+  const { container, rerender } = render(
+    <EmailSignupForm action={action} label="Email address" placeholder="p" submitLabel="Go" tone="on-accent" successMessage="Done" extraFields={<select aria-label="Platform" />} />,
+  );
+  expect(container.querySelector("form")).toHaveAttribute("data-extra", "true");
+  rerender(<EmailSignupForm action={action} label="Email address" placeholder="p" submitLabel="Go" tone="on-accent" successMessage="Done" />);
+  expect(container.querySelector("form")).toHaveAttribute("data-extra", "false");
+});

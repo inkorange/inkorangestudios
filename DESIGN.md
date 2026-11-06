@@ -247,6 +247,8 @@ them for every margin, padding and gap.
 | `--sticky-bar-space` | 96px | Room the `StickyPlayBar` occupies at the bottom of a phone page. Pages (or the footer) add `padding-bottom: var(--sticky-bar-space)` below `lg` so the last content scrolls clear of the bar. |
 | `--statement-body-max` | 400px | Maximum width of the paragraph beside a `Statement` heading. |
 | `--teaser-photo-height` | 220 → 420px (fluid) | Height of the photo in `StudioTeaser`. |
+| `--teaser-photo-min` | 420px | Flex basis of the `StudioTeaser` photo column; below it the photo and text stack. |
+| `--teaser-text-min` | 480px | Flex basis of the `StudioTeaser` text column. |
 | `--rail-card-width` | 270px | Width of each card in the phone `NewsRail` scroller. |
 
 ### Breakpoints
@@ -535,7 +537,7 @@ An email input plus submit button bound to a server action.
 
 - **Use for:** the footer newsletter, the beta signup and the launch-alert ("Notify me") box.
 - **Don't use for:** forms with more than an email (build those from `TextField` / `TextArea`).
-- **Props / variants:** `action(prev, data)` returning a `FormState`; `label` (visually hidden); `placeholder`; `submitLabel`; `tone`: `on-dark` (footer: paper input, accent button), `on-card` (store card box: paper input, ink button), `on-accent` (callout band: card input, ink button); `layout`: `inline` (row that wraps when narrow, default) or `stacked` (phone / footer column, full-width button); `hidden` (extra fields sent with the form); `extraFields` (controls such as a `Select`, rendered inside the form before the submit button; make them controlled if their value must survive a failed submit); `successMessage`.
+- **Props / variants:** `action(prev, data)` returning a `FormState`; `label` (visually hidden); `placeholder`; `submitLabel`; `tone`: `on-dark` (footer: paper input, accent button), `on-card` (store card box: paper input, ink button), `on-accent` (callout band: card input, ink button); `layout`: `inline` (row that wraps when narrow, default) or `stacked` (phone / footer column, full-width button); `hidden` (extra fields sent with the form); `extraFields` (controls such as a `Select`, rendered inside the form before the submit button; make them controlled if their value must survive a failed submit; the form gets `data-extra="true"` and, below `md`, the email takes its own full-width line above them); `successMessage`.
 - **Accessibility:** the label stays the input's accessible name. Submit is disabled while pending. Success replaces the form with a `status` message; an error shows in an `alert` and keeps what was typed. Includes `Turnstile`, which renders only when `CAPTCHA_REQUIRED`.
 
 ### Turnstile
@@ -662,8 +664,8 @@ The pill-shaped primary navigation for desktop.
 
 - **Use for:** the five site sections (Games, Studio, News, Press, Support), from `src/lib/nav.ts`. `SiteHeader` shows it from `lg` (1024px) up.
 - **Don't use for:** in-page filters (use `FilterPills`) or the phone menu (use the sheet in `SiteHeader`).
-- **Props / variants:** `active`: a `NavKey`; the active pill is ink with paper text.
-- **Accessibility:** a `nav` labelled "Primary"; the active link has `aria-current="page"`. Each link is at least `--tap-min` tall with a visible focus ring.
+- **Props / variants:** `active`: a `NavKey`; the active pill is ink with paper text. `current`: `page` (default) or `true`, the `aria-current` value for the active pill (`true` when the page is inside that section rather than the section's own page).
+- **Accessibility:** a `nav` labelled "Primary"; the active link has `aria-current` set to `current`. Each link is at least `--tap-min` tall with a visible focus ring.
 
 ### SiteHeader
 
@@ -671,7 +673,7 @@ The top bar: logo, nav and the newsletter call to action.
 
 - **Use for:** the top of every page, once.
 - **Don't use for:** anything inside a page body.
-- **Props / variants:** `active` (a `NavKey`); `variant`: `default` or `game` (phone shows a "‹ Games" back link and the compact logo); `backLink` (`{ label, href }`, defaults to Games). It is a client component mounted once by the site layout (`src/app/(site)/layout.tsx`); when `active` or `variant` are omitted it derives them from the pathname with `navStateForPath` in `src/lib/nav.ts` (`/` and `/games/*` → Games, `/about` → Studio, `/news/*` → News, `/support` → Support; `/games/[slug]` → the `game` variant). Explicit props win. Both layouts are in the markup and CSS switches them at `lg`, so server and client markup match. Below `lg` a menu button opens a dark sheet (`--z-sheet`) with Barlow 34px links and an accent newsletter button. The sheet is a client island, closes if the viewport reaches `lg`, and body scroll is not locked.
+- **Props / variants:** `active` (a `NavKey`); `variant`: `default` or `game` (phone shows a "‹ Games" back link and the compact logo); `backLink` (`{ label, href }`, defaults to Games). It is a client component mounted once by the site layout (`src/app/(site)/layout.tsx`); when `active` or `variant` are omitted it derives them from the pathname with `navStateForPath` in `src/lib/nav.ts`: `/` and `/games/*` → Games, `/about` → Studio, `/news/*` → News, `/press` → Press, `/support` → Support; `/games/[slug]` → the `game` variant. An exact match (`/games`, `/about`, `/news`, `/press`, `/support`) gets `aria-current="page"`; a page inside a section (`/` → Games, `/games/[slug]` → Games, `/news/[slug]` → News) gets `aria-current="true"`. Explicit props win; an explicit `active` is always `page`. Both layouts are in the markup and CSS switches them at `lg`, so server and client markup match. Below `lg` a menu button opens a dark sheet (`--z-sheet`) with Barlow 34px links and an accent newsletter button. The sheet is a client island, closes if the viewport reaches `lg`, and body scroll is not locked.
 - **Accessibility:** the toggle has `aria-expanded` and `aria-controls`. Opening moves focus to the first sheet link; Escape closes and returns focus to the toggle; choosing a link closes the sheet. Focus rings on the dark sheet use the accent color.
 
 ### SiteFooter
@@ -726,7 +728,7 @@ The big dark featured-games carousel at the top of the home page.
 - **Use for:** the home page's featured games (`Featured[]`), once per page.
 - **Don't use for:** a game page's media (`MediaViewer`) or anything that moves on its own. There is no autoplay, ever.
 - **Props / variants:** `games`. Radius `--radius-3xl` and 640px tall from `lg`: chips, `Display` hero name, blurb, accent CTA plus "Game details", prev/next and a mono `01 / 03` counter, art on the right. Below `lg` it is a stacked card: 300px art with the status chip, then mono genre and platform, name, blurb, full-width buttons and prev / dots / next (the active dot is `--space-7` wide, accent). One game shows a static slide with no controls, no rail and no carousel semantics; none renders nothing. If the list shrinks under the current slide, the index is clamped to the last game. Art uses `next/image` (`priority` on the first slide only); missing art shows the dark `Placeholder`. It also renders `SpotlightRail`.
-- **Accessibility:** the hero owns the page's `h1` (the active game's name), so a page that renders it must not add another `h1`; a page without featured games needs its own. It is a `section` named "Featured games"; with two or more games it gets `aria-roledescription="carousel"`, the slide is a group `aria-roledescription="slide"` named "1 of 3", and a visually hidden `aria-live="polite"` region announces the game name after a change (not on first render). A single game gets none of these. Left and right arrow keys move while focus is inside (ignored with Alt, Ctrl or Meta held, so browser shortcuts still work). In the DOM the controls run prev, dots, next, then the counter, which matches the visual order at every width. Dots are buttons named "Show {name}" with `aria-current`, at least `--tap-min` square around an 8px mark.
+- **Accessibility:** the hero owns the page's `h1` (the active game's name), so a page that renders it must not add another `h1`; a page without featured games needs its own (the home page then makes its one-liner `Statement` the `h1`). It is a `section` named "Featured games"; with two or more games it gets `aria-roledescription="carousel"`, the slide is a group `aria-roledescription="slide"` named "1 of 3", and a visually hidden `aria-live="polite"` region announces the game name after a change (not on first render). A single game gets none of these. Left and right arrow keys move while focus is inside (ignored with Alt, Ctrl or Meta held, so browser shortcuts still work). In the DOM the controls run prev, dots, next, then the counter, which matches the visual order at every width. Dots are buttons named "Show {name}" with `aria-current`, at least `--tap-min` square around an 8px mark.
 
 ### SpotlightRail
 
@@ -761,7 +763,7 @@ The studio band: a photo beside an eyebrow, heading, intro, values and a link on
 
 - **Use for:** the home page's studio section, inside a `sand` `Section` with `id="studio"`.
 - **Don't use for:** the full About page.
-- **Props / variants:** `photo` (`ImageRef`; `null` shows the hatched `Placeholder` labelled "Studio photo"); `eyebrow` (in `--color-link`); `title` (`Heading` `h2` size `l`); `body` (hidden when empty, e.g. no founded line in settings); `values` (a `ValueList`); `action` (`{ label, href }`, an `ink` `Button`). The photo is `--teaser-photo-height` tall, `--radius-xl` on phone and `--radius-2xl` from `lg`; photo and text wrap to a stack when narrow.
+- **Props / variants:** `photo` (`ImageRef`; `null` shows the hatched `Placeholder` labelled "Studio photo"); `eyebrow` (in `--color-link`); `title` (`Heading` `h2` size `l`); `body` (hidden when empty, e.g. no founded line in settings); `values` (a `ValueList`); `action` (`{ label, href }`, an `ink` `Button`). The photo column's flex basis is `--teaser-photo-min` and the text column's `--teaser-text-min`; the photo is `--teaser-photo-height` tall, `--radius-xl` on phone and `--radius-2xl` from `lg`; photo and text wrap to a stack when narrow.
 - **Accessibility:** the photo's alt text comes from the CMS; the placeholder is decorative-grade.
 
 ### NewsRail
