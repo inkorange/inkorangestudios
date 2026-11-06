@@ -1,0 +1,29 @@
+.root {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-snug);
+  text-transform: uppercase;
+  color: inherit;
+  text-wrap: balance;
+
+  &[data-size="l"] {
+    font-size: var(--text-heading-l);
+  }
+
+  &[data-size="m"] {
+    font-size: var(--text-heading-m);
+  }
+
+  &[data-size="s"] {
+    font-size: var(--text-heading-s);
+  }
+
+  &[data-size="title"] {
+    font-size: var(--text-title);
+  }
+
+  &[data-size="title-s"] {
+    font-size: var(--text-title-s);
+  }
+}

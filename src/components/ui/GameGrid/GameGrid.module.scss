@@ -1,0 +1,20 @@
+@use "../../../styles/mixins" as *;
+
+.root {
+  display: block;
+}
+
+// Phone: always two columns. From md: intrinsic auto-fill at the tile minimum.
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5) var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @include bp(md) {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--grid-min-tile)), 1fr));
+    gap: var(--space-7) var(--space-5);
+  }
+}

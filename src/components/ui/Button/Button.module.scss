@@ -1,0 +1,139 @@
+@use "../../../styles/mixins" as *;
+
+.root {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--tap-min);
+  min-width: var(--tap-min);
+  padding: var(--space-3) var(--space-5);
+  overflow: hidden;
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-snug);
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+
+  &[data-size="m"] {
+    min-height: var(--control-height);
+  }
+
+  &[data-size="l"] {
+    min-height: calc(var(--control-height) + var(--space-2));
+    padding: var(--space-4) var(--space-6);
+    font-size: var(--text-body-l);
+  }
+
+  &[data-size="s"] {
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--text-body-s);
+  }
+
+  &[data-block="true"] {
+    display: flex;
+    width: 100%;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+
+  &[data-variant="accent"] {
+    color: var(--color-ink);
+    background-color: var(--color-accent);
+
+    // The gloss is ::before (earlier in the DOM); icon and label are
+    // positioned, so they paint above it.
+    > * {
+      position: relative;
+    }
+
+    // Gloss sweep: a soft light band that crosses the button on hover.
+    &::before {
+      position: absolute;
+      inset: 0;
+      content: "";
+      pointer-events: none;
+      background: linear-gradient(105deg, transparent 35%, var(--color-card) 50%, transparent 65%);
+      opacity: 0;
+      transform: translateX(-100%);
+      transition:
+        transform var(--duration-slow) var(--ease-standard),
+        opacity var(--duration-slow) var(--ease-standard);
+    }
+
+    &:hover:not(:disabled)::before {
+      opacity: 0.5;
+      transform: translateX(100%);
+    }
+
+    @include reduced-motion {
+      &::before,
+      &:hover:not(:disabled)::before {
+        display: none;
+      }
+    }
+  }
+
+  &[data-variant="ink"] {
+    color: var(--color-on-dark);
+    background-color: var(--color-ink);
+
+    &:hover:not(:disabled) {
+      background-color: var(--color-ink-2);
+    }
+
+    &:focus-visible {
+      outline-color: var(--color-accent);
+    }
+  }
+
+  &[data-variant="outline"] {
+    color: var(--color-ink);
+    background-color: transparent;
+    border-color: var(--color-ink);
+
+    &:hover:not(:disabled) {
+      color: var(--color-on-dark);
+      background-color: var(--color-ink);
+    }
+  }
+
+  &[data-variant="outline-on-dark"] {
+    color: var(--color-on-dark);
+    background-color: transparent;
+    border-color: var(--color-dark-line-3);
+
+    &:hover:not(:disabled) {
+      border-color: var(--color-on-dark);
+    }
+
+    &:focus-visible {
+      outline-color: var(--color-accent);
+    }
+  }
+
+  &[data-variant="on-light"] {
+    color: var(--color-ink);
+    background-color: var(--color-card);
+
+    &:hover:not(:disabled) {
+      background-color: var(--color-paper);
+    }
+  }
+}

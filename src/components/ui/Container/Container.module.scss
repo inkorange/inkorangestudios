@@ -1,0 +1,12 @@
+.root {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding-right: var(--gutter);
+  padding-left: var(--gutter);
+
+  &[data-width="narrow"] {
+    max-width: var(--content-narrow);
+  }
+}

@@ -1,0 +1,94 @@
+@use "../../../styles/mixins" as *;
+
+.root {
+  position: relative;
+  z-index: var(--z-header);
+}
+
+.desktop,
+.phone {
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  padding-block: var(--space-4);
+}
+
+.desktop {
+  display: none;
+
+  @include bp(lg) {
+    display: flex;
+  }
+}
+
+.phone {
+  display: flex;
+
+  @include bp(lg) {
+    display: none;
+  }
+}
+
+.back {
+  display: inline-flex;
+  gap: var(--space-1);
+  align-items: center;
+  min-height: var(--tap-min);
+  padding-inline: var(--space-2);
+  font-size: var(--text-body);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink);
+  text-decoration: none;
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+.menu {
+  display: contents;
+}
+
+// Anchored to the header row so it opens just under the bar, above page content.
+.sheet {
+  position: absolute;
+  inset-inline: var(--space-3);
+  top: 100%;
+  z-index: var(--z-sheet);
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-3);
+  color: var(--color-on-dark);
+  background-color: var(--color-ink);
+  border-radius: var(--radius-2xl);
+}
+
+.item {
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-display);
+  font-size: var(--text-heading-m);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-snug);
+  color: var(--color-on-dark);
+  text-decoration: none;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--color-dark-line);
+
+  &:hover {
+    color: var(--color-accent);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+
+    outline-color: var(--color-accent);
+  }
+
+  &[aria-current="page"] {
+    color: var(--color-accent);
+  }
+}
+
+.cta {
+  padding: var(--space-2) var(--space-1) var(--space-1);
+}

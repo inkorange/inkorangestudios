@@ -1,0 +1,59 @@
+.root {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--weight-black);
+  line-height: var(--leading-tight);
+  text-transform: uppercase;
+  color: var(--color-ink);
+  text-wrap: balance;
+
+  // Lets a Highlight sit behind the heading's own text (see .highlight).
+  isolation: isolate;
+
+  &[data-tone="on-dark"] {
+    color: var(--color-on-dark);
+  }
+
+  &[data-size="hero"] {
+    font-size: var(--text-display-hero);
+  }
+
+  &[data-size="xl"] {
+    font-size: var(--text-display-xl);
+  }
+
+  &[data-size="l"] {
+    font-size: var(--text-display-l);
+  }
+
+  &[data-size="m"] {
+    font-size: var(--text-display-m);
+  }
+}
+
+// An inline background covers the font's full content area, which is taller than
+// the tight display line height; painting it behind the text keeps the line
+// above readable where the box overlaps it.
+.highlight {
+  position: relative;
+  z-index: var(--z-behind);
+  padding: 0 var(--space-2);
+  background-color: var(--color-accent);
+  color: var(--color-ink);
+  box-decoration-break: clone;
+
+  // The stroke image carries its own orange and fades to transparent, so the
+  // flat accent fill is dropped; stretching keeps the fade across each line.
+  &[data-paint="true"] {
+    padding-block: var(--highlight-bleed);
+
+    // Extra paint before (--space-6) and past the end (--highlight-bleed-inline) of the text,
+    // taken back as negative margin so the words don't move.
+    padding-inline: calc(var(--space-2) + var(--space-6)) calc(var(--space-2) + var(--highlight-bleed-inline));
+    margin-inline: calc(var(--space-6) * -1) calc(var(--highlight-bleed-inline) * -1);
+    background-color: transparent;
+    background-image: var(--texture-brush-stroke);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+  }
+}

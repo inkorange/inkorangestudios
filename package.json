@@ -1,0 +1,56 @@
+{
+  "name": "inkorangestudios",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "prebuild": "node scripts/tokens-json.mjs && npm run lint && npm test",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint && stylelint \"src/**/*.{scss,css,sass}\"",
+    "pretest": "node scripts/tokens-json.mjs --check",
+    "test": "vitest run",
+    "pretypecheck": "node scripts/tokens-json.mjs --check",
+    "typecheck": "tsc --noEmit",
+    "seed": "node --env-file=.env.local scripts/seed-sanity.mjs"
+  },
+  "dependencies": {
+    "@next/third-parties": "^16.4.5",
+    "@portabletext/react": "^8.0.1",
+    "@sanity/client": "^8.14.1",
+    "@sanity/image-url": "^2.1.1",
+    "@sanity/vision": "^6.22.0",
+    "@supabase/supabase-js": "^2.119.0",
+    "next": "16.4.5",
+    "next-sanity": "^13.4.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "sanity": "^6.22.0",
+    "sass": "^1.108.0",
+    "server-only": "^0.0.1",
+    "styled-components": "^6.6.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@sanity/webhook": "^4.0.4",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.8",
+    "@types/node": "^22.20.5",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^6.2.1",
+    "babel-plugin-react-compiler": "1.0.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.5",
+    "jsdom": "^29.1.1",
+    "stylelint": "^17.16.0",
+    "stylelint-config-standard-scss": "^17.0.0",
+    "stylelint-declaration-strict-value": "^1.12.1",
+    "typescript": "^5",
+    "vitest": "^5.1.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

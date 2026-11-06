@@ -1,0 +1,55 @@
+@use "../../../styles/mixins" as *;
+
+.root {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-10);
+  padding: var(--space-8);
+  overflow: hidden;
+  color: var(--color-ink);
+  background-color: var(--color-accent);
+  border-radius: var(--radius-2xl);
+
+  @include bp(md) {
+    padding: var(--space-14);
+    border-radius: var(--radius-3xl);
+  }
+
+  // The wash bleeds in from the left instead of starting on a hard edge. The mask only reads
+  // alpha, so currentcolor stands in for "fully opaque".
+  &[data-paint="true"]::before {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: 0;
+    width: 55%;
+    content: "";
+    pointer-events: none;
+    background-image: var(--texture-watercolor);
+    background-position: center;
+    background-size: cover;
+    opacity: var(--wash-opacity);
+    mask-image: linear-gradient(to right, transparent, currentcolor 45%);
+  }
+}
+
+.text,
+.action {
+  position: relative;
+}
+
+.text {
+  display: flex;
+  flex: 1 1 460px;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.body {
+  max-width: 520px;
+  margin: 0;
+  font-size: var(--text-lead);
+  line-height: var(--leading-body);
+}

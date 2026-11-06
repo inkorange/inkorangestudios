@@ -1,0 +1,68 @@
+@use "../../../styles/mixins" as *;
+
+// Phone: no card chrome; the price, button and notify box sit straight under the
+// game title as in the phone mockup. From lg it is the bordered card in the aside.
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+
+  @include bp(lg) {
+    padding: var(--space-7);
+    background-color: var(--color-card);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-2xl);
+  }
+}
+
+.eyebrow {
+  display: none;
+
+  @include bp(lg) {
+    display: block;
+  }
+}
+
+.price {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-heading-s);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-snug);
+  text-transform: uppercase;
+}
+
+.notify {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px dashed var(--color-line-strong);
+  border-radius: var(--radius-m);
+}
+
+.notify-title {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  margin: 0;
+  font-size: var(--text-body-s);
+  font-weight: var(--weight-semibold);
+}
+
+// Same breakpoint as the header: the fact sheet is a dl at lg and up,
+// an accordion below. Both are always in the markup so SSR output is stable.
+.facts-desktop {
+  display: none;
+
+  @include bp(lg) {
+    display: block;
+    margin-top: var(--space-2);
+  }
+}
+
+.facts-phone {
+  @include bp(lg) {
+    display: none;
+  }
+}

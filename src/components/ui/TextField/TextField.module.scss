@@ -1,0 +1,85 @@
+@use "../../../styles/mixins" as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--color-ink-3);
+
+  &[data-hidden="true"] {
+    @include visually-hidden;
+  }
+}
+
+.input {
+  width: 100%;
+  min-height: var(--control-height);
+  padding: var(--space-3) var(--space-5);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: var(--color-ink);
+  background-color: var(--color-card);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-pill);
+
+  &::placeholder {
+    color: var(--color-ink-3);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+
+  &[aria-invalid="true"] {
+    // Same border width as valid; the extra weight is an outline so layout never shifts.
+    border-color: var(--color-ink);
+    outline: var(--focus-ring-width) solid var(--color-ink);
+  }
+}
+
+.root[data-size="s"] .input {
+  min-height: var(--tap-min);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-body-s);
+}
+
+.root[data-tone="on-card"] .input {
+  background-color: var(--color-paper);
+}
+
+.root[data-tone="on-dark"] {
+  .label {
+    color: var(--color-on-dark-3);
+  }
+
+  .input {
+    background-color: var(--color-paper);
+    border-color: var(--color-paper);
+
+    &:focus-visible {
+      outline-color: var(--color-accent);
+    }
+  }
+
+  .error {
+    color: var(--color-on-dark);
+  }
+}
+
+.error {
+  margin: 0;
+  padding-inline: var(--space-2);
+  font-size: var(--text-meta);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-normal);
+  color: var(--color-ink);
+}

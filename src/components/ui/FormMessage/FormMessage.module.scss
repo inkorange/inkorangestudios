@@ -1,0 +1,16 @@
+.root {
+  margin: 0;
+  padding: var(--space-3) var(--space-5);
+  font-size: var(--text-body-s);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-normal);
+  color: inherit;
+
+  // Border color is left at its initial value, which is the text color.
+  border: 1px solid;
+  border-radius: var(--radius-pill);
+
+  &[data-status="error"] {
+    border-width: 2px;
+  }
+}

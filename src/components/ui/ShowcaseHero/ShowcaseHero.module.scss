@@ -1,0 +1,183 @@
+@use "../../../styles/mixins" as *;
+
+.root {
+  width: 100%;
+}
+
+.card {
+  position: relative;
+  overflow: hidden;
+  color: var(--color-on-dark);
+  background-color: var(--color-ink);
+  border-radius: var(--radius-2xl);
+
+  @include bp(lg) {
+    border-radius: var(--radius-3xl);
+  }
+}
+
+// Phone: art on top, text below. Desktop: text left, art right.
+.slide {
+  display: flex;
+  flex-direction: column;
+
+  @include bp(lg) {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr;
+    min-height: 640px;
+  }
+}
+
+.art {
+  position: relative;
+  height: 300px;
+
+  @include bp(lg) {
+    grid-column: 2;
+    grid-row: 1;
+    height: auto;
+    min-height: 420px;
+  }
+}
+
+.image {
+  object-fit: cover;
+  object-position: center 30%;
+}
+
+.flag {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+
+  @include bp(lg) {
+    display: none;
+  }
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-5) var(--space-5);
+
+  @include bp(lg) {
+    grid-column: 1;
+    grid-row: 1;
+    gap: var(--space-5);
+    justify-content: flex-end;
+    padding: var(--space-14);
+  }
+}
+
+.chips {
+  display: none;
+
+  @include bp(lg) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    align-items: center;
+  }
+}
+
+.meta {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-s);
+  letter-spacing: var(--tracking-mono);
+  color: var(--color-on-dark-3);
+
+  @include bp(lg) {
+    display: none;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-1);
+
+  > * {
+    text-align: center;
+  }
+
+  @include bp(lg) {
+    flex-flow: row wrap;
+  }
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--space-2);
+
+  @include bp(lg) {
+    gap: var(--space-3);
+    justify-content: flex-start;
+    padding-top: var(--space-6);
+  }
+}
+
+.counter {
+  display: none;
+  padding-left: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-mono);
+  color: var(--color-on-dark-3);
+
+  @include bp(lg) {
+    display: block;
+  }
+}
+
+.dots {
+  display: flex;
+  align-items: center;
+
+  @include bp(lg) {
+    display: none;
+  }
+}
+
+// 44px tap target around an 8px visual dot.
+.dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--tap-min);
+  height: var(--tap-min);
+  padding: 0;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  border-radius: var(--radius-pill);
+
+  &:focus-visible {
+    @include focus-ring;
+
+    outline-color: var(--color-accent);
+  }
+
+  &[aria-current="true"] .pip {
+    width: var(--space-7);
+    background-color: var(--color-accent);
+  }
+}
+
+.pip {
+  display: block;
+  width: var(--space-2);
+  height: var(--space-2);
+  background-color: var(--color-dark-line-2);
+  border-radius: var(--radius-pill);
+  transition:
+    width var(--duration-base) var(--ease-standard),
+    background-color var(--duration-base) var(--ease-standard);
+}
+
+.live {
+  @include visually-hidden;
+}

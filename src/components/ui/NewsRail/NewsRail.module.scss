@@ -1,0 +1,33 @@
+@use "../../../styles/mixins" as *;
+
+// Phone: one row that scrolls sideways, running past the right gutter.
+.root {
+  display: flex;
+  gap: var(--space-3);
+  margin: 0 calc(var(--gutter) * -1) 0 0;
+  padding: 0 var(--gutter) var(--space-2) 0;
+  overflow-x: auto;
+  list-style: none;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+
+  @include bp(md) {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--grid-min-card)), 1fr));
+    gap: var(--space-6);
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+  }
+}
+
+.item {
+  display: flex;
+  flex: 0 0 var(--rail-card-width);
+  flex-direction: column;
+  scroll-snap-align: start;
+
+  > * {
+    flex: 1;
+  }
+}

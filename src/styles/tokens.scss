@@ -1,0 +1,170 @@
+// Design tokens. The only file in the repo allowed to hold raw colors, sizes and fonts.
+// Fluid sizes: scale from the phone size (375px viewport) to the desktop size (1320px).
+// Arguments are px numbers from the mockups; output is rem (16px base) plus a vw slope,
+// so text still follows the reader's browser font-size setting.
+@use "sass:math";
+
+@function to-rem($px) {
+  @return math.div($px, 16) * 1rem;
+}
+
+@function fluid($min, $max, $from: 375, $to: 1320) {
+  $slope: math.div($max - $min, $to - $from);
+  $base: $min - $slope * $from;
+
+  @return clamp(#{to-rem($min)}, calc(#{to-rem($base)} + #{$slope * 100}vw), #{to-rem($max)});
+}
+
+:root {
+  // Color: paper and ink
+  --color-paper: #F6F1E7;
+  --color-card: #FFFDF8;
+  --color-sand: #EDE5D6;
+  --color-stripe: #E6DCCB;
+  --color-line: #DDD3C2;
+  --color-line-strong: #CFC4B1;
+  --color-ink: #1C1A17;
+  --color-ink-2: #4A453E;
+  --color-ink-3: #6B6358;
+  --color-ink-4: #8C8478; // decorative/placeholder only: 3.28:1 on paper
+  --color-accent: #E08D00;
+  --color-link: #9A5200;
+
+  // Color: dark ("digital") surfaces
+  --color-on-dark: #F6F1E7;
+  --color-on-dark-2: #D9D1C4;
+  --color-on-dark-3: #C9C0B2;
+  --color-on-dark-4: #A39A8C;
+  --color-dark-line: #3A362F;
+  --color-dark-line-2: #5A544B;
+  --color-dark-line-3: #6B6358;
+  --color-dark-stripe: #2A2722;
+  --color-dark-stripe-2: #24211D;
+
+  // Color: brand motif
+  --color-guide: #B9C4CC;
+  --color-shadow: rgba(28, 26, 23, 0.25);
+  --texture-watercolor: url("/brand/watercolor-wash.webp");
+  --texture-brush-stroke: url("/brand/brush-stroke.webp");
+
+  // Type
+  --font-display: var(--font-display-face), "Barlow Condensed", "Arial Narrow", sans-serif;
+  --font-sans: var(--font-sans-face), Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-mono-face), "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --text-display-xl: #{fluid(68, 112)};
+  --text-display-hero: #{fluid(56, 108)};
+  --text-display-l: #{fluid(44, 72)};
+  --text-display-m: #{fluid(40, 64)};
+  --text-heading-l: #{fluid(34, 56)};
+  --text-heading-m: #{fluid(34, 44)};
+  --text-heading-s: #{fluid(26, 36)};
+  --text-title: #{fluid(20, 28)};
+  --text-title-s: #{fluid(20, 22)};
+  --text-lead: #{fluid(17, 21)};
+  --text-body-l: #{fluid(16, 18)};
+  --text-body: #{fluid(15, 17)};
+  --text-body-s: #{fluid(14, 15)};
+  --text-meta: #{fluid(13, 14)};
+  --text-mono: #{fluid(12, 13)};
+  --text-mono-s: #{fluid(11, 12)};
+  --text-mono-xs: #{fluid(10, 11)};
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-black: 800;
+  --leading-tight: 0.86;
+  --leading-snug: 1;
+  --leading-normal: 1.3;
+  --leading-body: 1.6;
+  --leading-loose: 1.7;
+  --tracking-mono: 0.1em;
+  --tracking-eyebrow: 0.14em;
+  --tracking-wordmark: 0.06em;
+
+  // Space
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-16: 64px;
+  --space-18: 72px;
+  --space-22: 88px;
+  --space-24: 96px;
+  --section-y: #{fluid(48, 96)};
+  --gutter: #{fluid(16, 24)};
+  --content-max: 1320px;
+  --content-narrow: 760px;
+  --grid-min-tile: 260px;
+  --grid-min-tile-s: 240px;
+  --grid-min-card: 300px;
+  --grid-min-rail: 240px;
+  --grid-min-thumb: 150px;
+  --card-image-height: 180px;
+  --marker-size: 36px;
+  --date-column: 120px;
+  --wash-opacity: 0.35;
+  --highlight-bleed: 0.12em;
+  --highlight-bleed-inline: 0.25em;
+  --logo-width-s: 120px;
+  --logo-width-m: 160px;
+  --logo-width-l: 220px;
+  --play-button-size: #{fluid(68, 96)};
+  --thumb-height: #{fluid(60, 92)};
+  --sticky-bar-space: 96px;
+  --statement-body-max: 400px;
+  --teaser-photo-height: #{fluid(220, 420)};
+  --teaser-photo-min: 420px;
+  --teaser-text-min: 480px;
+  --rail-card-width: 270px;
+  --rail-tile-width: 150px;
+
+  // Radius
+  --radius-xs: 10px;
+  --radius-s: 14px;
+  --radius-m: 16px;
+  --radius-l: 18px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-3xl: 28px;
+  --radius-pill: 999px;
+
+  // Size
+  --tap-min: 44px;
+  --icon-button: 48px;
+  --control-height: 48px;
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+
+  // Motion
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 600ms;
+  --duration-draw: 1200ms;
+  --ease-standard: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+
+  // Layers
+  --z-behind: -1;
+  --z-sticky: 10;
+  --z-header: 20;
+  --z-sheet: 30;
+  --z-popover: 35;
+  --z-banner: 40;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-slow: 0ms;
+    --duration-draw: 0ms;
+  }
+}

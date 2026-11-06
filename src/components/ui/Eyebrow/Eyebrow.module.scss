@@ -1,0 +1,21 @@
+.root {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-mono);
+  font-weight: var(--weight-regular);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-ink-3);
+
+  &[data-tone="link"] {
+    color: var(--color-link);
+  }
+
+  &[data-tone="on-accent"] {
+    color: var(--color-ink);
+  }
+
+  &[data-tone="on-dark-4"] {
+    color: var(--color-on-dark-4);
+  }
+}
