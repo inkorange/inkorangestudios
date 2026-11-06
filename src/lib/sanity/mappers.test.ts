@@ -110,10 +110,20 @@ describe("mapGame", () => {
   });
 });
 
+describe("mapGame platforms", () => {
+  const platforms = (v: unknown) => mapGame({ slug: "s", name: "S", platforms: v })!.platforms;
+  it("keeps the known platforms in Android, iOS, Web order, once each", () => {
+    expect(platforms(["Web", "iOS", "Android", "Web"])).toEqual(["Android", "iOS", "Web"]);
+  });
+  it("forgives case and spacing but drops anything else", () => {
+    expect(platforms([" web ", "IOS", "Android (soon)", "PC", 3])).toEqual(["iOS", "Web"]);
+  });
+});
+
 describe("mapGameSummary and toFeatured", () => {
-  const raw = { ...base, genres: ["Builder", "Sim"], platforms: ["PC", "Mac"], coverArt: img("Cover"), keyArt: img("Key") };
+  const raw = { ...base, genres: ["Builder", "Sim"], platforms: ["Web", "iOS"], coverArt: img("Cover"), keyArt: img("Key") };
   it("summarises", () => {
-    expect(mapGameSummary(raw)).toMatchObject({ slug: "terraforge", genre: "Builder", platformLabel: "PC · Mac", status: "coming-soon" });
+    expect(mapGameSummary(raw)).toMatchObject({ slug: "terraforge", genre: "Builder", platformLabel: "iOS · Web", status: "coming-soon" });
     expect(mapGameSummary({ ...raw, slug: "" })).toBeNull();
   });
   it("maps featured", () => {
@@ -121,7 +131,7 @@ describe("mapGameSummary and toFeatured", () => {
     expect(f).toMatchObject({
       slug: "terraforge",
       genre: "BUILDER",
-      platformLabel: "PC · MAC",
+      platformLabel: "IOS · WEB",
       detailHref: "/games/terraforge",
       cta: { label: "Game details", href: "/games/terraforge" },
     });

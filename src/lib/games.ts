@@ -17,3 +17,14 @@ const BETA_PLATFORMS: Record<string, string> = { ios: "iOS", android: "Android" 
 export function betaPlatformLabel(value: string): string {
   return BETA_PLATFORMS[value] ?? value;
 }
+
+/** The platforms a game can be on, in display order. The Studio stores these exact values. */
+export const PLATFORMS = ["Android", "iOS", "Web"] as const;
+export type Platform = (typeof PLATFORMS)[number];
+
+/** A stored value as a known platform (case and spacing forgiven), or null for anything else ("Android (soon)"). */
+export function toPlatform(value: unknown): Platform | null {
+  if (typeof value !== "string") return null;
+  const v = value.trim().toLowerCase();
+  return PLATFORMS.find((p) => p.toLowerCase() === v) ?? null;
+}

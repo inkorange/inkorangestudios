@@ -1,5 +1,5 @@
 import type { PortableTextBlock } from "@portabletext/react";
-import type { GameStatus } from "@/lib/games";
+import type { GameStatus, Platform } from "@/lib/games";
 
 export type { PortableTextBlock };
 
@@ -55,7 +55,8 @@ export type Game = {
   name: string;
   status: GameStatus;
   genres: string[];
-  platforms: string[];
+  /** Known platforms only, in `PLATFORMS` order. */
+  platforms: Platform[];
   blurb: string;
   description: RichBody;
   keyArt: ImageRef;

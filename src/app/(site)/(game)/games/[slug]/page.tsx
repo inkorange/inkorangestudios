@@ -101,7 +101,8 @@ export default async function GamePage({ params }: Props) {
           <GameTitle
             name={game.name}
             status={game.status}
-            tags={[...game.genres, ...game.platforms]}
+            tags={game.genres}
+            platforms={game.platforms}
             crumbs={[{ label: "Games", href: "/#games" }, { label: game.name }]}
             lead={game.blurb || undefined}
           />

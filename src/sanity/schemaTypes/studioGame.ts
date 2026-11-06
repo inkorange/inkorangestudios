@@ -31,7 +31,21 @@ export const studioGame = defineType({
       validation: (r) => r.required(),
     }),
     defineField({ name: "genres", title: "Genres", type: "array", of: [{ type: "string" }] }),
-    defineField({ name: "platforms", title: "Platforms", type: "array", of: [{ type: "string" }] }),
+    defineField({
+      name: "platforms",
+      title: "Platforms",
+      description: "Where the game can be played. Each shows with its logo on the game page.",
+      type: "array",
+      of: [{ type: "string" }],
+      options: {
+        list: [
+          { title: "Android", value: "Android" },
+          { title: "iOS", value: "iOS" },
+          { title: "Web", value: "Web" },
+        ],
+      },
+      validation: (r) => r.unique(),
+    }),
     defineField({
       name: "blurb",
       title: "Short blurb",

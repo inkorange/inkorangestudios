@@ -26,7 +26,7 @@ export function buildDocuments() {
     slug: slug("terraforge"),
     status: "out-now",
     genres: ["Sandbox", "Creative"],
-    platforms: ["Web", "Android (soon)"],
+    platforms: ["Web"],
     blurb:
       "Build planets and whole star systems from scratch, explore real exoplanets, and share your creations with other players.",
     description: [

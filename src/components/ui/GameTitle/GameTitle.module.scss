@@ -47,6 +47,12 @@
   }
 }
 
+// Line the chips up by their boxes, not their text baselines: a chip with a logo
+// would otherwise sit higher than the plain ones.
+.chips > li {
+  display: flex;
+}
+
 .lead {
   margin: 0;
   font-size: var(--text-lead);

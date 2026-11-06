@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { GameStatus } from "@/lib/games";
+import { PLATFORMS, toPlatform, type GameStatus, type Platform } from "@/lib/games";
 import { toImageRef, type SanityImageInput } from "./image";
 import type {
   Faq,
@@ -96,7 +96,10 @@ const gameShape = lenient({
   name: str,
   status: z.unknown().transform((v): GameStatus => (STATUSES.includes(v as GameStatus) ? (v as GameStatus) : "in-development")),
   genres: strList,
-  platforms: strList,
+  platforms: z.unknown().transform((v): Platform[] => {
+    const known = new Set(Array.isArray(v) ? v.map(toPlatform) : []);
+    return PLATFORMS.filter((p) => known.has(p));
+  }),
   blurb: str,
   description: blocks,
   keyArt: z.unknown(),

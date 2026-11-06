@@ -30,3 +30,10 @@ it("shows the phone lead only when given", () => {
   rerender(<GameTitle name="X" status="out-now" tags={[]} crumbs={crumbs} lead="Build planets." />);
   expect(screen.getByText("Build planets.")).toHaveAttribute("data-lead", "phone");
 });
+
+it("shows each platform last, as an outline chip with its logo", () => {
+  const { container } = render(<GameTitle name="X" status="out-now" tags={["Puzzle"]} platforms={["Android", "iOS", "Web"]} crumbs={crumbs} />);
+  const chips = [...container.querySelectorAll('ul [data-tone="outline"]')];
+  expect(chips.map((el) => el.textContent)).toEqual(["Puzzle", "Android", "iOS", "Web"]);
+  expect(chips.map((el) => el.getAttribute("data-icon"))).toEqual(["false", "true", "true", "true"]);
+});

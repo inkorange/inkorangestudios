@@ -452,8 +452,8 @@ Decorative faint construction lines drawn behind its children.
 The inline SVG icon set, drawn from the mockups.
 
 - **Use for:** icons inside `Button` and `IconButton`, or beside a label.
-- **Don't use for:** art or logos; icon-only controls need `IconButton` for the label.
-- **Props / variants:** `name`: `chevron-left`, `chevron-right`, `play`, `globe`, `phone`, `menu`, `close`, `arrow-right`, `check`; `size`: 16, 18 (default), 20, 26, 34. Uses `currentColor`.
+- **Don't use for:** art or brand logos (the inkOrange logo is an image); the only marks here are the platform logos. Icon-only controls need `IconButton` for the label.
+- **Props / variants:** `name`: `chevron-left`, `chevron-right`, `play`, `globe`, `phone`, `menu`, `close`, `arrow-right`, `check`, and the platform logos `apple` (iOS) and `android` (Web uses `globe`). `play`, `apple` and `android` are filled; the rest are 2px strokes; `size`: 16, 18 (default), 20, 26, 34. Uses `currentColor`.
 - **Accessibility:** always `aria-hidden`; the control around it carries the name.
 
 ### Button
@@ -480,8 +480,8 @@ A small mono, tracked, uppercase tag.
 
 - **Use for:** status ("Out now", "Coming soon"), genre and platform tags, tile status chips.
 - **Don't use for:** anything clickable (use `FilterPills` or `Button`).
-- **Props / variants:** `tone`: `accent`, `ink`, `outline`, `outline-on-dark`, `plain-on-dark`; `size`: `m` (default) or `s` (tile chips).
-- **Accessibility:** a plain `span`; the text itself carries the meaning, never color alone. Uppercase is CSS only.
+- **Props / variants:** `tone`: `accent`, `ink`, `outline`, `outline-on-dark`, `plain-on-dark`; `size`: `m` (default) or `s` (tile chips); `icon` (optional `IconName`, 16px before the text with a `--space-1` gap: the platform logos on the game page).
+- **Accessibility:** a plain `span`; the text itself carries the meaning, never color alone or an icon alone (the icon is `aria-hidden`). Uppercase is CSS only.
 
 ### FilterPills
 
@@ -789,7 +789,7 @@ The game page's title block: a breadcrumb, the page `h1` and the chips.
 
 - **Use for:** the top of `/games/[slug]`, in `GameLayout`'s `title` slot.
 - **Don't use for:** other page titles (use `Display` in the page) or the showcase hero.
-- **Props / variants:** `name` (`Display as="h1" size="xl"`); `status` (accent `Chip` with `statusLabel`); `tags` (genres then platforms as outline chips; blanks and duplicates dropped); `crumbs` (`Breadcrumb` items, e.g. Games / TerraForge); `lead` (optional, phone only: the blurb under the name). From `lg`: breadcrumb, then the name on the left with the chips bottom-right. Below `lg`: no breadcrumb (the header's "‹ Games" back link replaces it), chips above the name, then the lead.
+- **Props / variants:** `name` (`Display as="h1" size="xl"`); `status` (accent `Chip` with `statusLabel`); `tags` (genres as outline chips; blanks and duplicates dropped); `platforms` (`Platform[]`, last, each an outline chip with its logo: Android `android`, iOS `apple`, Web `globe`); `crumbs` (`Breadcrumb` items, e.g. Games / TerraForge); `lead` (optional, phone only: the blurb under the name). From `lg`: breadcrumb, then the name on the left with the chips bottom-right. Below `lg`: no breadcrumb (the header's "‹ Games" back link replaces it), chips above the name, then the lead.
 - **Accessibility:** owns the page's only `h1`. The chips are a list after the `h1` in the DOM; the phone puts them above it with `column-reverse`, which is safe because chips aren't focusable. The phone lead is `display: none` from `lg`, so it is read once.
 
 ### GameLayout
