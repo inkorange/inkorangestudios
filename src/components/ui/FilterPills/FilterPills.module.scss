@@ -7,34 +7,5 @@
 }
 
 .pill {
-  min-width: var(--tap-min);
-  min-height: var(--tap-min);
-  padding: var(--space-3) var(--space-5);
-  font-family: var(--font-sans);
-  font-size: var(--text-body-s);
-  font-weight: var(--weight-medium);
-  line-height: var(--leading-snug);
-  color: var(--color-ink);
-  cursor: pointer;
-  background-color: transparent;
-  border: 1px solid var(--color-line-strong);
-  border-radius: var(--radius-pill);
-  transition:
-    background-color var(--duration-fast) var(--ease-standard),
-    border-color var(--duration-fast) var(--ease-standard),
-    color var(--duration-fast) var(--ease-standard);
-
-  &:hover {
-    border-color: var(--color-ink);
-  }
-
-  &[aria-pressed="true"] {
-    color: var(--color-on-dark);
-    background-color: var(--color-ink);
-    border-color: var(--color-ink);
-  }
-
-  &:focus-visible {
-    @include focus-ring;
-  }
+  @include filter-pill('[aria-pressed="true"]');
 }

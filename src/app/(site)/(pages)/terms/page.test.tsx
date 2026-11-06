@@ -25,7 +25,15 @@ it("with content shows title, last updated and body", async () => {
   content.getLegalPage.mockResolvedValue({ slug: "terms", title: "Terms", updatedAt: "2026-11-05T10:00:00Z", body });
   render(await Terms());
   expect(screen.getByRole("heading", { level: 1, name: "Terms of use" })).toBeInTheDocument();
-  expect(screen.getByText(/Last updated/)).toBeInTheDocument();
+  expect(screen.getByText("Last updated Nov 5, 2026")).toBeInTheDocument();
   expect(screen.getByText("We keep it simple.")).toBeInTheDocument();
   expect((await generateMetadata()).robots).toBeUndefined();
+});
+
+it("with an empty body shows the empty state and is not indexed", async () => {
+  content.getLegalPage.mockResolvedValue({ slug: "terms", title: "Terms", updatedAt: "2026-11-05T10:00:00Z", body: [] });
+  render(await Terms());
+  expect(screen.getByText("This page is being written.")).toBeInTheDocument();
+  expect(screen.queryByText(/Last updated/)).not.toBeInTheDocument();
+  expect((await generateMetadata()).robots).toEqual({ index: false });
 });

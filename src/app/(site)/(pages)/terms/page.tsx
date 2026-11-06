@@ -16,5 +16,5 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Terms() {
   const page = await getLegalPage("terms");
   if (!page || page.body.length === 0) return <LegalEmpty title={TITLE} />;
-  return <Prose title={TITLE} meta={page.updatedAt ? `Last updated ${formatDate(page.updatedAt)}` : undefined} body={page.body} />;
+  return <Prose title={TITLE} meta={page.updatedAt ? `Last updated ${formatDate(page.updatedAt, { case: "title" })}` : undefined} body={page.body} />;
 }

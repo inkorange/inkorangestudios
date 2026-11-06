@@ -79,6 +79,13 @@ const eslintConfig = defineConfig([
     },
   },
   {
+    // Generated share images: Satori (next/og) only understands inline styles, so style objects
+    // are allowed here. Colors and sizes still come from tokens (src/lib/tokens.ts), and
+    // className and stylesheet imports stay banned.
+    files: ["src/app/**/opengraph-image.tsx", "src/app/**/twitter-image.tsx"],
+    rules: { "no-restricted-syntax": ["error", ...rawColor, pageSyntax[0]] },
+  },
+  {
     // Root layout: global stylesheet and font-variable classNames only.
     files: ["src/app/layout.tsx"],
     rules: {

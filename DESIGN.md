@@ -14,6 +14,7 @@ Where things live:
 | Path | What it holds |
 |---|---|
 | `src/styles/tokens.scss` | Every raw value: colors, fonts, sizes, radii, durations, layers. The only file allowed to hold them. |
+| `src/styles/tokens.json` | Generated from `tokens.scss` by `scripts/tokens-json.mjs` (before `build`, `test` and `typecheck`; committed, and a test fails if it is stale). Read by the `/design` gallery and, through `src/lib/tokens.ts`, by code that can't use CSS variables (the OG image). Never edit it by hand. |
 | `src/styles/_mixins.scss` | Sass mixins (breakpoints, focus ring, visually hidden, reduced motion). With `tokens.scss`, the only files allowed Sass `$variables` (in `tokens.scss`, only inside its helper functions). |
 | `src/styles/globals.scss` | Reset and base element styles. Imported once, by `src/app/layout.tsx`. |
 | `src/app/fonts.ts` | The three font families, loaded with `next/font/google`. |
@@ -483,7 +484,7 @@ A small mono, tracked, uppercase tag.
 A row of toggle pills that pick one value.
 
 - **Use for:** the All / Out now / Coming soon game filter.
-- **Don't use for:** navigation between pages (use `NavPillBar`) or multi-select.
+- **Don't use for:** navigation between pages (use `NavPillBar`), filters that should be their own URL (use `PillLinks`), or multi-select.
 - **Props / variants:** `options` (readonly strings), `value`, `onChange(value)`, `label` (names the group).
 - **Accessibility:** a `role="group"` of buttons; the current one has `aria-pressed="true"`. Each is at least `--tap-min`.
 
@@ -843,7 +844,7 @@ A long-form page: title, meta line and rich text in the narrow column.
 
 A wide photo in a bordered, rounded frame.
 
-- **Use for:** the About page's studio photo.
+- **Use for:** the About page's studio photo; a news post's cover image (the post page renders it only when the post has one).
 - **Don't use for:** the home studio band (`StudioTeaser` has its own photo column) or media galleries.
 - **Props / variants:** `photo` (`ImageRef`; `null` shows the hatched `Placeholder`); `label` (placeholder text). 16:9, `--radius-xl` on phone and `--radius-2xl` from `lg`.
 - **Accessibility:** alt text comes from the CMS; the placeholder is decorative-grade.
@@ -857,10 +858,36 @@ A plain vertical list of links.
 - **Props / variants:** `label` (accessible name); `items` (`{ label, href }[]`, internal links through `next/link`). Links are `--color-link` semibold with a `--tap-min` tall target. Renders nothing for no items.
 - **Accessibility:** a list named by `label`; each link has the global focus ring.
 
-Still coming, in this order (names may change as they are built):
+### PillLinks
+
+Filter pills that are links, so each choice is its own URL.
+
+- **Use for:** the `/news` game filter (`/news`, `/news?game=terraforge`), inside a `SectionHeader`.
+- **Don't use for:** in-page toggles that don't change the URL (use `FilterPills`) or site navigation (use `NavPillBar`).
+- **Props / variants:** `label` (names the nav); `items` (`{ label, href }[]`); `current` (the href being shown; that pill is ink like a pressed `FilterPills` pill). Renders nothing for fewer than two items. Shares the `filter-pill` mixin in `_mixins.scss` with `FilterPills`, so both look the same.
+- **Accessibility:** a `nav` named by `label` holding a list of links; the current one has `aria-current="page"`. Works without script. Each pill is at least `--tap-min` with a visible focus ring.
+
+### NotFoundMessage
+
+The friendly 404 block: "Lost in space", a line of copy and a "Back to games" button.
+
+- **Use for:** the two not-found pages: `src/app/not-found.tsx` (unknown URLs; renders in the root layout only, so it passes `logo`) and `src/app/(site)/not-found.tsx` (`notFound()` from a missing game or post; renders under the site header, so no logo).
+- **Don't use for:** empty lists (use a short `Text` line) or error pages.
+- **Props / variants:** `logo` (default false): adds the `Logo` linking home. `Display` `h1` size `m`, `lead` text in `--color-ink-2`, an accent `Button` to `/#games`, all over `GuideLines` in a narrow `Section`.
+- **Accessibility:** owns the page's `h1`; the pages wrap it in `<main>`. Next adds `noindex` to not-found responses.
+
+### DesignGallery
+
+The `/design` swatch book: every token and every ui component.
+
+- **Use for:** `src/app/design/page.tsx` only. It lives outside `(site)`, so no site header or footer wraps it (both appear in it as specimens), and the page is `noindex` and disallowed in `robots.ts`.
+- **Don't use for:** anything public.
+- **Props / variants:** none. Tokens come from `src/styles/tokens.json` (color swatches with name and value, type samples, spacing bars, radius boxes, motion rows that run on hover, and tables for layout sizes and layers; fluid sizes show as `68 → 112px`). Components are one entry per `src/components/ui` folder in its main variants, with demo content; forms submit to a demo action that always succeeds. It exports `GALLERY_COMPONENTS`, and its test fails when a ui folder has no entry. A client component, so the demos can hold state.
+- **Accessibility:** a page `h1`, an `h2` per group and an `h3` per component, each group and specimen a named region, plus a contents nav. Components render as they are, so the page holds several `h1`s and repeats a few ids (two footers); acceptable for an internal, noindex page.
+
+Still coming (names may change as they are built):
 
 - **Game page (coming):** ShareTitle (not yet specified).
-- **Other pages (coming):** DesignGallery.
 
 Form components that talk to the server (newsletter, beta, launch alert,
 contact) live in `src/components/forms/`. They own no SCSS and are built only
@@ -882,7 +909,13 @@ How to put a page together from the parts above.
   `(site)/(pages)/layout.tsx` gives every page the `full` footer, while
   `(site)/(game)/games/[slug]/layout.tsx` gives game pages the `compact`
   footer with `stickyBarSpace`, followed by the `StickyPlayBar`. A new page
-  goes under `(pages)/`. Pages don't render the header or footer themselves. Content is a stack of
+  goes under `(pages)/`. Pages don't render the header or footer themselves.
+  Two pages sit outside `(site)` on purpose: `src/app/design/` (the gallery,
+  which shows the header and footer as specimens) and `src/app/not-found.tsx`
+  (the 404 for unknown URLs, which renders in the root layout only, so its
+  `NotFoundMessage` brings the `Logo`). `notFound()` from a site page lands on
+  `src/app/(site)/not-found.tsx` instead, under the site header but without the
+  leaf layouts' footer. Content is a stack of
   `Section`s, each wrapping a `Container`, so every page lines up to the same
   `--content-max` column with the same `--gutter`.
 - **Section rhythm.** Sections use `--section-y` padding. Most are paper; use a
@@ -1037,7 +1070,11 @@ pages), defined once in `eslint.config.mjs` and shared between blocks.
   all.
 - **Exemptions:** `src/app/layout.tsx` may import `@/styles/globals.scss` and
   may set `className` on `<html>` for the font variables (it still may not use
-  `style` or import any other stylesheet). `src/app/studio/**` (Sanity's own UI)
+  `style` or import any other stylesheet). `src/app/**/opengraph-image.tsx` and
+  `twitter-image.tsx` may use real `style` objects, because Satori (`next/og`)
+  only understands inline styles; they still may not use `className`, raw color
+  literals or stylesheets, and take colors and sizes from `src/lib/tokens.ts`.
+  `src/app/studio/**` (Sanity's own UI)
   and `sanity.config.ts` are ignored by ESLint entirely.
 - `node_modules/`, `.next/`, `.superpowers/` and `docs/` are not linted.
 
@@ -1087,7 +1124,7 @@ pages), defined once in `eslint.config.mjs` and shared between blocks.
 4. Add a `### <Name>` section under [Components](#components) using the shape
    shown there, and remove it from the "coming" list. The heading must match the
    folder name exactly.
-5. Add it to the `/design` gallery page so it can be seen in every variant.
+5. Add an entry for it to `COMPONENTS` in `DesignGallery` so `/design` shows it in every variant (the gallery test fails until you do).
 6. Run `npm test`, `npm run lint` and `npm run typecheck`.
 
 If a page needs something the system can't express, stop and extend the system

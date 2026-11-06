@@ -112,3 +112,8 @@ export { FramedPhoto } from "./FramedPhoto/FramedPhoto";
 export type { FramedPhotoProps } from "./FramedPhoto/FramedPhoto";
 export { LinkList } from "./LinkList/LinkList";
 export type { LinkListProps } from "./LinkList/LinkList";
+export { PillLinks } from "./PillLinks/PillLinks";
+export type { PillLinksProps } from "./PillLinks/PillLinks";
+export { DesignGallery } from "./DesignGallery/DesignGallery";
+export { NotFoundMessage } from "./NotFoundMessage/NotFoundMessage";
+export type { NotFoundMessageProps } from "./NotFoundMessage/NotFoundMessage";

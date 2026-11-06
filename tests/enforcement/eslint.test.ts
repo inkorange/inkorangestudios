@@ -49,6 +49,13 @@ describe("eslint design-system rules", () => {
     expect((await lint('import "@/styles/other.scss";\nexport const a = 1;', "src/app/layout.tsx")).length).toBeGreaterThan(0);
     expect((await lint('export default function L() { return <html style={{"--a":"1"}}/>; }', "src/app/layout.tsx")).length).toBeGreaterThan(0);
   });
+  it("lets generated OG images use Satori inline styles, but no raw colors or className", async () => {
+    const og = "src/app/opengraph-image.tsx";
+    expect(await lint("export default function I() { return <div style={{ display: \"flex\", fontSize: 40 }} />; }", og)).toEqual([]);
+    expect((await lint('export default function I() { return <div style={{ color: "#E08D00" }} />; }', og)).length).toBeGreaterThan(0);
+    expect((await lint('export default function I() { return <div className="x" />; }', og)).length).toBeGreaterThan(0);
+    expect((await lint('import "./a.scss";\nexport const a = 1;', og)).length).toBeGreaterThan(0);
+  });
   it("ignores src/app/studio and sanity.config.ts", async () => {
     expect(await lint('export default function S() { return <p className="x" style={{color:"red"}}/>; }', "src/app/studio/[[...tool]]/page.tsx")).toEqual([]);
   });

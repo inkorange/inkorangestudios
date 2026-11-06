@@ -4,10 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/tokens-json.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint && stylelint \"src/**/*.{scss,css,sass}\"",
+    "pretest": "node scripts/tokens-json.mjs",
     "test": "vitest run",
+    "pretypecheck": "node scripts/tokens-json.mjs",
     "typecheck": "tsc --noEmit",
     "seed": "node --env-file=.env.local scripts/seed-sanity.mjs"
   },
@@ -29,6 +32,7 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@sanity/webhook": "^4.0.4",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.6.8",

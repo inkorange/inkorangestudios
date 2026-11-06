@@ -54,6 +54,14 @@ function clean(value: string | undefined): string | undefined {
   return v ? v : undefined;
 }
 
+/**
+ * The Sanity webhook secret alone, read at request time. Separate from `readServerEnv` so the
+ * revalidate route doesn't depend on unrelated (Supabase) variables.
+ */
+export function readRevalidateSecret(): string | undefined {
+  return clean(process.env.SANITY_REVALIDATE_SECRET);
+}
+
 export type PublicEnv = {
   siteUrl: string;
   sanityProjectId: string;
