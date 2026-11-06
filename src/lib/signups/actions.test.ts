@@ -200,3 +200,61 @@ describe("subscribeNewsletter", () => {
     expect(subscribe).not.toHaveBeenCalled();
   });
 });
+
+describe("requestLaunchAlert", () => {
+  it("stores with composite conflict, never notifies", async () => {
+    const r = await requestLaunchAlert(idle, form({ email: "a@b.co", game: "g", platform: "ios" }));
+    expect(r).toEqual(OK);
+    expect(from).toHaveBeenCalledWith("studio_launch_alerts");
+    expect(upsert).toHaveBeenCalledWith(
+      { email: "a@b.co", game: "g", platform: "ios" },
+      { onConflict: "email,game,platform", ignoreDuplicates: true },
+    );
+    expect(notifyOwner).not.toHaveBeenCalled();
+  });
+  it("supabase error -> error state", async () => {
+    upsert.mockReturnValue({ select: async () => ({ data: null, error: { message: "x" } }) });
+    expect(await requestLaunchAlert(idle, form({ email: "a@b.co", game: "g", platform: "ios" }))).toEqual(FAIL);
+  });
+  it("failed human check -> no DB call", async () => {
+    verifyTurnstile.mockResolvedValue(false);
+    expect(await requestLaunchAlert(idle, form({ email: "a@b.co", game: "g", platform: "ios" }))).toEqual(HUMAN);
+    expect(from).not.toHaveBeenCalled();
+  });
+});
+
+describe("sendContactMessage", () => {
+  const fd = () =>
+    form({ name: "Ada", email: "Ada@X.co", topic: "press", message: "Hello there" });
+
+  it("inserts, notifies with the message in lines", async () => {
+    expect(await sendContactMessage(idle, fd())).toEqual(OK);
+    expect(from).toHaveBeenCalledWith("studio_contact_messages");
+    expect(insert).toHaveBeenCalledWith({
+      name: "Ada",
+      email: "ada@x.co",
+      topic: "press",
+      message: "Hello there",
+    });
+    expect(upsert).not.toHaveBeenCalled();
+    expect(notifyOwner).toHaveBeenCalledWith({
+      subject: "Contact (press): Ada",
+      replyTo: "ada@x.co",
+      lines: ["From: Ada <ada@x.co>", "Topic: press", "", "Hello there"],
+    });
+  });
+  it("supabase error -> error state, no notify", async () => {
+    insert.mockResolvedValue({ error: { message: "x" } });
+    expect(await sendContactMessage(idle, fd())).toEqual(FAIL);
+    expect(notifyOwner).not.toHaveBeenCalled();
+  });
+  it("failed human check -> no DB call", async () => {
+    verifyTurnstile.mockResolvedValue(false);
+    expect(await sendContactMessage(idle, fd())).toEqual(HUMAN);
+    expect(from).not.toHaveBeenCalled();
+  });
+  it("still ok when notifyOwner throws", async () => {
+    notifyOwner.mockRejectedValue(new Error("x"));
+    expect(await sendContactMessage(idle, fd())).toEqual(OK);
+  });
+});
