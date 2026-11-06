@@ -7,6 +7,9 @@ vi.mock("next/image", () => ({
   default: ({ alt, src }: { alt: string; src: string }) => <img alt={alt} src={src} />,
 }));
 
+const nav = vi.hoisted(() => ({ pathname: null as string | null }));
+vi.mock("next/navigation", () => ({ usePathname: () => nav.pathname }));
+
 import { SiteHeader } from "./SiteHeader";
 
 it("opens the menu sheet from the toggle", async () => {
@@ -76,4 +79,27 @@ it("shows a back link in the game variant", () => {
 it("has the desktop newsletter CTA", () => {
   render(<SiteHeader />);
   expect(screen.getAllByRole("link", { name: "Get the newsletter" })[0]).toHaveAttribute("href", "#newsletter");
+});
+
+it("derives the active section from the pathname", () => {
+  nav.pathname = "/news/some-post";
+  render(<SiteHeader />);
+  expect(within(screen.getByRole("navigation", { name: "Primary" })).getByRole("link", { name: "News" })).toHaveAttribute("aria-current", "page");
+  nav.pathname = null;
+});
+
+it("uses the game variant with Games active on a game page", () => {
+  nav.pathname = "/games/terraforge";
+  const { container } = render(<SiteHeader />);
+  expect(container.querySelector("header")).toHaveAttribute("data-variant", "game");
+  expect(within(screen.getByRole("navigation", { name: "Primary" })).getByRole("link", { name: "Games" })).toHaveAttribute("aria-current", "page");
+  nav.pathname = null;
+});
+
+it("lets explicit props override the pathname", () => {
+  nav.pathname = "/games/terraforge";
+  const { container } = render(<SiteHeader active="press" variant="default" />);
+  expect(container.querySelector("header")).toHaveAttribute("data-variant", "default");
+  expect(within(screen.getByRole("navigation", { name: "Primary" })).getByRole("link", { name: "Press" })).toHaveAttribute("aria-current", "page");
+  nav.pathname = null;
 });

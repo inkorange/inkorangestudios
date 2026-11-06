@@ -17,3 +17,8 @@ describe("Display", () => {
     expect(screen.getByText("make you think.")).toHaveAttribute("data-paint", "true");
   });
 });
+
+it("supports the hero size for the showcase", () => {
+  render(<Display as="h1" size="hero">TerraForge</Display>);
+  expect(screen.getByRole("heading", { level: 1 })).toHaveAttribute("data-size", "hero");
+});

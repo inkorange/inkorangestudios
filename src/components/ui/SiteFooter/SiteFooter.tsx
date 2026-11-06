@@ -17,9 +17,9 @@ export type SiteFooterProps = {
 
 type FooterLink = { label: string; href: string; external?: boolean };
 
-function LinkColumn({ title, links }: { title: string; links: FooterLink[] }) {
+function LinkColumn({ title, links, id }: { title: string; links: FooterLink[]; id?: string }) {
   return (
-    <div className={styles.column}>
+    <div className={styles.column} id={id}>
       <Eyebrow tone="on-dark-4">{title}</Eyebrow>
       <ul className={styles.links} role="list">
         {links.map((link) => (
@@ -91,7 +91,8 @@ export function SiteFooter({ newsletter, variant = "full", socialLinks, supportE
           {variant === "full" ? (
             <div className={styles.columns}>
               <LinkColumn title="Games" links={gamesLinks} />
-              <LinkColumn title="Studio" links={studioLinks} />
+              {/* "Press" in the nav and "Press kit" land here until a press page exists. */}
+              <LinkColumn title="Studio" links={studioLinks} id="press" />
               <LinkColumn title="Help" links={helpLinks} />
               {followLinks.length > 0 ? <LinkColumn title="Follow" links={followLinks} /> : null}
             </div>

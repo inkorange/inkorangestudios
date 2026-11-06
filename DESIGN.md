@@ -147,7 +147,8 @@ size. Pick the token by role; don't pick a different token at a breakpoint.
 
 | Token | Phone → desktop | Used for in the mockups |
 |---|---|---|
-| `--text-display-xl` | 68 → 112px | Page titles ("TERRAFORGE") and the showcase hero game name. Weight 800. |
+| `--text-display-xl` | 68 → 112px | Page titles ("TERRAFORGE"). Weight 800. |
+| `--text-display-hero` | 56 → 108px | The showcase hero game name, which sits in the narrower hero card. Weight 800. |
 | `--text-display-l` | 44 → 72px | The studio one-liner ("An independent studio making games that make you think."). Weight 800. |
 | `--text-display-m` | 40 → 64px | Callout band heading ("Play Space Cowboy before anyone else."). Weight 800. |
 | `--text-heading-l` | 34 → 56px | Big section statements: the studio heading, the footer "Get the newsletter". |
@@ -155,7 +156,7 @@ size. Pick the token by role; don't pick a different token at a breakpoint.
 | `--text-heading-s` | 26 → 36px | The price in the store card. |
 | `--text-title` | 20 → 28px | Game names under tiles. Weight 700, display font. |
 | `--text-title-s` | 20 → 22px | Game names in the spotlight rail and the sticky play bar. |
-| `--text-lead` | 17 → 21px | The lead paragraph on a game page. Weight 500. |
+| `--text-lead` | 17 → 21px | The lead paragraph on a game page (weight 500); news card headlines (weight 600). |
 | `--text-body-l` | 16 → 18px | Hero blurb, feature titles, update-row headlines. |
 | `--text-body` | 15 → 17px | Default body copy (set on `body`). |
 | `--text-body-s` | 14 → 15px | Nav pills, filter pills, card descriptions, feature descriptions, fact lists. |
@@ -178,7 +179,7 @@ size. Pick the token by role; don't pick a different token at a breakpoint.
 
 | Token | Value | Use for |
 |---|---|---|
-| `--leading-tight` | 0.86 | Display sizes (xl/l/m). Condensed caps stack tightly. |
+| `--leading-tight` | 0.86 | Display sizes (hero/xl/l/m). Condensed caps stack tightly. |
 | `--leading-snug` | 1 | Headings and game names. |
 | `--leading-normal` | 1.3 | Card and row headlines, short UI text. |
 | `--leading-body` | 1.6 | Body copy (the page default). |
@@ -244,6 +245,9 @@ them for every margin, padding and gap.
 | `--play-button-size` | 68 → 96px (fluid) | Diameter of the accent play button on the `MediaViewer` stage. |
 | `--thumb-height` | 60 → 92px (fluid) | Height of `MediaViewer` thumbnails; phone strip thumbs are 1.6 times this wide. |
 | `--sticky-bar-space` | 96px | Room the `StickyPlayBar` occupies at the bottom of a phone page. Pages (or the footer) add `padding-bottom: var(--sticky-bar-space)` below `lg` so the last content scrolls clear of the bar. |
+| `--statement-body-max` | 400px | Maximum width of the paragraph beside a `Statement` heading. |
+| `--teaser-photo-height` | 220 → 420px (fluid) | Height of the photo in `StudioTeaser`. |
+| `--rail-card-width` | 270px | Width of each card in the phone `NewsRail` scroller. |
 
 ### Breakpoints
 
@@ -310,12 +314,13 @@ Rules:
 
 | Token | Value | Use for |
 |---|---|---|
+| `--z-behind` | -1 | Inside an isolated component only: paints a decoration behind its own text (the `Highlight` box). |
 | `--z-sticky` | 10 | The sticky play bar on phone game pages. |
 | `--z-header` | 20 | The site header. |
 | `--z-sheet` | 30 | The phone menu sheet. |
 | `--z-banner` | 40 | The cookie consent banner, which sits above everything. |
 
-Use only these four. If a component needs a new layer, add a token.
+Use only these. `--z-behind` never escapes its component (the parent sets `isolation: isolate`). If a component needs a new layer, add a token.
 
 ## Components
 
@@ -350,7 +355,7 @@ A full-width horizontal band with `--section-y` vertical padding and a backgroun
 
 - **Use for:** each block of a page. Wrap a `Container` inside it.
 - **Don't use for:** cards or inner groupings (use `Stack`); two `sand` sections side by side.
-- **Props / variants:** `tone`: `paper` (default), `sand`, `ink` (sets light text); `space`: `default`, `tight` (half), `none`; `id`; `aria-label`.
+- **Props / variants:** `tone`: `paper` (default), `sand`, `ink` (sets light text); `space`: `default`, `tight` (half), `none`, `top` (top padding only, for a block that runs straight into the next section), `bottom` (bottom padding only, for a block that continues the section above, like the home callout); `id`; `aria-label`.
 - **Accessibility:** renders a `<section>`; give it an `aria-label` when it should be a landmark ("Featured games"). Exposes `data-tone` and `data-space`.
 
 ### Stack
@@ -377,7 +382,7 @@ The condensed uppercase display heading, with `Highlight` for the one accent phr
 
 - **Use for:** page titles, the hero game name, the studio one-liner, the callout heading.
 - **Don't use for:** section headers (use `Heading`) or anything smaller than a heading.
-- **Props / variants:** `as`: `h2` (default) or `h1`; `size`: `xl`, `l`, `m`; `tone`: `ink` (default) or `on-dark`. `Highlight` takes `paint` to layer `--texture-watercolor` over the accent; use at most one per page.
+- **Props / variants:** `as`: `h2` (default) or `h1`; `size`: `hero` (`ShowcaseHero` only), `xl`, `l`, `m`; `tone`: `ink` (default) or `on-dark`. `Highlight` takes `paint` to layer `--texture-watercolor` over the accent; use at most one per page. The heading is an isolated stacking context and the highlight box sits behind the text (`--z-behind`), so the box never covers the line above it.
 - **Accessibility:** renders a real heading; keep one `h1` per page. `Highlight` is a plain `span`, text stays selectable and readable (ink on accent is 6.6:1).
 
 ### Heading
@@ -620,7 +625,8 @@ The big accent band with a mono eyebrow, a Display title, body copy and an actio
 
 - **Use for:** the one beta / recruiting callout per page.
 - **Don't use for:** several per page, or small notices (use `FormMessage` or `InfoCard`).
-- **Props / variants:** `eyebrow`, `title`, `body`, `action` (a node, usually a `Button variant="ink"` or an `EmailSignupForm tone="on-accent"`), `paint` (watercolor along the right edge at `--wash-opacity`).
+- **Props / variants:** `eyebrow` (optional, hidden when empty), `title`, `body` (optional, hidden when empty), `action` (a node, usually a `Button variant="ink"` or an `EmailSignupForm tone="on-accent"`), `paint` (watercolor along the right edge at `--wash-opacity`).
+- **Radius:** `--radius-2xl` below `md`, `--radius-3xl` from `md`.
 - **Accessibility:** all text is `--color-ink` on the accent. The wash is decorative, low opacity and sits behind the content; do not raise its opacity.
 
 ### RichText
@@ -647,7 +653,7 @@ Three-up (or fewer) values, each under a 3px ink rule.
 
 - **Use for:** the studio band's "Play first / Smart, not stuffy / Play anywhere".
 - **Don't use for:** numbered features (use `FeatureList`).
-- **Props / variants:** `items` of `{ title, body }`; columns wrap automatically.
+- **Props / variants:** `items` of `{ title, body }`. Below `md` each value is a row (title left, body right) under a 2px rule; from `md` they are columns under a 3px rule that wrap automatically.
 - **Accessibility:** a list; the title is a paragraph, not a heading.
 
 ### NavPillBar
@@ -665,7 +671,7 @@ The top bar: logo, nav and the newsletter call to action.
 
 - **Use for:** the top of every page, once.
 - **Don't use for:** anything inside a page body.
-- **Props / variants:** `active` (a `NavKey`); `variant`: `default` or `game` (phone shows a "‹ Games" back link and the compact logo); `backLink` (`{ label, href }`, defaults to Games). Both layouts are in the markup and CSS switches them at `lg`, so server and client markup match. Below `lg` a menu button opens a dark sheet (`--z-sheet`) with Barlow 34px links and an accent newsletter button. The sheet is a client island, closes if the viewport reaches `lg`, and body scroll is not locked.
+- **Props / variants:** `active` (a `NavKey`); `variant`: `default` or `game` (phone shows a "‹ Games" back link and the compact logo); `backLink` (`{ label, href }`, defaults to Games). It is a client component mounted once by the site layout (`src/app/(site)/layout.tsx`); when `active` or `variant` are omitted it derives them from the pathname with `navStateForPath` in `src/lib/nav.ts` (`/` and `/games/*` → Games, `/about` → Studio, `/news/*` → News, `/support` → Support; `/games/[slug]` → the `game` variant). Explicit props win. Both layouts are in the markup and CSS switches them at `lg`, so server and client markup match. Below `lg` a menu button opens a dark sheet (`--z-sheet`) with Barlow 34px links and an accent newsletter button. The sheet is a client island, closes if the viewport reaches `lg`, and body scroll is not locked.
 - **Accessibility:** the toggle has `aria-expanded` and `aria-controls`. Opening moves focus to the first sheet link; Escape closes and returns focus to the toggle; choosing a link closes the sheet. Focus rings on the dark sheet use the accent color.
 
 ### SiteFooter
@@ -674,17 +680,17 @@ The ink footer with the newsletter signup, link columns and legal row.
 
 - **Use for:** the bottom of every page, once. Its `id="newsletter"` is where every "Get the newsletter" link lands.
 - **Don't use for:** page-level calls to action.
-- **Props / variants:** `newsletter` (a node: the signup form); `variant`: `full` (Games / Studio / Help / Follow columns) or `compact` (one row of links, for game pages); `socialLinks` (the Follow column is hidden when empty); `supportEmail` (the "Player support" link is hidden without it); `games` (optional links added to the Games column). Includes a "Cookie settings" button that reopens the consent banner.
+- **Props / variants:** `newsletter` (a node: the signup form); `variant`: `full` (Games / Studio / Help / Follow columns) or `compact` (one row of links, for game pages); `socialLinks` (the Follow column is hidden when empty); `supportEmail` (the "Player support" link is hidden without it); `games` (optional links added to the Games column). The Studio column carries `id="press"`, the target of the nav's "Press" and the "Press kit" link (`/#press`) until a press page exists. Includes a "Cookie settings" button that reopens the consent banner.
 - **Accessibility:** column labels are mono eyebrows in `--color-on-dark-4`; links are at least `--tap-min` tall, with accent focus rings.
 
 ### ConsentBanner
 
 The cookie consent sheet fixed to the bottom of the viewport.
 
-- **Use for:** once, in the root layout.
+- **Use for:** once, in the site layout (`src/app/(site)/layout.tsx`), next to `Analytics`.
 - **Don't use for:** other notices (use `FormMessage` or page copy).
 - **Props / variants:** none. Shown when no choice is stored (`io-consent` in localStorage) or when "Cookie settings" is clicked. "Accept" (accent) stores `granted`; "Decline" (outline on ink) stores `denied`. `Analytics` loads Google Tag Manager only after `granted`.
-- **Accessibility:** a labelled region; it does not steal focus. Sits on `--z-banner`, above everything. When reopened from "Cookie settings" focus moves to the banner; on first visit it does not. Consent Mode defaults (denied) come from the server component `ConsentDefaults` (`src/components/analytics/`), which the root layout renders; `Analytics` loads GTM after consent.
+- **Accessibility:** a labelled region; it does not steal focus. Sits on `--z-banner`, above everything. When reopened from "Cookie settings" focus moves to the banner; on first visit it does not. Consent Mode defaults (denied) come from the server component `ConsentDefaults` (`src/components/analytics/`), which the root layout renders; `Analytics` (mounted by the site layout with `publicEnv.gtmId`) loads GTM after consent.
 
 ### MediaViewer
 
@@ -719,8 +725,8 @@ The big dark featured-games carousel at the top of the home page.
 
 - **Use for:** the home page's featured games (`Featured[]`), once per page.
 - **Don't use for:** a game page's media (`MediaViewer`) or anything that moves on its own. There is no autoplay, ever.
-- **Props / variants:** `games`. Radius `--radius-3xl` and 640px tall from `lg`: chips, `Display` xl name, blurb, accent CTA plus "Game details", prev/next and a mono `01 / 03` counter, art on the right. Below `lg` it is a stacked card: 300px art with the status chip, then mono genre and platform, name, blurb, full-width buttons and prev / dots / next (the active dot is `--space-7` wide, accent). One game shows a static slide with no controls and no rail; none renders nothing. Art uses `next/image` (`priority` on the first slide only); missing art shows the dark `Placeholder`. It also renders `SpotlightRail`.
-- **Accessibility:** a `section` with `aria-roledescription="carousel"` named "Featured games"; the slide is a group `aria-roledescription="slide"` named "1 of 3". A visually hidden `aria-live="polite"` region announces the game name after a change (not on first render). Left and right arrow keys move while focus is inside. Dots are buttons named "Show {name}" with `aria-current`, at least `--tap-min` square around an 8px mark.
+- **Props / variants:** `games`. Radius `--radius-3xl` and 640px tall from `lg`: chips, `Display` hero name, blurb, accent CTA plus "Game details", prev/next and a mono `01 / 03` counter, art on the right. Below `lg` it is a stacked card: 300px art with the status chip, then mono genre and platform, name, blurb, full-width buttons and prev / dots / next (the active dot is `--space-7` wide, accent). One game shows a static slide with no controls, no rail and no carousel semantics; none renders nothing. If the list shrinks under the current slide, the index is clamped to the last game. Art uses `next/image` (`priority` on the first slide only); missing art shows the dark `Placeholder`. It also renders `SpotlightRail`.
+- **Accessibility:** the hero owns the page's `h1` (the active game's name), so a page that renders it must not add another `h1`; a page without featured games needs its own. It is a `section` named "Featured games"; with two or more games it gets `aria-roledescription="carousel"`, the slide is a group `aria-roledescription="slide"` named "1 of 3", and a visually hidden `aria-live="polite"` region announces the game name after a change (not on first render). A single game gets none of these. Left and right arrow keys move while focus is inside (ignored with Alt, Ctrl or Meta held, so browser shortcuts still work). In the DOM the controls run prev, dots, next, then the counter, which matches the visual order at every width. Dots are buttons named "Show {name}" with `aria-current`, at least `--tap-min` square around an 8px mark.
 
 ### SpotlightRail
 
@@ -729,12 +735,47 @@ The row of selectable game cards under the hero, desktop only.
 - **Use for:** inside `ShowcaseHero`.
 - **Don't use for:** general game lists (`GameTile`).
 - **Props / variants:** `games`, `activeIndex`, `onPick(index)`. Each card has a 56px thumb, the name and "genre · status". The active card has the card background and an ink border. Hidden below `lg`.
-- **Accessibility:** buttons; the active one has `aria-current="true"`. The thumb is decorative.
+- **Accessibility:** a `group` named "Choose a featured game" holding buttons; the active one has `aria-current="true"`. The thumb is decorative.
+
+### GameGrid
+
+The "All games" section body: a `SectionHeader` with All / Out now / Coming soon `FilterPills`, then a grid of `GameTile`s.
+
+- **Use for:** the home page's games section (inside `Section id="games"`), and any full list of games.
+- **Don't use for:** a short related-games row (use a `Grid` of `GameTile size="s"`).
+- **Props / variants:** `games` (`GameSummary[]`); `title` (default "All games"). A client island: "Out now" shows `out-now` games, "Coming soon" shows every other status (coming soon, in development, announcing soon). Two columns below `md`, auto-fill at `--grid-min-tile` from `md`. Each tile links to `/games/{slug}` with a "Genre · Platform" meta line. With no games it shows "New games are on the way." and no filters; a filter with no matches shows the same line.
+- **Accessibility:** the filters are a `group` named "Filter games" with `aria-pressed`; the tiles are a list named "Games".
+
+### Statement
+
+A big `Display` line with a short paragraph beside it, wrapping under it when narrow.
+
+- **Use for:** the home page's studio one-liner ("An independent studio making games that make you think.").
+- **Don't use for:** section titles (use `SectionHeader`) or the page title.
+- **Props / variants:** `title` (a node, normally `Display size="l"` with one `Highlight`); `body` (a string, `--color-ink-2`, at most `--statement-body-max` wide). Title column is at most `--content-narrow`.
+- **Accessibility:** the heading level comes from the `Display` passed in (`h2` by default).
+
+### StudioTeaser
+
+The studio band: a photo beside an eyebrow, heading, intro, values and a link onward.
+
+- **Use for:** the home page's studio section, inside a `sand` `Section` with `id="studio"`.
+- **Don't use for:** the full About page.
+- **Props / variants:** `photo` (`ImageRef`; `null` shows the hatched `Placeholder` labelled "Studio photo"); `eyebrow` (in `--color-link`); `title` (`Heading` `h2` size `l`); `body` (hidden when empty, e.g. no founded line in settings); `values` (a `ValueList`); `action` (`{ label, href }`, an `ink` `Button`). The photo is `--teaser-photo-height` tall, `--radius-xl` on phone and `--radius-2xl` from `lg`; photo and text wrap to a stack when narrow.
+- **Accessibility:** the photo's alt text comes from the CMS; the placeholder is decorative-grade.
+
+### NewsRail
+
+A list of `NewsCard`s: a grid from `md`, a horizontal scroller on phones.
+
+- **Use for:** the home page's latest news (under a `SectionHeader` with "All news →").
+- **Don't use for:** the full news index (use a `Grid min="card"`).
+- **Props / variants:** `posts` (`PostSummary[]`; each card links to `/news/{slug}`); `label` (default "Latest news"). Below `md` the cards are `--rail-card-width` wide in one row that scrolls sideways with snap points, running past the right gutter; from `md` they are an auto-fit grid at `--grid-min-card`. Renders nothing for no posts, so the page hides the section.
+- **Accessibility:** a list named by `label`; each card is one link. The scroller is native overflow, so touch, trackpad and keyboard scrolling all work.
 
 Still coming, in this order (names may change as they are built):
 
 - **Game page (coming):** ShareTitle (not yet specified).
-- **Home (coming):** GameGrid.
 - **Other pages (coming):** LegalEmpty, FaqList, DesignGallery.
 
 Form components that talk to the server (newsletter, beta, launch alert,
@@ -749,8 +790,10 @@ How to put a page together from the parts above.
   and passes them content. It never imports `.scss`, never sets `className` or
   `style`, and never contains a color or size. If you want something to look
   different, change or add a component.
-- **Every public page** renders inside the site layout: `SiteHeader`, then the
-  page content, then `SiteFooter`. Content is a stack of
+- **Every public page** lives under `src/app/(site)/` and renders inside its
+  layout: `SiteHeader`, then the page content in `<main>`, then `SiteFooter`
+  (with the newsletter form), `ConsentBanner` and `Analytics`. Pages don't
+  render the header or footer themselves. Content is a stack of
   `Section`s, each wrapping a `Container`, so every page lines up to the same
   `--content-max` column with the same `--gutter`.
 - **Section rhythm.** Sections use `--section-y` padding. Most are paper; use a

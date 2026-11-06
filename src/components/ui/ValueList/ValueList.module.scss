@@ -1,20 +1,41 @@
+@use "../../../styles/mixins" as *;
+
+// Phone: stacked rows, title left and body right. From md: columns that wrap.
 .root {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(var(--grid-min-thumb), 1fr));
-  gap: var(--space-4);
+  gap: var(--space-3);
   margin: 0;
   padding: 0;
   list-style: none;
+
+  @include bp(md) {
+    grid-template-columns: repeat(auto-fit, minmax(var(--grid-min-thumb), 1fr));
+    gap: var(--space-4);
+  }
 }
 
 .item {
-  padding-top: var(--space-4);
-  border-top: 3px solid var(--color-ink);
+  display: flex;
+  gap: var(--space-3);
+  align-items: baseline;
+  justify-content: space-between;
+  padding-top: var(--space-3);
+  border-top: 2px solid var(--color-ink);
+
+  @include bp(md) {
+    display: block;
+    padding-top: var(--space-4);
+    border-top-width: 3px;
+  }
 }
 
 .title {
-  margin: 0 0 var(--space-2);
+  margin: 0;
   font-weight: var(--weight-semibold);
+
+  @include bp(md) {
+    margin-bottom: var(--space-2);
+  }
 }
 
 .body {
@@ -22,4 +43,9 @@
   font-size: var(--text-body-s);
   line-height: var(--leading-body);
   color: var(--color-ink-2);
+  text-align: end;
+
+  @include bp(md) {
+    text-align: start;
+  }
 }

@@ -13,3 +13,14 @@ it("defaults to paper/default", () => {
   render(<Section aria-label="A">x</Section>);
   expect(screen.getByRole("region")).toHaveAttribute("data-tone", "paper");
 });
+
+it("supports top-only and bottom-only spacing", () => {
+  render(
+    <>
+      <Section aria-label="T" space="top">x</Section>
+      <Section aria-label="B" space="bottom">y</Section>
+    </>,
+  );
+  expect(screen.getByRole("region", { name: "T" })).toHaveAttribute("data-space", "top");
+  expect(screen.getByRole("region", { name: "B" })).toHaveAttribute("data-space", "bottom");
+});

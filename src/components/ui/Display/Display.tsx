@@ -3,7 +3,7 @@ import styles from "./Display.module.scss";
 
 export type DisplayProps = {
   as?: "h1" | "h2";
-  size: "xl" | "l" | "m";
+  size: "hero" | "xl" | "l" | "m";
   tone?: "ink" | "on-dark";
   children: ReactNode;
 };

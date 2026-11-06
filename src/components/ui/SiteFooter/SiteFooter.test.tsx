@@ -41,3 +41,12 @@ it("Cookie settings asks the banner to reopen", async () => {
   expect(cb).toHaveBeenCalledOnce();
   window.removeEventListener("io:consent-open", cb);
 });
+
+it("gives the Studio column the press anchor, holding the Press kit link", () => {
+  const { container } = render(<SiteFooter newsletter={null} socialLinks={[]} />);
+  const press = container.querySelector("#press");
+  expect(press).not.toBeNull();
+  expect(press).toHaveTextContent("Studio");
+  expect(screen.getByRole("link", { name: "Press kit" })).toHaveAttribute("href", "/#press");
+  expect(press).toContainElement(screen.getByRole("link", { name: "Press kit" }));
+});

@@ -1,6 +1,12 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import type { Featured } from "@/lib/sanity/types";
+
+vi.mock("next/image", () => ({
+  // eslint-disable-next-line @next/next/no-img-element -- plain img exposes the priority prop in jsdom
+  default: ({ alt, src, priority }: { alt: string; src: string; priority?: boolean }) => <img alt={alt} src={src} data-priority={priority ? "true" : "false"} />,
+}));
+
 import { ShowcaseHero } from "./ShowcaseHero";
 
 const make = (n: number, name: string, art: Featured["art"] = null): Featured => ({
@@ -99,4 +105,65 @@ it("selects a slide from the spotlight rail", () => {
   render(<ShowcaseHero games={games} />);
   fireEvent.click(screen.getByRole("button", { name: /^Mission Control/ }));
   expect(screen.getByText("03 / 03")).toBeInTheDocument();
+});
+
+it("renders the counter after the next button in the DOM", () => {
+  render(<ShowcaseHero games={games} />);
+  const counter = screen.getByText("01 / 03");
+  expect(next().compareDocumentPosition(counter) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+});
+
+it("a single game is a plain section: no carousel or slide roles, no live region", () => {
+  const { container } = render(<ShowcaseHero games={[games[0]]} />);
+  const region = screen.getByRole("region", { name: "Featured games" });
+  expect(region).not.toHaveAttribute("aria-roledescription");
+  expect(container.querySelector("[aria-roledescription]")).toBeNull();
+  expect(container.querySelector("[aria-live]")).toBeNull();
+  expect(screen.queryByRole("group")).toBeNull();
+});
+
+it("ignores arrow keys with Alt, Ctrl or Meta held", () => {
+  render(<ShowcaseHero games={games} />);
+  fireEvent.keyDown(next(), { key: "ArrowRight", altKey: true });
+  fireEvent.keyDown(next(), { key: "ArrowRight", ctrlKey: true });
+  fireEvent.keyDown(next(), { key: "ArrowLeft", metaKey: true });
+  expect(screen.getByText("01 / 03")).toBeInTheDocument();
+});
+
+it("clamps a stale index when the list shrinks", () => {
+  const { rerender } = render(<ShowcaseHero games={games} />);
+  fireEvent.click(prev()); // 03 / 03
+  rerender(<ShowcaseHero games={games.slice(0, 2)} />);
+  expect(screen.getByText("02 / 02")).toBeInTheDocument();
+  expect(screen.getByRole("heading", { level: 1, name: "Space Cowboy" })).toBeInTheDocument();
+  fireEvent.click(next());
+  expect(screen.getByText("01 / 02")).toBeInTheDocument();
+});
+
+it("gives only the first slide's art priority", () => {
+  const withArt = [games[0], make(2, "Space Cowboy", { src: "/s.png", alt: "Space Cowboy art", width: 800, height: 600 })];
+  render(<ShowcaseHero games={withArt} />);
+  expect(screen.getByAltText("TerraForge art")).toHaveAttribute("data-priority", "true");
+  fireEvent.click(next());
+  expect(screen.getByAltText("Space Cowboy art")).toHaveAttribute("data-priority", "false");
+});
+
+it("shows the dark placeholder when a game has no art", () => {
+  const { container } = render(<ShowcaseHero games={[games[1]]} />);
+  expect(container.querySelector("[data-tone='dark']")).not.toBeNull();
+  expect(screen.queryByRole("img")).toBeNull();
+});
+
+it("opens an external CTA in a new tab and keeps an internal one in the tab", () => {
+  const internal = { ...games[1], cta: { label: "Join the beta", href: "#newsletter" } };
+  render(<ShowcaseHero games={[games[0], internal]} />);
+  expect(screen.getByRole("link", { name: /Play TerraForge/ })).toHaveAttribute("target", "_blank");
+  fireEvent.click(next());
+  expect(screen.getByRole("link", { name: "Join the beta" })).not.toHaveAttribute("target");
+});
+
+it("wraps the spotlight rail in a labelled group", () => {
+  render(<ShowcaseHero games={games} />);
+  const rail = screen.getByRole("group", { name: "Choose a featured game" });
+  expect(rail).toContainElement(screen.getByRole("button", { name: /^Mission Control/ }));
 });

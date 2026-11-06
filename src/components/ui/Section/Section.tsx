@@ -3,7 +3,8 @@ import styles from "./Section.module.scss";
 
 export type SectionProps = {
   tone?: "paper" | "sand" | "ink";
-  space?: "default" | "tight" | "none";
+  /** `top` / `bottom` keep only that side's padding, for a block that runs on from its neighbour. */
+  space?: "default" | "tight" | "none" | "top" | "bottom";
   id?: string;
   "aria-label"?: string;
   children: ReactNode;

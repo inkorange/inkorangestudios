@@ -51,6 +51,7 @@
   --font-sans: var(--font-sans-face), Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: var(--font-mono-face), "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   --text-display-xl: #{fluid(68, 112)};
+  --text-display-hero: #{fluid(56, 108)};
   --text-display-l: #{fluid(44, 72)};
   --text-display-m: #{fluid(40, 64)};
   --text-heading-l: #{fluid(34, 56)};
@@ -115,6 +116,9 @@
   --play-button-size: #{fluid(68, 96)};
   --thumb-height: #{fluid(60, 92)};
   --sticky-bar-space: 96px;
+  --statement-body-max: 400px;
+  --teaser-photo-height: #{fluid(220, 420)};
+  --rail-card-width: 270px;
 
   // Radius
   --radius-xs: 10px;
@@ -142,6 +146,7 @@
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
 
   // Layers
+  --z-behind: -1;
   --z-sticky: 10;
   --z-header: 20;
   --z-sheet: 30;

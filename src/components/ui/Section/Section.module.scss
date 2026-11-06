@@ -22,4 +22,12 @@
     padding-top: 0;
     padding-bottom: 0;
   }
+
+  &[data-space="top"] {
+    padding-bottom: 0;
+  }
+
+  &[data-space="bottom"] {
+    padding-top: 0;
+  }
 }

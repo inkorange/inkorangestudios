@@ -1,0 +1,36 @@
+@use "../../../styles/mixins" as *;
+
+.root {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-6) var(--space-14);
+  align-items: center;
+}
+
+.photo {
+  position: relative;
+  flex: 1 1 420px;
+  height: var(--teaser-photo-height);
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-xl);
+
+  @include bp(lg) {
+    border-radius: var(--radius-2xl);
+  }
+}
+
+.image {
+  object-fit: cover;
+}
+
+.text {
+  display: flex;
+  flex: 1 1 480px;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.action {
+  padding-top: var(--space-1);
+}

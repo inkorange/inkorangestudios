@@ -115,13 +115,9 @@
   padding-top: var(--space-2);
 
   @include bp(lg) {
+    gap: var(--space-3);
     justify-content: flex-start;
     padding-top: var(--space-6);
-
-    // prev, next, then counter
-    .counter {
-      order: 3;
-    }
   }
 }
 

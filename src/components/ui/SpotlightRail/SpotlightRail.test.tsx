@@ -22,3 +22,8 @@ it("reports the picked index", () => {
   fireEvent.click(screen.getByRole("button", { name: /Two/ }));
   expect(onPick).toHaveBeenCalledWith(1);
 });
+
+it("is a group labelled for choosing a featured game", () => {
+  render(<SpotlightRail games={games} activeIndex={0} onPick={() => {}} />);
+  expect(screen.getByRole("group", { name: "Choose a featured game" })).toBeInTheDocument();
+});

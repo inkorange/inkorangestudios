@@ -11,10 +11,11 @@
   overflow: hidden;
   color: var(--color-ink);
   background-color: var(--color-accent);
-  border-radius: var(--radius-3xl);
+  border-radius: var(--radius-2xl);
 
   @include bp(md) {
     padding: var(--space-14);
+    border-radius: var(--radius-3xl);
   }
 
   &[data-paint="true"]::before {

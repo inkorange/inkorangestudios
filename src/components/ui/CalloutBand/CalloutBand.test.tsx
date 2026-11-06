@@ -18,3 +18,9 @@ it("flags the watercolor edge", () => {
   const { container } = render(<CalloutBand eyebrow="e" title="t" body="b" action={null} paint />);
   expect(container.firstElementChild).toHaveAttribute("data-paint", "true");
 });
+
+it("hides a missing eyebrow and body", () => {
+  const { container } = render(<CalloutBand title="Only a title" action={null} />);
+  expect(screen.getByRole("heading", { level: 2, name: "Only a title" })).toBeVisible();
+  expect(container.querySelectorAll("p")).toHaveLength(0);
+});

@@ -11,7 +11,7 @@ export type SpotlightRailProps = {
 
 export function SpotlightRail({ games, activeIndex, onPick }: SpotlightRailProps) {
   return (
-    <div className={styles.root}>
+    <div className={styles.root} role="group" aria-label="Choose a featured game">
       {games.map((game, i) => (
         <button
           key={game.slug}

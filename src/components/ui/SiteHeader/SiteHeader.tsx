@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
-import type { NavKey } from "@/lib/nav";
+import { usePathname } from "next/navigation";
+import { navStateForPath, type HeaderVariant, type NavKey } from "@/lib/nav";
 import { Button } from "../Button/Button";
 import { Container } from "../Container/Container";
 import { Icon } from "../Icon/Icon";
@@ -10,7 +13,7 @@ import styles from "./SiteHeader.module.scss";
 
 export type SiteHeaderProps = {
   active?: NavKey;
-  variant?: "default" | "game";
+  variant?: HeaderVariant;
   backLink?: { label: string; href: string };
 };
 
@@ -19,8 +22,14 @@ const DEFAULT_BACK = { label: "Games", href: "/#games" };
 /**
  * Renders the desktop and phone layouts together and switches them with CSS,
  * so the server markup never depends on viewport width.
+ *
+ * Mounted once by the site layout, so `active` and `variant` default to what the
+ * current pathname implies (`navStateForPath`); explicit props win.
  */
-export function SiteHeader({ active, variant = "default", backLink = DEFAULT_BACK }: SiteHeaderProps) {
+export function SiteHeader({ active: activeProp, variant: variantProp, backLink = DEFAULT_BACK }: SiteHeaderProps) {
+  const fromPath = navStateForPath(usePathname());
+  const active = activeProp ?? fromPath.active;
+  const variant = variantProp ?? fromPath.variant;
   return (
     <header className={styles.root} data-variant={variant}>
       <Container>
