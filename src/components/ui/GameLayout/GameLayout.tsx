@@ -70,7 +70,7 @@ export function GameLayout({ title, art, media, store, about, features, details,
           </div>
         ) : null}
         {beta ? (
-          <div className={styles.beta} data-slot="beta">
+          <div className={styles.beta} data-slot="beta" id="beta">
             {beta}
           </div>
         ) : null}
