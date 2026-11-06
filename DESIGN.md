@@ -568,11 +568,11 @@ A section title with a 2px ink rule beneath and an optional action link.
 
 ### GameTile
 
-A 3:4 cover with a status chip, the game name and a meta line, all one link.
+A 3:4 cover with a status chip, the game name and a meta line, all one link, with optional app store badges under it.
 
 - **Use for:** game grids on the home page, the games index and "More from inkOrange".
 - **Don't use for:** news (use `NewsCard`) or the showcase hero.
-- **Props / variants:** `name`, `href`, `cover` (`ImageRef`; `null` shows a `Placeholder` labelled with the name), `status` (`GameStatus`; `out-now` gets the accent chip, everything else ink), `meta` ("Sandbox · Web"), `size`: `m` (default) or `s`.
+- **Props / variants:** `name`, `href`, `cover` (`ImageRef`; `null` shows a `Placeholder` labelled with the name), `status` (`GameStatus`; `out-now` gets the accent chip, everything else ink), `meta` ("Sandbox · Web"), `size`: `m` (default) or `s`, `stores` (optional `StoreLink[]`: `StoreBadges size="s"` under the tile, outside its link because links can't nest; `--space-4` above them).
 - **Accessibility:** the whole tile is one link whose name is chip + name + meta. Cover alt text comes from the CMS image. Visible focus ring.
 
 ### NewsCard
@@ -711,13 +711,22 @@ The game page's large stage with a thumbnail strip beneath it.
 - **Props / variants:** `items` (`Media[]`: `trailer` with `poster`, `url`, optional `duration`; or `image`) and `title`. Stage is 16/7.5 on `--radius-3xl`, 16/10 on `--radius-xl` below `md`. Thumbs are a grid from `md`, a horizontal scroll strip below. Renders nothing when `items` is empty; a single item shows no thumbs. Missing art shows the dark `Placeholder`.
 - **Accessibility:** the trailer play button is named `Play the {title} trailer`. Nothing plays until it is pressed; then YouTube and Vimeo URLs become an `iframe` (titled `{title} trailer`) and other URLs a `video` with controls. Trailer URLs that can't be played (not http(s), or a YouTube/Vimeo URL without a valid ID) show the poster with a "Watch the trailer" external link when the URL is http(s), otherwise just the poster. Switching thumbs stops playback. Thumbs show the screenshot or poster with the label as an overlay. Thumbs are buttons with `aria-pressed` and `aria-label="Show {label}"`; the selected one has an ink border. The stage is a `figure` whose caption carries the label.
 
+### StoreBadges
+
+The official Google Play and App Store badges, each linking to the store.
+
+- **Use for:** a game's app store links: in `StoreCard`, and under each `GameTile` in the home `GameGrid`.
+- **Don't use for:** the web link (that is a `Button`), or any other platform.
+- **Props / variants:** `stores` (`StoreLink[]`; only Android and iOS have badges, the rest are skipped, and with none it renders nothing); `label` (the list's accessible name, e.g. "App stores" or "TerraForge in the app stores"); `size`: `m` (default, `--control-height`) or `s` (`--tap-min`, for tiles). Side by side, wrapping when narrow. The artwork is Apple's and Google's own, unaltered (the Google PNG trimmed of its transparent clear space), in `public/badges/`; both stores set a 40px minimum height and both sizes stay above it.
+- **Accessibility:** a labelled list of links; each opens in a new tab and its image's alt text is the badge's words ("Get it on Google Play", "Download on the App Store"). Each badge meets the 44px tap target and shows the focus ring.
+
 ### StoreCard
 
 The game page's "get the game" card.
 
 - **Use for:** price, the main play/store link, the store badges, the notify-me form and the fact sheet.
 - **Don't use for:** other call-out cards (use `InfoCard`).
-- **Props / variants:** `priceLabel`, `primary` (`{ label, href }` or `null`; absolute URLs open in a new tab), `stores` (`StoreLink[]` from the Studio's Store links: Android and iOS show the official Google Play and App Store badges, unaltered, side by side at `--control-height` in a list labelled "App stores", each opening in a new tab with the badge's words as alt text; Web shows a "Play in your browser" `Button` with the globe, `accent` without a primary button and `outline` under one, and is skipped when the primary button already goes to the same URL), `notify` (a node, normally `EmailSignupForm`), `notifyTitle`, `facts`, `phoneFacts` (default true). Blocks without data are not rendered, so a sparse game shows only the eyebrow and button (the game page skips the card entirely when it has nothing to sell). Facts render twice: a `dl` from `lg`, and a "Game details" `Accordion` below `lg`; CSS switches between them. `phoneFacts={false}` drops the accordion so the page can place it elsewhere (the game page puts it after Features, as in the phone mockup). Below `lg` the card has no chrome and no eyebrow: price, button and notify box sit straight under the game title; from `lg` it is the bordered card on `--radius-2xl`.
+- **Props / variants:** `priceLabel`, `primary` (`{ label, href }` or `null`; absolute URLs open in a new tab), `stores` (`StoreLink[]` from the Studio's Store links: Android and iOS show as `StoreBadges` labelled "App stores"; Web shows a "Play in your browser" `Button` with the globe, `accent` without a primary button and `outline` under one, and is skipped when the primary button already goes to the same URL), `notify` (a node, normally `EmailSignupForm`), `notifyTitle`, `facts`, `phoneFacts` (default true). Blocks without data are not rendered, so a sparse game shows only the eyebrow and button (the game page skips the card entirely when it has nothing to sell). Facts render twice: a `dl` from `lg`, and a "Game details" `Accordion` below `lg`; CSS switches between them. `phoneFacts={false}` drops the accordion so the page can place it elsewhere (the game page puts it after Features, as in the phone mockup). Below `lg` the card has no chrome and no eyebrow: price, button and notify box sit straight under the game title; from `lg` it is the bordered card on `--radius-2xl`.
 - **Accessibility:** an `aside` named "Get the game". The hidden rendering is `display: none`, so assistive tech reads the facts once.
 
 ### StickyPlayBar
@@ -753,7 +762,7 @@ The "All games" section body: a `SectionHeader` with All / Out now / Coming soon
 
 - **Use for:** the home page's games section (inside `Section id="games"`), and any full list of games.
 - **Don't use for:** a short related-games row (use `MoreGames`).
-- **Props / variants:** `games` (`GameSummary[]`); `title` (default "All games"). A client island: "Out now" shows `out-now` games, "Coming soon" shows every other status (coming soon, in development, announcing soon). Two columns below `md`, auto-fill at `--grid-min-tile` from `md`. Each tile links to `/games/{slug}` with a "Genre · Platform" meta line. With no games it shows "New games are on the way." and no filters; a filter with no matches shows the same line.
+- **Props / variants:** `games` (`GameSummary[]`); `title` (default "All games"). A client island: "Out now" shows `out-now` games, "Coming soon" shows every other status (coming soon, in development, announcing soon). Two columns below `md`, auto-fill at `--grid-min-tile` from `md`. Each tile links to `/games/{slug}` with a "Genre · Platform" meta line, and a game with app store links shows their `StoreBadges` (`size="s"`) under its tile. With no games it shows "New games are on the way." and no filters; a filter with no matches shows the same line.
 - **Accessibility:** the filters are a `group` named "Filter games" with `aria-pressed`; the tiles are a list named "Games".
 
 ### Statement

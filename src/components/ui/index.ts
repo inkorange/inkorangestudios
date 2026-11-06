@@ -78,6 +78,8 @@ export type { SiteFooterProps } from "./SiteFooter/SiteFooter";
 export { ConsentBanner } from "./ConsentBanner/ConsentBanner";
 export { MediaViewer } from "./MediaViewer/MediaViewer";
 export type { MediaViewerProps } from "./MediaViewer/MediaViewer";
+export { StoreBadges } from "./StoreBadges/StoreBadges";
+export type { StoreBadgesProps } from "./StoreBadges/StoreBadges";
 export { StoreCard } from "./StoreCard/StoreCard";
 export type { StoreCardProps } from "./StoreCard/StoreCard";
 export { StickyPlayBar } from "./StickyPlayBar/StickyPlayBar";

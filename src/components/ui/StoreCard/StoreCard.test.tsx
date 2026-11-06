@@ -52,17 +52,10 @@ const play = { platform: "Android", href: "https://play.google.com/store/apps/de
 const apple = { platform: "iOS", href: "https://apps.apple.com/app/id1" } as const;
 const web = { platform: "Web", href: "https://play.example.com" } as const;
 
-it("shows the official store badges as links that open in a new tab", () => {
+it("shows the app store badges in a list labelled App stores", () => {
   render(<StoreCard primary={null} stores={[play, apple]} facts={[]} />);
   const list = screen.getByRole("list", { name: "App stores" });
-  const links = within(list).getAllByRole("link");
-  expect(links.map((a) => a.getAttribute("href"))).toEqual([play.href, apple.href]);
-  for (const a of links) {
-    expect(a).toHaveAttribute("target", "_blank");
-    expect(a).toHaveAttribute("rel", "noopener noreferrer");
-  }
-  expect(within(links[0]).getByRole("img", { name: "Get it on Google Play" })).toHaveAttribute("src", "/badges/google-play.png");
-  expect(within(links[1]).getByRole("img", { name: "Download on the App Store" })).toHaveAttribute("src", "/badges/app-store.svg");
+  expect(within(list).getAllByRole("link").map((a) => a.getAttribute("href"))).toEqual([play.href, apple.href]);
 });
 
 it("shows the web link as a button, skipping it when the main button already goes there", () => {

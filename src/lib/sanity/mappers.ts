@@ -204,6 +204,7 @@ export function mapGameSummary(raw: unknown): GameSummary | null {
     genre: g.genres[0] ?? "",
     platformLabel: g.platforms.join(" · "),
     cover: g.coverArt,
+    stores: g.stores,
   };
 }
 

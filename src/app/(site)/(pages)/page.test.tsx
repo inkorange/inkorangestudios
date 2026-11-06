@@ -42,8 +42,8 @@ const featured: Featured[] = [
   },
 ];
 const games: GameSummary[] = [
-  { slug: "terraforge", name: "TerraForge", status: "out-now", genre: "Sandbox", platformLabel: "Web", cover: null },
-  { slug: "space-cowboy", name: "Space Cowboy", status: "coming-soon", genre: "Puzzle", platformLabel: "iOS · Android", cover: null },
+  { slug: "terraforge", name: "TerraForge", status: "out-now", genre: "Sandbox", platformLabel: "Web", cover: null, stores: [] },
+  { slug: "space-cowboy", name: "Space Cowboy", status: "coming-soon", genre: "Puzzle", platformLabel: "iOS · Android", cover: null, stores: [] },
 ];
 const posts: PostSummary[] = [1, 2, 3].map((n) => ({
   slug: `post-${n}`,

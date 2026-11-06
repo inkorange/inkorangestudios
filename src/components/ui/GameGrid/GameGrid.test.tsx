@@ -1,5 +1,11 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
+
+vi.mock("next/image", () => ({
+  // eslint-disable-next-line @next/next/no-img-element -- plain img stands in for next/image in jsdom
+  default: ({ alt, src }: { alt: string; src: string }) => <img alt={alt} src={src} />,
+}));
+
 import type { GameSummary } from "@/lib/sanity/types";
 import { GameGrid } from "./GameGrid";
 
@@ -10,6 +16,7 @@ const game = (slug: string, name: string, status: GameSummary["status"]): GameSu
   genre: "Sandbox",
   platformLabel: "Web",
   cover: null,
+  stores: [],
 });
 const games = [
   game("terraforge", "TerraForge", "out-now"),
@@ -63,4 +70,14 @@ it("a filter with no matches shows the empty message", () => {
   render(<GameGrid games={[games[1]]} />);
   fireEvent.click(screen.getByRole("button", { name: "Out now" }));
   expect(screen.getByText("New games are on the way.")).toBeInTheDocument();
+});
+
+it("puts a game's app store badges under its tile, outside the tile's link", () => {
+  const stores = [{ platform: "iOS", href: "https://apps.apple.com/app/id1" }] as GameSummary["stores"];
+  render(<GameGrid games={[{ ...game("space-cowboy", "Space Cowboy", "coming-soon"), stores }, game("terraforge", "TerraForge", "out-now")]} />);
+  const badges = screen.getByRole("list", { name: "Space Cowboy in the app stores" });
+  const badge = within(badges).getByRole("link", { name: "Download on the App Store" });
+  expect(badge).toHaveAttribute("href", "https://apps.apple.com/app/id1");
+  expect(badge.closest('a[href="/games/space-cowboy"]')).toBeNull();
+  expect(screen.queryByRole("list", { name: "TerraForge in the app stores" })).toBeNull();
 });

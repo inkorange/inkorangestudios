@@ -137,6 +137,9 @@ describe("mapGame store links", () => {
       { platform: "Web", href: links.web },
     ]);
   });
+  it("carries over to the game summary for the home tiles", () => {
+    expect(mapGameSummary({ ...base, platforms: ["iOS"], storeLinks: links })!.stores).toEqual([{ platform: "iOS", href: links.appStore }]);
+  });
   it("drops a link whose platform isn't ticked, and blank or non-https links", () => {
     expect(stores(["iOS"], links)).toEqual([{ platform: "iOS", href: links.appStore }]);
     expect(stores(["Android", "iOS", "Web"], { googlePlay: "  ", appStore: "http://apps.apple.com/x", web: "javascript:alert(1)" })).toEqual([]);

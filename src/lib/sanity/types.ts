@@ -84,6 +84,7 @@ export type GameSummary = {
   genre: string;
   platformLabel: string;
   cover: ImageRef;
+  stores: StoreLink[];
 };
 
 export type PostSummary = {

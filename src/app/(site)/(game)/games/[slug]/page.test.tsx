@@ -77,8 +77,8 @@ const full: Game = {
 };
 
 const games: GameSummary[] = [
-  { slug: "terraforge", name: "TerraForge", status: "out-now", genre: "Sandbox", platformLabel: "Web", cover: null },
-  { slug: "mission-control", name: "Mission Control", status: "out-now", genre: "Simulation", platformLabel: "Web", cover: null },
+  { slug: "terraforge", name: "TerraForge", status: "out-now", genre: "Sandbox", platformLabel: "Web", cover: null, stores: [] },
+  { slug: "mission-control", name: "Mission Control", status: "out-now", genre: "Simulation", platformLabel: "Web", cover: null, stores: [] },
 ];
 const posts: PostSummary[] = [
   { slug: "exoplanets-update", title: "New exoplanet data", date: "2026-10-01", kind: "update", excerpt: null, image: null, game: { slug: "terraforge", name: "TerraForge" } },

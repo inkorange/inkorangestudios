@@ -28,7 +28,7 @@ const post: Post = {
   game: { slug: "terraforge", name: "TerraForge" },
   body,
 };
-const terraforge: GameSummary = { slug: "terraforge", name: "TerraForge", status: "out-now", genre: "Sandbox", platformLabel: "Web", cover: null };
+const terraforge: GameSummary = { slug: "terraforge", name: "TerraForge", status: "out-now", genre: "Sandbox", platformLabel: "Web", cover: null, stores: [] };
 
 const params = (slug: string) => ({ params: Promise.resolve({ slug }) });
 

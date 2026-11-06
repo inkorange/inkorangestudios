@@ -42,6 +42,7 @@ export function GameGrid({ games, title = "All games" }: GameGridProps) {
                 cover={game.cover}
                 status={game.status}
                 meta={[game.genre, game.platformLabel].filter(Boolean).join(" · ")}
+                stores={game.stores}
               />
             </li>
           ))}

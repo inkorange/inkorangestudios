@@ -1,4 +1,3 @@
-import Image from "next/image";
 import type { ReactNode } from "react";
 import { STORE_LINK_LABELS } from "@/lib/games";
 import type { StoreLink } from "@/lib/sanity/types";
@@ -8,6 +7,7 @@ import { Button } from "../Button/Button";
 import { Eyebrow } from "../Eyebrow/Eyebrow";
 import { FactList } from "../FactList/FactList";
 import { Icon } from "../Icon/Icon";
+import { StoreBadges } from "../StoreBadges/StoreBadges";
 import styles from "./StoreCard.module.scss";
 
 export type StoreCardProps = {
@@ -22,14 +22,7 @@ export type StoreCardProps = {
   phoneFacts?: boolean;
 };
 
-/** The official badge artwork, as Apple and Google supply it (the Google PNG trimmed of its clear space). */
-const BADGES = {
-  Android: { src: "/badges/google-play.png", width: 564, height: 168 },
-  iOS: { src: "/badges/app-store.svg", width: 120, height: 40 },
-} as const;
-
 export function StoreCard({ priceLabel, primary, stores = [], notify, notifyTitle, facts, phoneFacts = true }: StoreCardProps) {
-  const badges = stores.filter((s): s is StoreLink & { platform: keyof typeof BADGES } => s.platform in BADGES);
   // The web link doubles up when the main button already goes there.
   const web = stores.find((s) => s.platform === "Web" && s.href !== primary?.href);
   return (
@@ -48,27 +41,7 @@ export function StoreCard({ priceLabel, primary, stores = [], notify, notifyTitl
           {STORE_LINK_LABELS.Web.badge}
         </Button>
       ) : null}
-      {badges.length > 0 ? (
-        <ul className={styles.badges} aria-label="App stores">
-          {badges.map((s) => {
-            const badge = BADGES[s.platform];
-            return (
-              <li key={s.platform}>
-                <a className={styles.badge} href={s.href} target="_blank" rel="noopener noreferrer">
-                  <Image
-                    className={styles["badge-image"]}
-                    src={badge.src}
-                    alt={STORE_LINK_LABELS[s.platform].badge}
-                    width={badge.width}
-                    height={badge.height}
-                    unoptimized={badge.src.endsWith(".svg")}
-                  />
-                </a>
-              </li>
-            );
-          })}
-        </ul>
-      ) : null}
+      <StoreBadges stores={stores} label="App stores" />
       {notify ? (
         <div className={styles.notify}>
           {notifyTitle ? (

@@ -9,8 +9,8 @@ vi.mock("next/image", () => ({
 }));
 
 const games: GameSummary[] = [
-  { slug: "mission-control", name: "Mission Control", status: "out-now", genre: "Simulation", platformLabel: "Web", cover: null },
-  { slug: "space-cowboy", name: "Space Cowboy", status: "coming-soon", genre: "Puzzle", platformLabel: "iOS · Android", cover: null },
+  { slug: "mission-control", name: "Mission Control", status: "out-now", genre: "Simulation", platformLabel: "Web", cover: null, stores: [] },
+  { slug: "space-cowboy", name: "Space Cowboy", status: "coming-soon", genre: "Puzzle", platformLabel: "iOS · Android", cover: null, stores: [] },
 ];
 
 it("renders a header with the All games link and a list of small tiles", () => {
@@ -21,7 +21,7 @@ it("renders a header with the All games link and a list of small tiles", () => {
   const tiles = within(list).getAllByRole("link");
   expect(tiles.map((t) => t.getAttribute("href"))).toEqual(["/games/mission-control", "/games/space-cowboy"]);
   expect(within(list).getByText("Puzzle · iOS · Android")).toBeInTheDocument();
-  expect(container.querySelectorAll('a[data-size="s"]')).toHaveLength(2);
+  expect(container.querySelectorAll('li > [data-size="s"]')).toHaveLength(2);
 });
 
 it("renders nothing without games", () => {
