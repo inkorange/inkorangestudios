@@ -54,7 +54,7 @@ export const studioGame = defineType({
     defineField({
       name: "storeLinks",
       title: "Store links",
-      description: "Add a link and the game page shows that store's badge. Each field appears once its platform is ticked above.",
+      description: "Add a link and the game page shows that store's badge. Each field appears once its platform is ticked above. Links show only while the status is Out now or Coming soon (beta).",
       type: "object",
       fields: [
         defineField({

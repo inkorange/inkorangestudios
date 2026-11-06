@@ -146,9 +146,12 @@ function mapMedia(trailer: Record<string, unknown> | null, screenshots: unknown[
 }
 
 const STORE_FIELDS: Record<Platform, string> = { Android: "googlePlay", iOS: "appStore", Web: "web" };
+/** Out now, or coming soon (in beta test). A game still in development or not yet announced has no store links. */
+const IN_STORES: GameStatus[] = ["out-now", "coming-soon"];
 
-/** A store link shows only for a ticked platform, and only when it is an https URL. */
-function mapStores(platforms: Platform[], links: Record<string, unknown> | null): StoreLink[] {
+/** A store link shows only for a released or beta game, for a ticked platform, and only when it is an https URL. */
+function mapStores(status: GameStatus, platforms: Platform[], links: Record<string, unknown> | null): StoreLink[] {
+  if (!IN_STORES.includes(status)) return [];
   return platforms.flatMap((platform) => {
     const href = clean(links?.[STORE_FIELDS[platform]]);
     return href && /^https:\/\//i.test(href) ? [{ platform, href }] : [];
@@ -171,7 +174,7 @@ export function mapGame(raw: unknown): Game | null {
     status: d.status,
     genres: d.genres,
     platforms: d.platforms,
-    stores: mapStores(d.platforms, d.storeLinks),
+    stores: mapStores(d.status, d.platforms, d.storeLinks),
     blurb: d.blurb ?? "",
     description: d.description,
     appIcon: d.appIcon ? image({ ...d.appIcon, alt: clean(d.appIcon.alt) ?? `${d.name} app icon` }, ICON) : null,
