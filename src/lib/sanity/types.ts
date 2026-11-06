@@ -1,4 +1,7 @@
+import type { PortableTextBlock } from "@portabletext/react";
 import type { GameStatus } from "@/lib/games";
+
+export type { PortableTextBlock };
 
 export type ImageRef = { src: string; alt: string; width: number; height: number } | null;
 
@@ -29,4 +32,77 @@ export type Featured = {
   art: ImageRef;
   cta: { label: string; href: string };
   detailHref: string;
+};
+
+export type Cta = { label: string; href: string };
+
+export type Game = {
+  slug: string;
+  name: string;
+  status: GameStatus;
+  genres: string[];
+  platforms: string[];
+  blurb: string;
+  description: PortableTextBlock[];
+  keyArt: ImageRef;
+  coverArt: ImageRef;
+  media: Media[];
+  features: { title: string; body: string }[];
+  facts: { label: string; value: string }[];
+  priceLabel: string | null;
+  primaryCta: Cta | null;
+  notify: { platform: string } | null;
+  pressKitUrl: string | null;
+  featured: boolean;
+};
+
+export type GameSummary = {
+  slug: string;
+  name: string;
+  status: GameStatus;
+  genre: string;
+  platformLabel: string;
+  cover: ImageRef;
+};
+
+export type PostSummary = {
+  slug: string;
+  title: string;
+  /** ISO date. */
+  date: string;
+  kind: PostKind;
+  excerpt: string | null;
+  image: ImageRef;
+  game: { slug: string; name: string } | null;
+};
+
+export type Post = PostSummary & { body: PortableTextBlock[] };
+
+export type LegalPage = {
+  slug: string;
+  title: string;
+  updatedAt: string | null;
+  body: PortableTextBlock[];
+};
+
+export type Faq = {
+  id: string;
+  question: string;
+  answer: PortableTextBlock[];
+  game: { slug: string; name: string } | null;
+};
+
+export type SiteSettings = {
+  supportEmail: string | null;
+  socialLinks: { label: string; url: string }[];
+  betaCallout: {
+    eyebrow: string | null;
+    title: string | null;
+    body: string | null;
+    game: { slug: string; name: string } | null;
+    platforms: string[];
+  } | null;
+  newsletterBlurb: string | null;
+  studioPhoto: ImageRef;
+  foundedLine: string | null;
 };

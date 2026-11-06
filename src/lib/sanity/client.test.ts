@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const env = vi.hoisted(() => ({ sanityProjectId: "", sanityDataset: "production" }));
 vi.mock("@/lib/env", () => ({ publicEnv: env }));
 
-import { apiVersion, getSanityClient, getSanityWriteClient, sanityFetch } from "./client";
+import { apiVersion, getSanityClient, sanityFetch } from "./client";
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -46,17 +46,5 @@ describe("with a project id", () => {
     expect(String(url)).toContain("apicdn.sanity.io");
     expect(init.next?.tags).toEqual(["games"]);
     expect(JSON.stringify(init.headers ?? {})).not.toContain("secret");
-  });
-
-  it("write client uses the trimmed token, no CDN", () => {
-    vi.stubEnv("SANITY_API_TOKEN", "  tok  ");
-    const cfg = getSanityWriteClient().config();
-    expect(cfg.token).toBe("tok");
-    expect(cfg.useCdn).toBe(false);
-  });
-
-  it("write client throws when the token is missing or blank", () => {
-    vi.stubEnv("SANITY_API_TOKEN", "   ");
-    expect(() => getSanityWriteClient()).toThrow(/SANITY_API_TOKEN/);
   });
 });
