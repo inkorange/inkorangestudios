@@ -1,47 +1,58 @@
 import { createClient } from "next-sanity";
-import { publicEnv, readServerEnv } from "@/lib/env";
+import { publicEnv } from "@/lib/env";
 
 export const apiVersion = "2026-11-01";
 
-function makeClient() {
+/*
+ * Reads are unauthenticated and go through the CDN: the shared dataset is public
+ * (verified with an unauthenticated query to the apicdn host), and only published
+ * documents are needed. SANITY_API_TOKEN is used solely by getSanityWriteClient()
+ * (server-only; the seed script), never for page reads.
+ */
+
+function requireProjectId(): string {
   if (!publicEnv.sanityProjectId) {
-    throw new Error(
-      "NEXT_PUBLIC_SANITY_PROJECT_ID is not set; cannot create the Sanity client.",
-    );
+    throw new Error("NEXT_PUBLIC_SANITY_PROJECT_ID is not set; cannot create the Sanity client.");
   }
-  return createClient({
-    projectId: publicEnv.sanityProjectId,
-    dataset: publicEnv.sanityDataset,
-    apiVersion,
-    useCdn: true,
-  });
+  return publicEnv.sanityProjectId;
 }
 
-type SanityClient = ReturnType<typeof makeClient>;
-let cached: SanityClient | undefined;
+let readClient: ReturnType<typeof createClient> | undefined;
+let readKey = "";
 
-/** Lazily created so importing this module never throws; using it with no project id does. */
-export const sanityClient: SanityClient = new Proxy({} as SanityClient, {
-  get(_target, prop, receiver) {
-    cached ??= makeClient();
-    return Reflect.get(cached, prop, receiver);
-  },
-});
+/** Memoized CDN read client. Throws if the project id is unset. */
+export function getSanityClient() {
+  const projectId = requireProjectId();
+  const key = `${projectId}/${publicEnv.sanityDataset}`;
+  if (!readClient || readKey !== key) {
+    readClient = createClient({
+      projectId,
+      dataset: publicEnv.sanityDataset,
+      apiVersion,
+      useCdn: true,
+    });
+    readKey = key;
+  }
+  return readClient;
+}
+
+/** Server-only client with the API token, for writes (seed script). Never use in pages. */
+export function getSanityWriteClient() {
+  const token = process.env.SANITY_API_TOKEN?.trim();
+  if (!token) throw new Error("SANITY_API_TOKEN is not set; cannot create the Sanity write client.");
+  return createClient({
+    projectId: requireProjectId(),
+    dataset: publicEnv.sanityDataset,
+    apiVersion,
+    useCdn: false,
+    token,
+  });
+}
 
 export async function sanityFetch<T>(
   query: string,
   params: Record<string, unknown> = {},
   tags: string[] = [],
 ): Promise<T> {
-  const token = readTokenSafely();
-  const client = token ? sanityClient.withConfig({ token, useCdn: false }) : sanityClient;
-  return client.fetch<T>(query, params, { next: { tags } });
-}
-
-function readTokenSafely(): string | undefined {
-  try {
-    return readServerEnv().SANITY_API_TOKEN;
-  } catch {
-    return undefined;
-  }
+  return getSanityClient().fetch<T>(query, params, { next: { tags } });
 }

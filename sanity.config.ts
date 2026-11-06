@@ -4,13 +4,16 @@ import { structureTool } from "sanity/structure";
 import { schemaTypes } from "./src/sanity/schemaTypes";
 import { structure } from "./src/sanity/structure";
 
+const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
+if (!projectId) throw new Error("NEXT_PUBLIC_SANITY_PROJECT_ID is not set");
+
 // Shares a Sanity project + dataset with the portfolio site. The workspace name
 // ("inkorange") and the studio* type prefix keep the two schemas separate.
 export default defineConfig({
   name: "inkorange",
   title: "inkOrange Studios",
   basePath: "/studio",
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || "",
+  projectId,
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || "production",
   plugins: [structureTool({ structure }), visionTool()],
   schema: {

@@ -31,7 +31,7 @@ function dimensionsOf(img: NonNullable<SanityImageInput>) {
   return m ? { width: Number(m[1]), height: Number(m[2]) } : null;
 }
 
-/** Null when the asset or alt text is missing. Height keeps the source aspect ratio. */
+/** Null when the asset or alt text is missing, or the asset ref is unparseable and no dimensions are given. Height keeps the source aspect ratio. */
 export function toImageRef(img: SanityImageInput, width: number): ImageRef {
   if (!img || !img.asset || !img.alt?.trim()) return null;
   const dims = dimensionsOf(img);
