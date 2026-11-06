@@ -34,11 +34,12 @@
   }
 }
 
-// The app icon (when there is one) and the name, side by side.
+// The app icon (when there is one) and the name, side by side, the icon's top
+// on the name's first line so a name that wraps hangs below it.
 .name {
   display: flex;
   gap: var(--space-4);
-  align-items: center;
+  align-items: flex-start;
   min-width: 0;
 
   @include bp(lg) {
@@ -51,6 +52,13 @@
   width: var(--app-icon-size);
   height: var(--app-icon-size);
   border-radius: var(--radius-app-icon);
+}
+
+// Trim the display font's space above its capitals so the icon's top meets the
+// tops of the letters, not the top of the line box. Browsers without text-box
+// keep the icon level with the line box, a few pixels high.
+.icon + * {
+  text-box: trim-start cap alphabetic;
 }
 
 .chips {
