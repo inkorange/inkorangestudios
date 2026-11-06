@@ -105,6 +105,25 @@ describe("sendBatch", () => {
   });
 });
 
+describe("sendBatch uncertain outcomes", () => {
+  it("maps a 2xx with a non-array body to status 0", async () => {
+    fetchMock.mockResolvedValue(json({ ok: true }, 200));
+    expect(await sendBatch("tok", [msg])).toEqual({ ok: false, status: 0 });
+  });
+
+  it("maps a 2xx with unparseable JSON to status 0", async () => {
+    fetchMock.mockResolvedValue(new Response("not json", { status: 200 }));
+    expect(await sendBatch("tok", [msg])).toEqual({ ok: false, status: 0 });
+  });
+
+  it("maps 5xx to status 0 but keeps 4xx statuses", async () => {
+    fetchMock.mockResolvedValueOnce(json({}, 503));
+    expect(await sendBatch("tok", [msg])).toEqual({ ok: false, status: 0 });
+    fetchMock.mockResolvedValueOnce(json({ ErrorCode: 300 }, 422));
+    expect(await sendBatch("tok", [msg])).toEqual({ ok: false, status: 422 });
+  });
+});
+
 describe("listSuppressed", () => {
   it("lower-cases addresses and encodes the stream", async () => {
     fetchMock.mockResolvedValue(

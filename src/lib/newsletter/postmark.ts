@@ -84,9 +84,14 @@ export async function sendBatch(
       body: JSON.stringify(msgs.map(toPayload)),
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
+    // The engine reads status 0 as "may have reached Postmark" (never re-sent)
+    // and >= 400 as "rejected" (retried). A 5xx (e.g. a gateway timeout) may
+    // have been processed upstream, so it is uncertain: only 4xx keep their status.
+    if (res.status >= 500) return { ok: false, status: 0 };
     if (!res.ok) return { ok: false, status: res.status };
     const body = await readJson(res);
-    if (!Array.isArray(body)) return { ok: false, status: res.status };
+    // A 2xx with an unusable body was almost certainly accepted: uncertain, not rejected.
+    if (!Array.isArray(body)) return { ok: false, status: 0 };
     return {
       ok: true,
       results: body.map((r: { To?: unknown; ErrorCode?: unknown }) => ({
