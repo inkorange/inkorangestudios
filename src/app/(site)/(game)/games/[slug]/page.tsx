@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { BetaForm } from "@/components/forms/BetaForm";
 import { LaunchAlertForm } from "@/components/forms/LaunchAlertForm";
 import { JsonLd } from "@/components/site/JsonLd";
 import {
   Accordion,
+  Button,
+  CalloutBand,
   Container,
   FactList,
   FeatureList,
+  FramedPhoto,
   GameLayout,
   GameTitle,
   Heading,
@@ -25,6 +29,7 @@ import { publicEnv } from "@/lib/env";
 import { videoGameJsonLd } from "@/lib/jsonLd";
 import { splitLead } from "@/lib/portableText";
 import { getGame, getGames, getGameSlugs, getPosts } from "@/lib/sanity/content";
+import type { Game } from "@/lib/sanity/types";
 import { notFoundMetadata, pageMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
@@ -48,6 +53,38 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   });
 }
 
+/** The beta tester band: the signup while testing is open, a closed notice once it ends. */
+function BetaBand({ game }: { game: Game }) {
+  const beta = game.beta;
+  if (!beta) return null;
+  if (beta.state === "open") {
+    return (
+      <CalloutBand
+        eyebrow="NOW RECRUITING TESTERS"
+        paint
+        title={beta.title ?? `Play ${game.name} before anyone else.`}
+        body={beta.body ?? "Join the beta and help shape the game before launch."}
+        action={<BetaForm game={game.slug} platforms={beta.platforms} source="game-page" />}
+      />
+    );
+  }
+  const cta = game.primaryCta;
+  return (
+    <CalloutBand
+      eyebrow="BETA TESTING"
+      title={beta.title ?? "Testing is now closed."}
+      body={beta.body ?? `Thanks to everyone who helped test ${game.name}. General release is open.`}
+      action={
+        cta ? (
+          <Button variant="ink" size="l" href={cta.href} external={/^https?:/.test(cta.href)}>
+            {cta.label}
+          </Button>
+        ) : undefined
+      }
+    />
+  );
+}
+
 export default async function GamePage({ params }: Props) {
   const { slug } = await params;
   const [game, posts, games] = await Promise.all([getGame(slug), getPosts(2, slug), getGames()]);
@@ -55,7 +92,9 @@ export default async function GamePage({ params }: Props) {
 
   const { lead, rest } = splitLead(game.description);
   const hasAbout = Boolean(lead) || rest.length > 0;
-  const hasStore = Boolean(game.priceLabel || game.primaryCta || game.notify || game.facts.length > 0);
+  // A trailer takes the key art's place under the title (the key art becomes its poster when it has none).
+  const showKeyArt = !game.media.some((m) => m.kind === "trailer");
+  const hasStore = Boolean(game.priceLabel || game.primaryCta || game.stores.length > 0 || game.notify || game.facts.length > 0);
   const others = games.filter((other) => other.slug !== game.slug);
 
   return (
@@ -65,18 +104,22 @@ export default async function GamePage({ params }: Props) {
         title={
           <GameTitle
             name={game.name}
+            icon={game.appIcon}
             status={game.status}
-            tags={[...game.genres, ...game.platforms]}
+            tags={game.genres}
+            platforms={game.platforms}
             crumbs={[{ label: "Games", href: "/#games" }, { label: game.name }]}
             lead={game.blurb || undefined}
           />
         }
+        art={showKeyArt && game.keyArt ? <FramedPhoto photo={game.keyArt} label="Key art" natural priority /> : null}
         media={game.media.length > 0 ? <MediaViewer items={game.media} title={game.name} /> : null}
         store={
           hasStore ? (
             <StoreCard
               priceLabel={game.priceLabel ?? undefined}
               primary={game.primaryCta}
+              stores={game.stores}
               notifyTitle={game.notify ? `${game.notify.platform} · coming soon` : undefined}
               notify={game.notify ? <LaunchAlertForm game={game.slug} platform={game.notify.platform} /> : undefined}
               facts={game.facts}
@@ -130,6 +173,7 @@ export default async function GamePage({ params }: Props) {
             </>
           ) : null
         }
+        beta={game.beta ? <BetaBand game={game} /> : null}
         cards={
           <>
             {game.pressKitUrl ? (

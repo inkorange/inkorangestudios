@@ -20,8 +20,10 @@ const game: Game = {
   status: "out-now",
   genres: ["Sandbox"],
   platforms: ["Web"],
+  stores: [],
   blurb: "Build planets.",
   description: [],
+  appIcon: null,
   keyArt: null,
   coverArt: null,
   media: [],
@@ -30,6 +32,7 @@ const game: Game = {
   priceLabel: "Free",
   primaryCta: { label: "Play in browser", href: "https://www.terraforgeworlds.com" },
   notify: null,
+  beta: null,
   pressKitUrl: null,
   featured: false,
 };
@@ -63,6 +66,19 @@ it("uses the CTA's own label when the game isn't out yet, and skips an empty pri
   const bar = screen.getByRole("complementary", { name: "TerraForge quick play" });
   expect(within(bar).getByRole("link", { name: "Wishlist on Steam" })).toBeInTheDocument();
   expect(within(bar).getByText("Web")).toBeInTheDocument();
+});
+
+it("falls back to the first store link without a primary CTA", async () => {
+  content.getGame.mockResolvedValue({
+    ...game,
+    status: "coming-soon",
+    platforms: ["Android", "iOS"],
+    primaryCta: null,
+    stores: [{ platform: "Android", href: "https://play.google.com/store/apps/details?id=x" }, { platform: "iOS", href: "https://apps.apple.com/app/id1" }],
+  });
+  render(await GameRouteLayout(props("terraforge")));
+  const bar = screen.getByRole("complementary", { name: "TerraForge quick play" });
+  expect(within(bar).getByRole("link", { name: "Google Play" })).toHaveAttribute("href", "https://play.google.com/store/apps/details?id=x");
 });
 
 it("has no play bar and no extra footer room without a primary CTA or a game", async () => {

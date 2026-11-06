@@ -1,6 +1,13 @@
 @use "../../../styles/mixins" as *;
 
+// The tile's link (cover, name, meta), then any store badges outside it: links can't nest.
 .root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.link {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -11,7 +18,7 @@
     @include focus-ring;
   }
 
-  &[data-size="s"] {
+  .root[data-size="s"] & {
     gap: var(--space-2);
   }
 }

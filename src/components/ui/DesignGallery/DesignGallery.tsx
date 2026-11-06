@@ -56,6 +56,7 @@ import { SpotlightRail } from "../SpotlightRail/SpotlightRail";
 import { Stack } from "../Stack/Stack";
 import { Statement } from "../Statement/Statement";
 import { StickyPlayBar } from "../StickyPlayBar/StickyPlayBar";
+import { StoreBadges } from "../StoreBadges/StoreBadges";
 import { StoreCard } from "../StoreCard/StoreCard";
 import { StudioTeaser } from "../StudioTeaser/StudioTeaser";
 import { Text } from "../Text/Text";
@@ -190,10 +191,10 @@ const RICH: PortableTextBlock[] = [
 ];
 
 const GAMES: GameSummary[] = [
-  { slug: "terraforge", name: "TerraForge", status: "out-now", genre: "Sandbox", platformLabel: "Web", cover: null },
-  { slug: "space-cowboy", name: "Space Cowboy", status: "coming-soon", genre: "Arcade", platformLabel: "iOS · Android", cover: null },
-  { slug: "tiny-tides", name: "Tiny Tides", status: "in-development", genre: "Puzzle", platformLabel: "Web", cover: null },
-  { slug: "secret", name: "Untitled", status: "announcing-soon", genre: "", platformLabel: "", cover: null },
+  { slug: "terraforge", name: "TerraForge", status: "out-now", genre: "Sandbox", platformLabel: "Web", cover: null, stores: [] },
+  { slug: "space-cowboy", name: "Space Cowboy", status: "coming-soon", genre: "Arcade", platformLabel: "iOS · Android", cover: null, stores: [] },
+  { slug: "tiny-tides", name: "Tiny Tides", status: "in-development", genre: "Puzzle", platformLabel: "Web", cover: null, stores: [] },
+  { slug: "secret", name: "Untitled", status: "announcing-soon", genre: "", platformLabel: "", cover: null, stores: [] },
 ];
 
 const FEATURED: Featured[] = [
@@ -204,7 +205,7 @@ const FEATURED: Featured[] = [
     genre: "Sandbox",
     platformLabel: "Web",
     blurb: "Shape a living planet one brush stroke at a time.",
-    art: null,
+    art: null, icon: null,
     cta: { label: "Play free in browser", href: "/design" },
     detailHref: "/design",
   },
@@ -215,7 +216,7 @@ const FEATURED: Featured[] = [
     genre: "Arcade",
     platformLabel: "iOS · Android",
     blurb: "Rope asteroids, herd comets, keep the ranch alive.",
-    art: null,
+    art: null, icon: null,
     cta: { label: "Join the beta", href: "/design" },
     detailHref: "/design",
   },
@@ -820,6 +821,18 @@ const COMPONENTS: Entry[] = [
     name: "StickyPlayBar",
     note: "Phone only: hidden from lg. Narrow the window to see it.",
     render: () => <StickyPlayBar title="TerraForge" meta="Free · Web" action={{ label: "Play now", href: "/design" }} />,
+  },
+  {
+    name: "StoreBadges",
+    render: () => (
+      <StoreBadges
+        label="App stores"
+        stores={[
+          { platform: "Android", href: "https://play.google.com/store" },
+          { platform: "iOS", href: "https://apps.apple.com" },
+        ]}
+      />
+    ),
   },
   {
     name: "StoreCard",

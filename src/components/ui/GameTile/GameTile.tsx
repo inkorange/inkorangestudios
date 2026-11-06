@@ -1,9 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { statusLabel, type GameStatus } from "@/lib/games";
-import type { ImageRef } from "@/lib/sanity/types";
+import type { ImageRef, StoreLink } from "@/lib/sanity/types";
 import { Chip } from "../Chip/Chip";
 import { Placeholder } from "../Placeholder/Placeholder";
+import { StoreBadges } from "../StoreBadges/StoreBadges";
 import styles from "./GameTile.module.scss";
 
 export type GameTileProps = {
@@ -13,11 +14,14 @@ export type GameTileProps = {
   status: GameStatus;
   meta: string;
   size?: "m" | "s";
+  /** App store links: their badges sit under the tile, outside its link. */
+  stores?: StoreLink[];
 };
 
-export function GameTile({ name, href, cover, status, meta, size = "m" }: GameTileProps) {
+export function GameTile({ name, href, cover, status, meta, size = "m", stores = [] }: GameTileProps) {
   return (
-    <Link href={href} className={styles.root} data-size={size}>
+    <div className={styles.root} data-size={size}>
+      <Link href={href} className={styles.link}>
       <span className={styles.cover}>
         {cover ? (
           <Image className={styles.image} src={cover.src} alt={cover.alt} width={cover.width} height={cover.height} sizes="(min-width: 1024px) 300px, 50vw" />
@@ -34,6 +38,8 @@ export function GameTile({ name, href, cover, status, meta, size = "m" }: GameTi
       </span>
       <span className={styles.name}>{name}</span>
       <span className={styles.meta}>{meta}</span>
-    </Link>
+      </Link>
+      <StoreBadges stores={stores} label={`${name} in the app stores`} size="s" />
+    </div>
   );
 }

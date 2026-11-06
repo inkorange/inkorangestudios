@@ -18,6 +18,9 @@ type TurnstileApi = {
       "error-callback"?: () => void;
       "refresh-expired"?: "auto" | "manual" | "never";
       "response-field"?: boolean;
+      appearance?: "always" | "execute" | "interaction-only";
+      "before-interactive-callback"?: () => void;
+      "after-interactive-callback"?: () => void;
     },
   ) => string;
   remove: (id: string) => void;
@@ -70,8 +73,8 @@ export type TurnstileProps = {
 };
 
 /**
- * Cloudflare Turnstile. Writes the token into a hidden `captchaToken` input so
- * the surrounding form's FormData carries it. Renders nothing when
+ * Cloudflare Turnstile, silent unless a visitor has to interact (`interaction-only`). Writes
+ * the token into a hidden `captchaToken` input so the surrounding form's FormData carries it. Renders nothing when
  * CAPTCHA_WIDGET is false (tests, `next dev`, no site key).
  */
 export function Turnstile({ resetKey, onTokenChange }: TurnstileProps) {
@@ -80,6 +83,8 @@ export function Turnstile({ resetKey, onTokenChange }: TurnstileProps) {
   const [token, setToken] = useState("");
   // The script or the widget failed: say so instead of leaving submit silently disabled.
   const [failed, setFailed] = useState(false);
+  // Silent by default: the widget only appears if Cloudflare needs the visitor to interact.
+  const [interactive, setInteractive] = useState(false);
   const siteKey = CAPTCHA_WIDGET ? publicEnv.turnstileSiteKey : undefined;
 
   useEffect(() => {
@@ -93,6 +98,9 @@ export function Turnstile({ resetKey, onTokenChange }: TurnstileProps) {
           sitekey: siteKey,
           "refresh-expired": "auto",
           "response-field": false,
+          appearance: "interaction-only",
+          "before-interactive-callback": () => setInteractive(true),
+          "after-interactive-callback": () => setInteractive(false),
           callback: (value) => {
             setFailed(false);
             setToken(value);
@@ -140,7 +148,7 @@ export function Turnstile({ resetKey, onTokenChange }: TurnstileProps) {
 
   if (!siteKey) return null;
   return (
-    <div className={styles.root}>
+    <div className={styles.root} data-visible={interactive || failed}>
       <div ref={ref} />
       <input type="hidden" name="captchaToken" value={token} />
       {failed ? <FormMessage status="error">{LOAD_ERROR}</FormMessage> : null}

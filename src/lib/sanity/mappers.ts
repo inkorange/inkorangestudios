@@ -1,10 +1,11 @@
 import { z } from "zod";
-import type { GameStatus } from "@/lib/games";
+import { PLATFORMS, toPlatform, type GameStatus, type Platform } from "@/lib/games";
 import { toImageRef, type SanityImageInput } from "./image";
 import type {
   Faq,
   Featured,
   Game,
+  GameBeta,
   GameSummary,
   ImageRef,
   LegalPage,
@@ -15,6 +16,7 @@ import type {
   PostSummary,
   RichBody,
   SiteSettings,
+  StoreLink,
 } from "./types";
 
 /*
@@ -87,6 +89,8 @@ function lenient<S extends Record<string, z.ZodType>>(shape: S) {
 }
 
 const WIDE = 1600;
+/** Covers the 96px title icon at 2x. */
+const ICON = 256;
 const COVER = 600;
 const CARD = 800;
 
@@ -95,9 +99,14 @@ const gameShape = lenient({
   name: str,
   status: z.unknown().transform((v): GameStatus => (STATUSES.includes(v as GameStatus) ? (v as GameStatus) : "in-development")),
   genres: strList,
-  platforms: strList,
+  platforms: z.unknown().transform((v): Platform[] => {
+    const known = new Set(Array.isArray(v) ? v.map(toPlatform) : []);
+    return PLATFORMS.filter((p) => known.has(p));
+  }),
   blurb: str,
   description: blocks,
+  storeLinks: obj,
+  appIcon: obj,
   keyArt: z.unknown(),
   coverArt: z.unknown(),
   trailer: obj,
@@ -107,16 +116,26 @@ const gameShape = lenient({
   priceLabel: str,
   primaryCta: obj,
   notifyPlatform: obj,
+  betaTesting: obj,
   pressKitUrl: str,
   featured: bool,
 });
 
-function mapMedia(trailer: Record<string, unknown> | null, screenshots: unknown[]): Media[] {
+/** "yes" opens the signup, "closed" shows the closed notice; "no", unset or anything else shows nothing. */
+function mapBeta(o: Record<string, unknown> | null): GameBeta | null {
+  const copy = { title: clean(o?.title), body: clean(o?.body) };
+  if (o?.signup === "yes") return { state: "open", platforms: strList.parse(o.platforms), ...copy };
+  if (o?.signup === "closed") return { state: "closed", ...copy };
+  return null;
+}
+
+/** `fallbackPoster` (the key art) stands in when the trailer has no poster of its own. */
+function mapMedia(trailer: Record<string, unknown> | null, screenshots: unknown[], fallbackPoster: ImageRef = null): Media[] {
   const media: Media[] = [];
   const url = clean(trailer?.url);
   if (trailer && url) {
     const duration = clean(trailer.duration);
-    media.push({ kind: "trailer", label: "Trailer", poster: image(trailer.poster, WIDE), url, ...(duration ? { duration } : {}) });
+    media.push({ kind: "trailer", label: "Trailer", poster: image(trailer.poster, WIDE) ?? fallbackPoster, url, ...(duration ? { duration } : {}) });
   }
   screenshots.forEach((s, i) => {
     const o = obj.parse(s);
@@ -124,6 +143,16 @@ function mapMedia(trailer: Record<string, unknown> | null, screenshots: unknown[
     if (img) media.push({ kind: "image", label: clean(o?.caption) ?? `Screenshot ${i + 1}`, image: img });
   });
   return media;
+}
+
+const STORE_FIELDS: Record<Platform, string> = { Android: "googlePlay", iOS: "appStore", Web: "web" };
+
+/** A store link shows only for a ticked platform, and only when it is an https URL. */
+function mapStores(platforms: Platform[], links: Record<string, unknown> | null): StoreLink[] {
+  return platforms.flatMap((platform) => {
+    const href = clean(links?.[STORE_FIELDS[platform]]);
+    return href && /^https:\/\//i.test(href) ? [{ platform, href }] : [];
+  });
 }
 
 export function mapGame(raw: unknown): Game | null {
@@ -134,6 +163,7 @@ export function mapGame(raw: unknown): Game | null {
   const ctaLabel = clean(cta?.label);
   const ctaHref = clean(cta?.url);
   const notifyPlatform = clean(d.notifyPlatform?.platform);
+  const keyArt = image(d.keyArt, WIDE);
 
   return {
     slug: d.slug,
@@ -141,11 +171,13 @@ export function mapGame(raw: unknown): Game | null {
     status: d.status,
     genres: d.genres,
     platforms: d.platforms,
+    stores: mapStores(d.platforms, d.storeLinks),
     blurb: d.blurb ?? "",
     description: d.description,
-    keyArt: image(d.keyArt, WIDE),
+    appIcon: d.appIcon ? image({ ...d.appIcon, alt: clean(d.appIcon.alt) ?? `${d.name} app icon` }, ICON) : null,
+    keyArt,
     coverArt: image(d.coverArt, COVER),
-    media: mapMedia(d.trailer, d.screenshots),
+    media: mapMedia(d.trailer, d.screenshots, keyArt),
     features: d.features.flatMap((f) => {
       const o = obj.parse(f);
       const title = clean(o?.title);
@@ -160,6 +192,7 @@ export function mapGame(raw: unknown): Game | null {
     priceLabel: d.priceLabel,
     primaryCta: ctaLabel && ctaHref ? { label: ctaLabel, href: ctaHref } : null,
     notify: d.notifyPlatform?.enabled === true && notifyPlatform ? { platform: notifyPlatform } : null,
+    beta: mapBeta(d.betaTesting),
     pressKitUrl: d.pressKitUrl,
     featured: d.featured,
   };
@@ -175,6 +208,7 @@ export function mapGameSummary(raw: unknown): GameSummary | null {
     genre: g.genres[0] ?? "",
     platformLabel: g.platforms.join(" · "),
     cover: g.coverArt,
+    stores: g.stores,
   };
 }
 
@@ -188,6 +222,7 @@ export function toFeatured(game: Game): Featured {
     platformLabel: game.platforms.join(" · ").toUpperCase(),
     blurb: game.blurb,
     art: game.keyArt ?? game.coverArt,
+    icon: game.appIcon,
     cta: game.primaryCta ?? { label: "Game details", href: detailHref },
     detailHref,
   };
@@ -258,7 +293,9 @@ export function mapSettings(raw: unknown): SiteSettings {
   const title = clean(callout?.title);
   const body = clean(callout?.body);
   const platforms = strList.parse(callout?.platforms);
-  const betaCallout = callout && (eyebrow || title || body) ? { eyebrow, title, body, game: slugName(callout.game), platforms } : null;
+  // A game whose testing has closed no longer recruits from the home page either.
+  const closed = obj.parse(callout?.game)?.betaSignup === "closed";
+  const betaCallout = callout && !closed && (eyebrow || title || body) ? { eyebrow, title, body, game: slugName(callout.game), platforms } : null;
 
   return {
     supportEmail: d.supportEmail,

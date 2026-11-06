@@ -1,6 +1,11 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
 import { bodyField, imageField } from "./shared";
 
+/** Whether the game's Platforms checkboxes include `platform`. */
+function hasPlatform(document: Record<string, unknown> | undefined, platform: string): boolean {
+  return Array.isArray(document?.platforms) && document.platforms.includes(platform);
+}
+
 export const studioGame = defineType({
   name: "studioGame",
   title: "Game",
@@ -31,7 +36,52 @@ export const studioGame = defineType({
       validation: (r) => r.required(),
     }),
     defineField({ name: "genres", title: "Genres", type: "array", of: [{ type: "string" }] }),
-    defineField({ name: "platforms", title: "Platforms", type: "array", of: [{ type: "string" }] }),
+    defineField({
+      name: "platforms",
+      title: "Platforms",
+      description: "Where the game can be played. Each shows with its logo on the game page.",
+      type: "array",
+      of: [{ type: "string" }],
+      options: {
+        list: [
+          { title: "Android", value: "Android" },
+          { title: "iOS", value: "iOS" },
+          { title: "Web", value: "Web" },
+        ],
+      },
+      validation: (r) => r.unique(),
+    }),
+    defineField({
+      name: "storeLinks",
+      title: "Store links",
+      description: "Add a link and the game page shows that store's badge. Each field appears once its platform is ticked above.",
+      type: "object",
+      fields: [
+        defineField({
+          name: "googlePlay",
+          title: "Google Play URL",
+          type: "url",
+          validation: (r) => r.uri({ scheme: ["https"] }),
+          hidden: ({ document }) => !hasPlatform(document, "Android"),
+        }),
+        defineField({
+          name: "appStore",
+          title: "App Store URL",
+          type: "url",
+          validation: (r) => r.uri({ scheme: ["https"] }),
+          hidden: ({ document }) => !hasPlatform(document, "iOS"),
+        }),
+        defineField({
+          name: "web",
+          title: "Web URL",
+          description: "Where to play in the browser.",
+          type: "url",
+          validation: (r) => r.uri({ scheme: ["https"] }),
+          hidden: ({ document }) => !hasPlatform(document, "Web"),
+        }),
+      ],
+      options: { collapsible: true, collapsed: false },
+    }),
     defineField({
       name: "blurb",
       title: "Short blurb",
@@ -40,6 +90,11 @@ export const studioGame = defineType({
       validation: (r) => r.required(),
     }),
     bodyField("description", "Description"),
+    imageField(
+      "appIcon",
+      "App icon",
+      "Square, 512×512 PNG, the same icon as in the stores. Shows beside the name on the game page, in the home page's featured picker and in the phone play bar.",
+    ),
     imageField("keyArt", "Key art", "Wide hero art."),
     imageField("coverArt", "Cover art (3:4)", "Portrait cover, 3:4."),
     defineField({
@@ -118,6 +173,59 @@ export const studioGame = defineType({
         defineField({ name: "enabled", title: "Enabled", type: "boolean", initialValue: false }),
         defineField({ name: "platform", title: "Platform name", type: "string" }),
       ],
+    }),
+    defineField({
+      name: "betaTesting",
+      title: "Beta testers",
+      description: "Whether this game's page asks visitors to sign up as beta testers.",
+      type: "object",
+      fields: [
+        defineField({
+          name: "signup",
+          title: "Tester signup",
+          type: "string",
+          options: {
+            list: [
+              { title: "Yes: show the tester signup", value: "yes" },
+              { title: "No: show nothing", value: "no" },
+              { title: "Closed: say testing is closed and general release is open", value: "closed" },
+            ],
+            layout: "radio",
+          },
+          initialValue: "no",
+        }),
+        defineField({
+          name: "platforms",
+          title: "Beta platforms",
+          description: "Which platforms the signup offers. With both, visitors pick one.",
+          type: "array",
+          of: [{ type: "string" }],
+          options: {
+            list: [
+              { title: "iOS", value: "ios" },
+              { title: "Android", value: "android" },
+            ],
+          },
+          validation: (r) => r.unique(),
+          hidden: ({ parent }) => parent?.signup !== "yes",
+        }),
+        defineField({
+          name: "title",
+          title: "Title",
+          type: "string",
+          description: 'Leave empty for "Play <game> before anyone else." or, when closed, "Testing is now closed."',
+          hidden: ({ parent }) => parent?.signup === "no" || !parent?.signup,
+        }),
+        defineField({
+          name: "body",
+          title: "Body",
+          type: "text",
+          rows: 3,
+          description: "Leave empty for the default line.",
+          hidden: ({ parent }) => parent?.signup === "no" || !parent?.signup,
+        }),
+      ],
+      options: { collapsible: true, collapsed: false },
     }),
     defineField({ name: "pressKitUrl", title: "Press kit URL", type: "url" }),
     defineField({ name: "featured", title: "Featured on home", type: "boolean", initialValue: false }),

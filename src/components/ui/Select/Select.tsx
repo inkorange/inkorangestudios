@@ -27,7 +27,8 @@ export type SelectProps = {
 };
 
 /** Where the open menu sits, in viewport px (it is `position: fixed` in a portal). */
-type Placement = { left: number; width: number; top?: number; bottom?: number; maxHeight: number };
+/** `minWidth` is the field's width; the menu grows to its widest option, up to `maxWidth`. */
+type Placement = { left: number; minWidth: number; maxWidth: number; top?: number; bottom?: number; maxHeight: number };
 
 const GAP = 6;
 const EDGE = 12;
@@ -40,15 +41,22 @@ const estimateHeight = (count: number) => count * 44 + 12;
  * Drop down when the whole menu fits below the trigger; otherwise drop up when it fits above;
  * otherwise use whichever side has more room and scroll inside the menu.
  */
-export function placeMenu(trigger: Pick<DOMRect, "top" | "bottom" | "left" | "width">, needed: number, viewport: { width: number; height: number }): Placement {
+export function placeMenu(
+  trigger: Pick<DOMRect, "top" | "bottom" | "left" | "width">,
+  needed: number,
+  viewport: { width: number; height: number },
+  menuWidth = 0,
+): Placement {
   const below = viewport.height - trigger.bottom - GAP - EDGE;
   const above = trigger.top - GAP - EDGE;
-  const width = Math.min(trigger.width, viewport.width - EDGE * 2);
+  const maxWidth = viewport.width - EDGE * 2;
+  const minWidth = Math.min(trigger.width, maxWidth);
+  const width = Math.min(Math.max(minWidth, menuWidth), maxWidth);
   const left = Math.min(Math.max(trigger.left, EDGE), viewport.width - EDGE - width);
   const down = needed <= below || (needed > above && below >= above);
   return down
-    ? { left, width, top: trigger.bottom + GAP, maxHeight: Math.max(below, MIN_HEIGHT) }
-    : { left, width, bottom: viewport.height - trigger.top + GAP, maxHeight: Math.max(above, MIN_HEIGHT) };
+    ? { left, minWidth, maxWidth, top: trigger.bottom + GAP, maxHeight: Math.max(below, MIN_HEIGHT) }
+    : { left, minWidth, maxWidth, bottom: viewport.height - trigger.top + GAP, maxHeight: Math.max(above, MIN_HEIGHT) };
 }
 
 /**
@@ -105,10 +113,12 @@ export function Select({ label, hideLabel = false, name, options, defaultValue, 
     const trigger = triggerRef.current;
     const place = () =>
       setPlacement(
-        placeMenu(trigger.getBoundingClientRect(), listRef.current?.scrollHeight ?? estimateHeight(options.length), {
-          width: window.innerWidth,
-          height: window.innerHeight,
-        }),
+        placeMenu(
+          trigger.getBoundingClientRect(),
+          listRef.current?.scrollHeight ?? estimateHeight(options.length),
+          { width: window.innerWidth, height: window.innerHeight },
+          listRef.current?.offsetWidth ?? 0,
+        ),
       );
     let frame = 0;
     const update = () => {
@@ -116,7 +126,7 @@ export function Select({ label, hideLabel = false, name, options, defaultValue, 
       frame = requestAnimationFrame(place);
     };
     place();
-    // Re-place once the menu has rendered, using its real height.
+    // Re-place once the menu has rendered, using its real height and width.
     update();
     window.addEventListener("resize", update);
     window.addEventListener("scroll", update, true);
@@ -263,7 +273,8 @@ export function Select({ label, hideLabel = false, name, options, defaultValue, 
               data-placement={placement.top === undefined ? "top" : "bottom"}
               style={{
                 "--select-left": `${placement.left}px`,
-                "--select-width": `${placement.width}px`,
+                "--select-min-width": `${placement.minWidth}px`,
+                "--select-max-width": `${placement.maxWidth}px`,
                 "--select-top": placement.top === undefined ? "auto" : `${placement.top}px`,
                 "--select-bottom": placement.bottom === undefined ? "auto" : `${placement.bottom}px`,
                 "--select-max-height": `${placement.maxHeight}px`,

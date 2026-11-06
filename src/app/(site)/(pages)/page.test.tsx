@@ -25,7 +25,7 @@ const featured: Featured[] = [
     genre: "Sandbox",
     platformLabel: "Web",
     blurb: "Build planets.",
-    art: null,
+    art: null, icon: null,
     cta: { label: "Play free in browser", href: "https://www.terraforgeworlds.com" },
     detailHref: "/games/terraforge",
   },
@@ -36,14 +36,14 @@ const featured: Featured[] = [
     genre: "Puzzle",
     platformLabel: "iOS · Android",
     blurb: "Slingshot.",
-    art: null,
+    art: null, icon: null,
     cta: { label: "Join the beta", href: "#beta" },
     detailHref: "/games/space-cowboy",
   },
 ];
 const games: GameSummary[] = [
-  { slug: "terraforge", name: "TerraForge", status: "out-now", genre: "Sandbox", platformLabel: "Web", cover: null },
-  { slug: "space-cowboy", name: "Space Cowboy", status: "coming-soon", genre: "Puzzle", platformLabel: "iOS · Android", cover: null },
+  { slug: "terraforge", name: "TerraForge", status: "out-now", genre: "Sandbox", platformLabel: "Web", cover: null, stores: [] },
+  { slug: "space-cowboy", name: "Space Cowboy", status: "coming-soon", genre: "Puzzle", platformLabel: "iOS · Android", cover: null, stores: [] },
 ];
 const posts: PostSummary[] = [1, 2, 3].map((n) => ({
   slug: `post-${n}`,

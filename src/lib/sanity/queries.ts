@@ -13,8 +13,10 @@ const GAME_FIELDS = `
   status,
   genres,
   platforms,
+  "storeLinks": storeLinks{ googlePlay, appStore, web },
   blurb,
   description,
+  ${img("appIcon")},
   ${img("keyArt")},
   ${img("coverArt")},
   "trailer": trailer{ url, duration, ${img("poster")} },
@@ -24,6 +26,7 @@ const GAME_FIELDS = `
   priceLabel,
   "primaryCta": primaryCta{ label, url },
   "notifyPlatform": notifyPlatform{ enabled, platform },
+  "betaTesting": betaTesting{ signup, platforms, title, body },
   pressKitUrl,
   featured`;
 
@@ -64,7 +67,7 @@ export const FAQS_QUERY = `*[_type == "studioFaq"] | order(order asc, _createdAt
 export const SETTINGS_QUERY = `*[_type == "studioSettings"][0]{
   supportEmail,
   socialLinks[]{ label, url },
-  "betaCallout": betaCallout{ eyebrow, title, body, platforms, "game": game->{ "slug": slug.current, name } },
+  "betaCallout": betaCallout{ eyebrow, title, body, platforms, "game": game->{ "slug": slug.current, name, "betaSignup": betaTesting.signup } },
   newsletterBlurb,
   ${img("studioPhoto")},
   foundedLine

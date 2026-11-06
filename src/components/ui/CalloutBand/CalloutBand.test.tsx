@@ -24,3 +24,9 @@ it("hides a missing eyebrow and body", () => {
   expect(screen.getByRole("heading", { level: 2, name: "Only a title" })).toBeVisible();
   expect(container.querySelectorAll("p")).toHaveLength(0);
 });
+
+it("renders no action wrapper for a notice without an action", () => {
+  const { container } = render(<CalloutBand title="Testing is now closed." />);
+  expect(screen.getByText("Testing is now closed.")).toBeInTheDocument();
+  expect(container.querySelector("section")!.children).toHaveLength(1);
+});

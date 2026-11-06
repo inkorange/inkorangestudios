@@ -12,6 +12,8 @@ const createServiceClient = vi.fn();
 vi.mock("@/lib/supabase/server", () => ({ createServiceClient: () => createServiceClient() }));
 vi.mock("@/lib/signups/turnstile", () => ({ verifyTurnstile: (...a: unknown[]) => verifyTurnstile(...a) }));
 vi.mock("@/lib/signups/notify", () => ({ notifyOwner: (...a: unknown[]) => notifyOwner(...a) }));
+const getGame = vi.fn();
+vi.mock("@/lib/sanity/content", () => ({ getGame: (...a: unknown[]) => getGame(...a) }));
 
 import { subscribeNewsletter } from "@/app/actions/newsletter";
 import { joinBeta } from "@/app/actions/beta";
@@ -39,6 +41,7 @@ beforeEach(() => {
   insert.mockResolvedValue({ error: null });
   from.mockReturnValue({ upsert, insert });
   createServiceClient.mockReturnValue({ from });
+  getGame.mockResolvedValue({ slug: "terraforge", name: "TerraForge", beta: { state: "open", platforms: [], title: null, body: null } });
 });
 
 describe("infrastructure failures", () => {
@@ -78,19 +81,49 @@ describe("joinBeta", () => {
       { onConflict: "email,game", ignoreDuplicates: true },
     );
     expect(verifyTurnstile).toHaveBeenCalledWith("t", "1.2.3.4");
+    expect(getGame).toHaveBeenCalledWith("terraforge");
     expect(notifyOwner).toHaveBeenCalledTimes(1);
     expect(notifyOwner).toHaveBeenCalledWith({
-      subject: "New beta tester: me@x.co (terraforge)",
+      subject: "Beta tester for TerraForge: me@x.co",
       replyTo: "me@x.co",
       lines: [
+        "me@x.co opted in to beta test TerraForge.",
+        "",
         "Email: me@x.co",
-        "Game: terraforge",
-        "Platform: android",
-        "Signed up from: callout",
+        "Game: TerraForge",
+        "Platform: Android",
+        "Signed up on: the home page beta callout (https://www.inkorangestudios.com/#beta)",
         "",
         "Reply to this email to send them the beta invite.",
       ],
     });
+  });
+
+  it("names the game page when the signup came from it", async () => {
+    const f = fd();
+    f.set("source", "game-page");
+    await joinBeta(idle, f);
+    expect(upsert.mock.calls[0][0].source).toBe("game-page");
+    expect(notifyOwner.mock.calls[0][0].lines).toContain(
+      "Signed up on: the TerraForge game page (https://www.inkorangestudios.com/games/terraforge)",
+    );
+  });
+
+  it("turns away a signup once the game's testing has closed", async () => {
+    getGame.mockResolvedValue({ slug: "terraforge", name: "TerraForge", beta: { state: "closed", title: null, body: null } });
+    expect(await joinBeta(idle, fd())).toEqual({
+      status: "error",
+      error: "Beta testing for TerraForge has closed. Thanks for your interest!",
+    });
+    expect(from).not.toHaveBeenCalled();
+    expect(notifyOwner).not.toHaveBeenCalled();
+  });
+
+  it("still saves the signup when the game can't be looked up, naming it by slug", async () => {
+    getGame.mockRejectedValue(new Error("sanity down"));
+    expect(await joinBeta(idle, fd())).toEqual(OK);
+    expect(from).toHaveBeenCalledWith("studio_beta_signups");
+    expect(notifyOwner.mock.calls[0][0].subject).toBe("Beta tester for terraforge: me@x.co");
   });
 
   it("duplicate is a silent success with no notification", async () => {

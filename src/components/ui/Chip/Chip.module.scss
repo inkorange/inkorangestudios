@@ -11,6 +11,12 @@
   border: 1px solid transparent;
   border-radius: var(--radius-pill);
 
+  &[data-icon="true"] {
+    display: inline-flex;
+    gap: var(--space-1);
+    align-items: center;
+  }
+
   &[data-size="s"] {
     padding: var(--space-1) var(--space-2);
     font-size: var(--text-mono-s);

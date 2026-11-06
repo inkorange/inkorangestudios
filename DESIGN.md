@@ -247,6 +247,8 @@ them for every margin, padding and gap.
 | `--logo-width-m` | 160px | `Logo` width at size `m` (default). |
 | `--logo-width-l` | 220px | `Logo` width at size `l`. |
 | `--play-button-size` | 68 → 96px (fluid) | Diameter of the accent play button on the `MediaViewer` stage. |
+| `--app-icon-size` | 56 → 96px (fluid) | The game's app icon beside its name in `GameTitle`. |
+| `--app-icon-size-s` | 40px | The app icon at the start of the phone `StickyPlayBar`. |
 | `--thumb-height` | 60 → 92px (fluid) | Height of `MediaViewer` thumbnails; phone strip thumbs are 1.6 times this wide. |
 | `--sticky-bar-space` | 96px | Room the `StickyPlayBar` occupies at the bottom of a phone page. The game layout renders the bar after a `SiteFooter` with `stickyBarSpace`, which adds this much bottom padding below `lg` so the footer's last line scrolls clear of the bar. |
 | `--statement-body-max` | 400px | Maximum width of the paragraph beside a `Statement` heading. |
@@ -279,6 +281,7 @@ most components need no breakpoint at all; the mockups are built that way.
 | `--radius-xl` | 20px | Press and help cards, the phone media viewer and details accordion, phone studio photo. |
 | `--radius-2xl` | 24px | The store card, desktop studio photo, phone hero card, phone callout, phone menu sheet. |
 | `--radius-3xl` | 28px | The big surfaces: desktop showcase hero, media viewer, callout band. |
+| `--radius-app-icon` | 22.5% | A game's app icon (`GameTitle`, `StickyPlayBar`): a percentage so the rounding keeps the icon's shape at any size. |
 | `--radius-pill` | 999px | Every button, chip, input, nav bar, filter pill, round icon button and the sticky play bar. |
 
 Rule of thumb: the bigger the surface, the bigger the radius. On phone, step a
@@ -452,8 +455,8 @@ Decorative faint construction lines drawn behind its children.
 The inline SVG icon set, drawn from the mockups.
 
 - **Use for:** icons inside `Button` and `IconButton`, or beside a label.
-- **Don't use for:** art or logos; icon-only controls need `IconButton` for the label.
-- **Props / variants:** `name`: `chevron-left`, `chevron-right`, `play`, `globe`, `phone`, `menu`, `close`, `arrow-right`, `check`; `size`: 16, 18 (default), 20, 26, 34. Uses `currentColor`.
+- **Don't use for:** art or brand logos (the inkOrange logo is an image); the only marks here are the platform logos. Icon-only controls need `IconButton` for the label.
+- **Props / variants:** `name`: `chevron-left`, `chevron-right`, `play`, `globe`, `phone`, `menu`, `close`, `arrow-right`, `check`, and the platform logos `apple` (iOS) and `android` (Web uses `globe`). `play`, `apple` and `android` are filled; the rest are 2px strokes; `size`: 16, 18 (default), 20, 26, 34. Uses `currentColor`.
 - **Accessibility:** always `aria-hidden`; the control around it carries the name.
 
 ### Button
@@ -480,8 +483,8 @@ A small mono, tracked, uppercase tag.
 
 - **Use for:** status ("Out now", "Coming soon"), genre and platform tags, tile status chips.
 - **Don't use for:** anything clickable (use `FilterPills` or `Button`).
-- **Props / variants:** `tone`: `accent`, `ink`, `outline`, `outline-on-dark`, `plain-on-dark`; `size`: `m` (default) or `s` (tile chips).
-- **Accessibility:** a plain `span`; the text itself carries the meaning, never color alone. Uppercase is CSS only.
+- **Props / variants:** `tone`: `accent`, `ink`, `outline`, `outline-on-dark`, `plain-on-dark`; `size`: `m` (default) or `s` (tile chips); `icon` (optional `IconName`, 16px before the text with a `--space-1` gap: the platform logos on the game page).
+- **Accessibility:** a plain `span`; the text itself carries the meaning, never color alone or an icon alone (the icon is `aria-hidden`). Uppercase is CSS only.
 
 ### FilterPills
 
@@ -517,7 +520,7 @@ A pill-shaped dropdown with its label, styled like `TextField`, with a custom me
 - **Use for:** choosing one of a short fixed list (beta platform, contact topic).
 - **Don't use for:** free text (use `TextField`) or long lists and filtering (use `FilterPills`).
 - **Props / variants:** `label` (required); `hideLabel`; `name`; `options` (`{ value, label }[]`); `defaultValue` (an unknown value falls back to the first option); `onChange(value: string)`; `tone`: `on-light` (card fill, default), `on-card` and `on-dark` (paper fill; `on-dark` adds an accent focus ring), `on-accent` (same as `on-light`). It is uncontrolled and has no empty option, so there is no `required`. The value is submitted through a hidden input named `name`, so it works in plain forms and server actions. React 19 resets a form after its action: remember the choice via `onChange` and remount the field with a `key` tied to the action result, seeding `defaultValue` with the remembered value.
-- **Menu:** a `--color-card` panel (paper on `on-card` / `on-dark`) with a `--color-line` border, `--radius-xl` corners and the system shadow. Options are at least `--tap-min` tall with `--radius-m` corners; the highlighted option gets `--color-sand`, and the chosen one is semibold with a `check` icon. It renders in a portal on `<body>` at `--z-popover`, so clipped parents (the callout band) can't cut it off. It drops down when the whole menu fits below the field, drops up when it only fits above, and otherwise takes the roomier side and scrolls; it stays inside the viewport horizontally and follows the field on scroll and resize. It fades in over `--duration-fast` (off under reduced motion). The chevron turns to point up while open.
+- **Menu:** a `--color-card` panel (paper on `on-card` / `on-dark`) with a `--color-line` border, `--radius-xl` corners and the system shadow. Options are at least `--tap-min` tall with `--radius-m` corners; the highlighted option gets `--color-sand`, and the chosen one is semibold with a `check` icon. It renders in a portal on `<body>` at `--z-popover`, so clipped parents (the callout band) can't cut it off. It drops down when the whole menu fits below the field, drops up when it only fits above, and otherwise takes the roomier side and scrolls; it is at least as wide as the field and grows to fit its longest option (options never wrap), stays inside the viewport horizontally, and follows the field on scroll and resize. It fades in over `--duration-fast` (off under reduced motion). The chevron turns to point up while open.
 - **Accessibility:** the WAI-ARIA select-only combobox pattern: a focusable `combobox` labelled by the visible (or visually hidden) label, `aria-expanded`, and a `listbox` of `option`s with `aria-selected`; the highlighted option is announced through `aria-activedescendant`, so focus never leaves the field. Keys: Down, Up, Enter, Space, Home and End open it; in the menu, Up/Down/Home/End/PageUp/PageDown move, Enter or Space picks, Escape closes without changing, Tab picks the highlighted option and moves on, and typing jumps to the first label starting with those letters. Enter never submits the form. Clicking outside closes it. Visible focus ring.
 
 ### Honeypot
@@ -553,7 +556,7 @@ The Cloudflare human check, invisible to the layout when off.
 
 - **Use for:** inside any public form that posts to a server action (`EmailSignupForm` includes it).
 - **Don't use for:** pages with no form.
-- **Props / variants:** `resetKey` (change it after each submit result to renew the single-use token). Loads `api.js?render=explicit` and writes the token into a hidden `captchaToken` input so `FormData` carries it. Site key from `publicEnv.turnstileSiteKey`, imported from the zod-free `src/lib/env-public.ts` (client components must not import `src/lib/env.ts`; `tests/enforcement/client-bundle.test.ts` checks it).
+- **Props / variants:** `resetKey` (change it after each submit result to renew the single-use token). Loads `api.js?render=explicit` and renders with `appearance: "interaction-only"`, so the check runs silently and the widget only appears (and only then takes up space) if Cloudflare needs the visitor to interact. It writes the token into a hidden `captchaToken` input so `FormData` carries it. Site key from `publicEnv.turnstileSiteKey`, imported from the zod-free `src/lib/env-public.ts` (client components must not import `src/lib/env.ts`; `tests/enforcement/client-bundle.test.ts` checks it).
 - **Accessibility:** renders nothing when `CAPTCHA_WIDGET` is false (`next dev`, tests, no site key). Cloudflare's widget supplies its own labelling. If `api.js` fails to load (or loads without the API) or the widget reports an error, an error `FormMessage` says "We couldn't load the human check. Please refresh or try again later." instead of leaving submit silently disabled; it clears when a token arrives.
 - **Keys:** the server verifies tokens only when both `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` are set (`CAPTCHA_REQUIRED` in `src/lib/signups/turnstile.ts`). With neither, the check is off. With exactly one (outside `next dev`) the server logs one error and rejects every submission (fails closed); the widget still renders if the site key is set.
 
@@ -568,11 +571,11 @@ A section title with a 2px ink rule beneath and an optional action link.
 
 ### GameTile
 
-A 3:4 cover with a status chip, the game name and a meta line, all one link.
+A 3:4 cover with a status chip, the game name and a meta line, all one link, with optional app store badges under it.
 
 - **Use for:** game grids on the home page, the games index and "More from inkOrange".
 - **Don't use for:** news (use `NewsCard`) or the showcase hero.
-- **Props / variants:** `name`, `href`, `cover` (`ImageRef`; `null` shows a `Placeholder` labelled with the name), `status` (`GameStatus`; `out-now` gets the accent chip, everything else ink), `meta` ("Sandbox · Web"), `size`: `m` (default) or `s`.
+- **Props / variants:** `name`, `href`, `cover` (`ImageRef`; `null` shows a `Placeholder` labelled with the name), `status` (`GameStatus`; `out-now` gets the accent chip, everything else ink), `meta` ("Sandbox · Web"), `size`: `m` (default) or `s`, `stores` (optional `StoreLink[]`: `StoreBadges size="s"` under the tile, outside its link because links can't nest; `--space-4` above them).
 - **Accessibility:** the whole tile is one link whose name is chip + name + meta. Cover alt text comes from the CMS image. Visible focus ring.
 
 ### NewsCard
@@ -633,9 +636,9 @@ A small sand card with a title, a line of copy and an action link.
 
 The big accent band with a mono eyebrow, a Display title, body copy and an action slot.
 
-- **Use for:** the one beta / recruiting callout per page.
+- **Use for:** the one beta / recruiting callout per page: the home page beta signup, and on a game page its tester signup or the "Testing is now closed." notice.
 - **Don't use for:** several per page, or small notices (use `FormMessage` or `InfoCard`).
-- **Props / variants:** `eyebrow` (optional, hidden when empty), `title`, `body` (optional, hidden when empty), `action` (a node, usually a `Button variant="ink"` or an `EmailSignupForm tone="on-accent"`), `paint` (watercolor on the right half at `--wash-opacity`, fading in from the left so it has no hard edge).
+- **Props / variants:** `eyebrow` (optional, hidden when empty), `title`, `body` (optional, hidden when empty), `action` (optional; a node, usually a `Button variant="ink"` or an `EmailSignupForm tone="on-accent"`; left out, the band is a notice and renders no action wrapper), `paint` (watercolor on the right half at `--wash-opacity`, fading in from the left so it has no hard edge).
 - **Radius:** `--radius-2xl` below `md`, `--radius-3xl` from `md`.
 - **Accessibility:** all text is `--color-ink` on the accent. The wash is decorative, low opacity and sits behind the content; do not raise its opacity.
 
@@ -711,13 +714,22 @@ The game page's large stage with a thumbnail strip beneath it.
 - **Props / variants:** `items` (`Media[]`: `trailer` with `poster`, `url`, optional `duration`; or `image`) and `title`. Stage is 16/7.5 on `--radius-3xl`, 16/10 on `--radius-xl` below `md`. Thumbs are a grid from `md`, a horizontal scroll strip below. Renders nothing when `items` is empty; a single item shows no thumbs. Missing art shows the dark `Placeholder`.
 - **Accessibility:** the trailer play button is named `Play the {title} trailer`. Nothing plays until it is pressed; then YouTube and Vimeo URLs become an `iframe` (titled `{title} trailer`) and other URLs a `video` with controls. Trailer URLs that can't be played (not http(s), or a YouTube/Vimeo URL without a valid ID) show the poster with a "Watch the trailer" external link when the URL is http(s), otherwise just the poster. Switching thumbs stops playback. Thumbs show the screenshot or poster with the label as an overlay. Thumbs are buttons with `aria-pressed` and `aria-label="Show {label}"`; the selected one has an ink border. The stage is a `figure` whose caption carries the label.
 
+### StoreBadges
+
+The official Google Play and App Store badges, each linking to the store.
+
+- **Use for:** a game's app store links: in `StoreCard`, and under each `GameTile` in the home `GameGrid`.
+- **Don't use for:** the web link (that is a `Button`), or any other platform.
+- **Props / variants:** `stores` (`StoreLink[]`; only Android and iOS have badges, the rest are skipped, and with none it renders nothing); `label` (the list's accessible name, e.g. "App stores" or "TerraForge in the app stores"); `size`: `m` (default, `--control-height`) or `s` (`--tap-min`, for tiles). Side by side, wrapping when narrow. The artwork is Apple's and Google's own, unaltered (the Google PNG trimmed of its transparent clear space), in `public/badges/`; both stores set a 40px minimum height and both sizes stay above it.
+- **Accessibility:** a labelled list of links; each opens in a new tab and its image's alt text is the badge's words ("Get it on Google Play", "Download on the App Store"). Each badge meets the 44px tap target and shows the focus ring.
+
 ### StoreCard
 
 The game page's "get the game" card.
 
-- **Use for:** price, the main play/store link, the notify-me form and the fact sheet.
+- **Use for:** price, the main play/store link, the store badges, the notify-me form and the fact sheet.
 - **Don't use for:** other call-out cards (use `InfoCard`).
-- **Props / variants:** `priceLabel`, `primary` (`{ label, href }` or `null`; absolute URLs open in a new tab), `notify` (a node, normally `EmailSignupForm`), `notifyTitle`, `facts`, `phoneFacts` (default true). Blocks without data are not rendered, so a sparse game shows only the eyebrow and button (the game page skips the card entirely when it has nothing to sell). Facts render twice: a `dl` from `lg`, and a "Game details" `Accordion` below `lg`; CSS switches between them. `phoneFacts={false}` drops the accordion so the page can place it elsewhere (the game page puts it after Features, as in the phone mockup). Below `lg` the card has no chrome and no eyebrow: price, button and notify box sit straight under the game title; from `lg` it is the bordered card on `--radius-2xl`.
+- **Props / variants:** `priceLabel`, `primary` (`{ label, href }` or `null`; absolute URLs open in a new tab), `stores` (`StoreLink[]` from the Studio's Store links: Android and iOS show as `StoreBadges` labelled "App stores"; Web shows a "Play in your browser" `Button` with the globe, `accent` without a primary button and `outline` under one, and is skipped when the primary button already goes to the same URL), `notify` (a node, normally `EmailSignupForm`), `notifyTitle`, `facts`, `phoneFacts` (default true). Blocks without data are not rendered, so a sparse game shows only the eyebrow and button (the game page skips the card entirely when it has nothing to sell). Facts render twice: a `dl` from `lg`, and a "Game details" `Accordion` below `lg`; CSS switches between them. `phoneFacts={false}` drops the accordion so the page can place it elsewhere (the game page puts it after Features, as in the phone mockup). Below `lg` the card has no chrome and no eyebrow: price, button and notify box sit straight under the game title; from `lg` it is the bordered card on `--radius-2xl`.
 - **Accessibility:** an `aside` named "Get the game". The hidden rendering is `display: none`, so assistive tech reads the facts once.
 
 ### StickyPlayBar
@@ -726,7 +738,7 @@ A floating ink pill with the game name and a "Play now" button, phone only.
 
 - **Use for:** the bottom of a phone game page.
 - **Don't use for:** desktop (hidden from `lg` up) or general navigation.
-- **Props / variants:** `title`, `meta` (for example `Free · Web`; optional, hidden when empty), `action` (`{ label, href }`). Sits on `--z-sticky` with the system's one shadow. It overlaps the last `--sticky-bar-space` of its container. The game layout (`src/app/(site)/(game)/games/[slug]/layout.tsx`) renders it after the compact footer, which gets `stickyBarSpace`, so the bar stays stuck through the footer and comes to rest over the footer's reserved bottom room. Its label is "Play now" for out-now games, otherwise the CTA's own label. While it is on the page, below `lg` the `html` element gets `scroll-padding-bottom: var(--sticky-bar-space)` so focused links scroll clear of it.
+- **Props / variants:** `title`, `meta` (for example `Free · Web`; optional, hidden when empty), `action` (`{ label, href }`), `icon` (optional `ImageRef`: the game's app icon at `--app-icon-size-s` and `--radius-app-icon`, at the start of the bar, which then drops its left text padding; decorative, `alt=""`). Sits on `--z-sticky` with the system's one shadow. It overlaps the last `--sticky-bar-space` of its container. The game layout (`src/app/(site)/(game)/games/[slug]/layout.tsx`) renders it after the compact footer, which gets `stickyBarSpace`, so the bar stays stuck through the footer and comes to rest over the footer's reserved bottom room. Its label is "Play now" for out-now games, otherwise the CTA's own label; without a CTA the game's first store link stands in. While it is on the page, below `lg` the `html` element gets `scroll-padding-bottom: var(--sticky-bar-space)` so focused links scroll clear of it.
 - **Accessibility:** an `aside` named "{title} quick play". The action is a real link at least `--tap-min` tall with the accent-on-ink focus ring. Only the pill takes pointer events, so it never blocks content beside it.
 
 ### ShowcaseHero
@@ -744,7 +756,7 @@ The row of selectable game cards under the hero, desktop only.
 
 - **Use for:** inside `ShowcaseHero`.
 - **Don't use for:** general game lists (`GameTile`).
-- **Props / variants:** `games`, `activeIndex`, `onPick(index)`. Each card has a 56px thumb, the name and "genre · status". The active card has the card background and an ink border. Hidden below `lg`.
+- **Props / variants:** `games`, `activeIndex`, `onPick(index)`. Each card has a 56px thumb (the game's app icon, or its key art when it has none), the name and "genre · status". The active card has the card background and an ink border. Hidden below `lg`.
 - **Accessibility:** a `group` named "Choose a featured game" holding buttons; the active one has `aria-current="true"`. The thumb is decorative.
 
 ### GameGrid
@@ -753,7 +765,7 @@ The "All games" section body: a `SectionHeader` with All / Out now / Coming soon
 
 - **Use for:** the home page's games section (inside `Section id="games"`), and any full list of games.
 - **Don't use for:** a short related-games row (use `MoreGames`).
-- **Props / variants:** `games` (`GameSummary[]`); `title` (default "All games"). A client island: "Out now" shows `out-now` games, "Coming soon" shows every other status (coming soon, in development, announcing soon). Two columns below `md`, auto-fill at `--grid-min-tile` from `md`. Each tile links to `/games/{slug}` with a "Genre · Platform" meta line. With no games it shows "New games are on the way." and no filters; a filter with no matches shows the same line.
+- **Props / variants:** `games` (`GameSummary[]`); `title` (default "All games"). A client island: "Out now" shows `out-now` games, "Coming soon" shows every other status (coming soon, in development, announcing soon). Two columns below `md`, auto-fill at `--grid-min-tile` from `md`. Each tile links to `/games/{slug}` with a "Genre · Platform" meta line, and a game with app store links shows their `StoreBadges` (`size="s"`) under its tile. With no games it shows "New games are on the way." and no filters; a filter with no matches shows the same line.
 - **Accessibility:** the filters are a `group` named "Filter games" with `aria-pressed`; the tiles are a list named "Games".
 
 ### Statement
@@ -789,7 +801,7 @@ The game page's title block: a breadcrumb, the page `h1` and the chips.
 
 - **Use for:** the top of `/games/[slug]`, in `GameLayout`'s `title` slot.
 - **Don't use for:** other page titles (use `Display` in the page) or the showcase hero.
-- **Props / variants:** `name` (`Display as="h1" size="xl"`); `status` (accent `Chip` with `statusLabel`); `tags` (genres then platforms as outline chips; blanks and duplicates dropped); `crumbs` (`Breadcrumb` items, e.g. Games / TerraForge); `lead` (optional, phone only: the blurb under the name). From `lg`: breadcrumb, then the name on the left with the chips bottom-right. Below `lg`: no breadcrumb (the header's "‹ Games" back link replaces it), chips above the name, then the lead.
+- **Props / variants:** `name` (`Display as="h1" size="xl"`); `status` (accent `Chip` with `statusLabel`); `tags` (genres as outline chips; blanks and duplicates dropped); `platforms` (`Platform[]`, last, each an outline chip with its logo: Android `android`, iOS `apple`, Web `globe`); `icon` (optional `ImageRef`: the game's app icon beside the name at `--app-icon-size` and `--radius-app-icon`, `--space-4` apart, `--space-6` from `lg`; decorative, `alt=""`, since the name is right next to it); `crumbs` (`Breadcrumb` items, e.g. Games / TerraForge); `lead` (optional, phone only: the blurb under the name). From `lg`: breadcrumb, then the name on the left with the chips bottom-right. Below `lg`: no breadcrumb (the header's "‹ Games" back link replaces it), chips above the name, then the lead.
 - **Accessibility:** owns the page's only `h1`. The chips are a list after the `h1` in the DOM; the phone puts them above it with `column-reverse`, which is safe because chips aren't focusable. The phone lead is `display: none` from `lg`, so it is read once.
 
 ### GameLayout
@@ -798,8 +810,8 @@ The game page body: named slots placed for desktop and reordered for phones.
 
 - **Use for:** `/games/[slug]` only.
 - **Don't use for:** other two-column pages (compose `Section`, `Container` and `Grid`).
-- **Props / variants:** slots `title`, `media`, `store`, `about`, `features`, `details`, `updates`, `cards`, `more`; any slot left out renders nothing (and an empty main column renders no wrapper). From `lg`: a grid inside the `--content-max` column with `title` and `media` full width, then the main column (`about`, `features`, `updates`, `--space-16` apart) beside a 4/11 aside with `store` and, under it, `cards` (`--space-14` column gap, `--space-18` above the columns, `--space-24` below). The main column spans both aside rows and the last row is flexible, so the cards stay tucked under the store card however long the main column runs. `details` is hidden from `lg` (the store card shows the facts there). `more` sits outside the content column so it can be a full-width band. Below `lg`: one column in the phone mockup's order (media, title, store, about, features, details, updates, more, cards); the frame becomes `display: contents`, each slot carries the `--gutter`, and `order` arranges them.
-- **Accessibility:** the DOM order is the desktop order (title, media, store, main column, cards, band). On phones only two adjacent pairs swap visually (media above the title, the band above the cards), so focus order stays close to reading order. Wrappers are plain `div`s; headings come from the slots.
+- **Props / variants:** slots `title`, `art`, `media`, `store`, `about`, `features`, `details`, `updates`, `cards`, `beta`, `more`; any slot left out renders nothing (and an empty main column renders no wrapper). From `lg`: a grid inside the `--content-max` column with `title`, `art` (the key art `FramedPhoto`) and `media` full width, `--space-6` between art and media, then the main column (`about`, `features`, `updates`, `--space-16` apart) beside a 4/11 aside with `store` and, under it, `cards` (`--space-14` column gap, `--space-18` above the columns, `--space-24` below). The main column spans both aside rows and the last row is flexible, so the cards stay tucked under the store card however long the main column runs. `details` is hidden from `lg` (the store card shows the facts there). `beta` (the game's beta tester `CalloutBand`) is a full-width row inside the content column, under both columns, `--space-16` below them. `more` sits outside the content column so it can be a full-width band. Below `lg`: one column in the phone mockup's order (media, title, art, store, about, features, details, updates, beta, more, cards); the frame becomes `display: contents`, each slot carries the `--gutter`, and `order` arranges them.
+- **Accessibility:** the DOM order is the desktop order (title, art, media, store, main column, cards, beta, band). On phones only two moves happen visually (media above the title and key art, the band above the cards), so focus order stays close to reading order. Wrappers are plain `div`s; headings come from the slots.
 
 ### MoreGames
 
@@ -850,9 +862,9 @@ A long-form page: title, meta line and rich text in the narrow column.
 
 A wide photo in a bordered, rounded frame.
 
-- **Use for:** the About page's studio photo; a news post's cover image (the post page renders it only when the post has one).
+- **Use for:** the About page's studio photo; a news post's cover image (the post page renders it only when the post has one); a game page's key art, under the title (only when the game has key art and no trailer: a trailer takes its place, with the key art as its poster when it has none).
 - **Don't use for:** the home studio band (`StudioTeaser` has its own photo column) or media galleries.
-- **Props / variants:** `photo` (`ImageRef`; `null` shows the hatched `Placeholder`); `label` (placeholder text). 16:9, `--radius-xl` on phone and `--radius-2xl` from `lg`.
+- **Props / variants:** `photo` (`ImageRef`; `null` shows the hatched `Placeholder`); `label` (placeholder text); `natural` (keep the photo's own proportions instead of cropping to 16:9; the placeholder stays 16:9); `priority` (load first, for a page's headline image). 16:9 by default, `--radius-xl` on phone and `--radius-2xl` from `lg`.
 - **Accessibility:** alt text comes from the CMS; the placeholder is decorative-grade.
 
 ### LinkList

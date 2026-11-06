@@ -8,8 +8,10 @@ const game: Game = {
   status: "out-now",
   genres: ["Sandbox", "Creative"],
   platforms: ["Web"],
+  stores: [],
   blurb: "Build planets.",
   description: [],
+  appIcon: null,
   keyArt: { src: "https://cdn.sanity.io/images/p/d/key.jpg", alt: "Key art", width: 2000, height: 1000 },
   coverArt: null,
   media: [],
@@ -18,6 +20,7 @@ const game: Game = {
   priceLabel: null,
   primaryCta: null,
   notify: null,
+  beta: null,
   pressKitUrl: null,
   featured: false,
 };

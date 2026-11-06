@@ -53,6 +53,13 @@ describe("mapGame", () => {
     expect(g.media[2]).toMatchObject({ kind: "image", label: "Screenshot 2" });
   });
 
+  it("uses the key art as the trailer's poster when the trailer has none", () => {
+    const g = mapGame({ ...base, keyArt: img("Key art"), trailer: { url: "https://youtu.be/abc" } })!;
+    expect(g.media[0]).toMatchObject({ kind: "trailer", poster: { alt: "Key art" } });
+    const own = mapGame({ ...base, keyArt: img("Key art"), trailer: { url: "https://youtu.be/abc", poster: img("Poster") } })!;
+    expect(own.media[0]).toMatchObject({ kind: "trailer", poster: { alt: "Poster" } });
+  });
+
   it("skips a trailer without a url and screenshots without usable images", () => {
     const g = mapGame({ ...base, trailer: { poster: img() }, screenshots: [{ caption: "x" }, { image: { alt: "" } }] })!;
     expect(g.media).toEqual([]);
@@ -110,10 +117,52 @@ describe("mapGame", () => {
   });
 });
 
+describe("mapGame platforms", () => {
+  const platforms = (v: unknown) => mapGame({ slug: "s", name: "S", platforms: v })!.platforms;
+  it("keeps the known platforms in Android, iOS, Web order, once each", () => {
+    expect(platforms(["Web", "iOS", "Android", "Web"])).toEqual(["Android", "iOS", "Web"]);
+  });
+  it("forgives case and spacing but drops anything else", () => {
+    expect(platforms([" web ", "IOS", "Android (soon)", "PC", 3])).toEqual(["iOS", "Web"]);
+  });
+});
+
+describe("mapGame app icon", () => {
+  it("maps the icon, falling back to '<name> app icon' for its alt text", () => {
+    expect(mapGame({ ...base, appIcon: img("Planet icon") })!.appIcon).toMatchObject({ alt: "Planet icon" });
+    expect(mapGame({ ...base, appIcon: { ...img(), alt: " " } })!.appIcon).toMatchObject({ alt: "TerraForge app icon" });
+    expect(mapGame(base)!.appIcon).toBeNull();
+  });
+  it("is the featured game's icon", () => {
+    const g = mapGame({ ...base, appIcon: img("Icon") })!;
+    expect(toFeatured(g).icon).toMatchObject({ alt: "Icon" });
+  });
+});
+
+describe("mapGame store links", () => {
+  const links = { googlePlay: "https://play.google.com/store/apps/details?id=x", appStore: "https://apps.apple.com/app/id1", web: "https://play.example.com" };
+  const stores = (platforms: unknown, storeLinks: unknown) => mapGame({ slug: "s", name: "S", platforms, storeLinks })!.stores;
+  it("gives one link per ticked platform, in Android, iOS, Web order", () => {
+    expect(stores(["Web", "iOS", "Android"], links)).toEqual([
+      { platform: "Android", href: links.googlePlay },
+      { platform: "iOS", href: links.appStore },
+      { platform: "Web", href: links.web },
+    ]);
+  });
+  it("carries over to the game summary for the home tiles", () => {
+    expect(mapGameSummary({ ...base, platforms: ["iOS"], storeLinks: links })!.stores).toEqual([{ platform: "iOS", href: links.appStore }]);
+  });
+  it("drops a link whose platform isn't ticked, and blank or non-https links", () => {
+    expect(stores(["iOS"], links)).toEqual([{ platform: "iOS", href: links.appStore }]);
+    expect(stores(["Android", "iOS", "Web"], { googlePlay: "  ", appStore: "http://apps.apple.com/x", web: "javascript:alert(1)" })).toEqual([]);
+    expect(stores(["Android"], null)).toEqual([]);
+  });
+});
+
 describe("mapGameSummary and toFeatured", () => {
-  const raw = { ...base, genres: ["Builder", "Sim"], platforms: ["PC", "Mac"], coverArt: img("Cover"), keyArt: img("Key") };
+  const raw = { ...base, genres: ["Builder", "Sim"], platforms: ["Web", "iOS"], coverArt: img("Cover"), keyArt: img("Key") };
   it("summarises", () => {
-    expect(mapGameSummary(raw)).toMatchObject({ slug: "terraforge", genre: "Builder", platformLabel: "PC · Mac", status: "coming-soon" });
+    expect(mapGameSummary(raw)).toMatchObject({ slug: "terraforge", genre: "Builder", platformLabel: "iOS · Web", status: "coming-soon" });
     expect(mapGameSummary({ ...raw, slug: "" })).toBeNull();
   });
   it("maps featured", () => {
@@ -121,7 +170,7 @@ describe("mapGameSummary and toFeatured", () => {
     expect(f).toMatchObject({
       slug: "terraforge",
       genre: "BUILDER",
-      platformLabel: "PC · MAC",
+      platformLabel: "IOS · WEB",
       detailHref: "/games/terraforge",
       cta: { label: "Game details", href: "/games/terraforge" },
     });
@@ -161,6 +210,27 @@ describe("mapLegalPage and mapFaq", () => {
   });
 });
 
+describe("mapGame beta testing", () => {
+  const game = (betaTesting: unknown) => mapGame({ slug: "s", name: "S", betaTesting })!.beta;
+  it("is off for No, unset or an unknown value", () => {
+    expect(game(undefined)).toBeNull();
+    expect(game({ signup: "no", platforms: ["ios"] })).toBeNull();
+    expect(game({ signup: "maybe" })).toBeNull();
+  });
+  it("Yes opens the signup with its platforms and copy", () => {
+    expect(game({ signup: "yes", platforms: ["ios", "[P]", "android"], title: " Test it ", body: "[BODY]" })).toEqual({
+      state: "open",
+      platforms: ["ios", "android"],
+      title: "Test it",
+      body: null,
+    });
+    expect(game({ signup: "yes" })).toEqual({ state: "open", platforms: [], title: null, body: null });
+  });
+  it("Closed keeps only the copy", () => {
+    expect(game({ signup: "closed", platforms: ["ios"], title: "Done" })).toEqual({ state: "closed", title: "Done", body: null });
+  });
+});
+
 describe("mapSettings", () => {
   it("returns defaults for garbage", () => {
     const empty = { supportEmail: null, socialLinks: [], betaCallout: null, newsletterBlurb: null, studioPhoto: null, foundedLine: null };
@@ -178,6 +248,12 @@ describe("mapSettings", () => {
     expect(s.socialLinks).toEqual([{ label: "Bluesky", url: "https://b.test" }]);
     expect(s.betaCallout).toMatchObject({ title: "Join beta", eyebrow: null, platforms: ["PC"], game: { slug: "terraforge" } });
     expect(s.studioPhoto).toMatchObject({ alt: "Team" });
+  });
+  it("drops the betaCallout once its game's testing has closed", () => {
+    const game = (betaSignup?: string) => ({ slug: "terraforge", name: "TerraForge", betaSignup });
+    expect(mapSettings({ betaCallout: { title: "Join beta", game: game("closed") } }).betaCallout).toBeNull();
+    expect(mapSettings({ betaCallout: { title: "Join beta", game: game("no") } }).betaCallout).not.toBeNull();
+    expect(mapSettings({ betaCallout: { title: "Join beta", game: game() } }).betaCallout).not.toBeNull();
   });
   it("drops an empty betaCallout", () => {
     expect(mapSettings({ betaCallout: { title: "[T]" } }).betaCallout).toBeNull();

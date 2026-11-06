@@ -1,0 +1,35 @@
+@use "../../../styles/mixins" as *;
+
+// Side by side, wrapping onto a second row when the column is narrow (phone game tiles).
+.root {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  &[data-size="s"] {
+    gap: var(--space-2);
+  }
+}
+
+.link {
+  display: block;
+  border-radius: var(--radius-xs);
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+// Both stores set a 40px minimum; these sizes stay above it and meet the tap target.
+.image {
+  display: block;
+  width: auto;
+  height: var(--control-height);
+
+  .root[data-size="s"] & {
+    height: var(--tap-min);
+  }
+}

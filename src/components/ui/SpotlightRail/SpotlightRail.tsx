@@ -12,7 +12,10 @@ export type SpotlightRailProps = {
 export function SpotlightRail({ games, activeIndex, onPick }: SpotlightRailProps) {
   return (
     <div className={styles.root} role="group" aria-label="Choose a featured game">
-      {games.map((game, i) => (
+      {games.map((game, i) => {
+        // The app icon suits a small square best; the key art is cropped into it otherwise.
+        const thumb = game.icon ?? game.art;
+        return (
         <button
           key={game.slug}
           type="button"
@@ -21,14 +24,15 @@ export function SpotlightRail({ games, activeIndex, onPick }: SpotlightRailProps
           onClick={() => onPick(i)}
         >
           <span className={styles.thumb} aria-hidden="true">
-            {game.art ? <Image className={styles.image} src={game.art.src} alt="" width={game.art.width} height={game.art.height} sizes="56px" /> : null}
+            {thumb ? <Image className={styles.image} src={thumb.src} alt="" width={thumb.width} height={thumb.height} sizes="56px" /> : null}
           </span>
           <span className={styles.text}>
             <span className={styles.name}>{game.name}</span>
             <span className={styles.meta}>{`${game.genre} · ${statusLabel(game.status)}`}</span>
           </span>
         </button>
-      ))}
+        );
+      })}
     </div>
   );
 }

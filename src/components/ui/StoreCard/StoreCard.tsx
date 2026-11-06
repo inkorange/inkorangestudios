@@ -1,15 +1,20 @@
 import type { ReactNode } from "react";
+import { STORE_LINK_LABELS } from "@/lib/games";
+import type { StoreLink } from "@/lib/sanity/types";
 import { isAbsoluteUrl } from "@/lib/video";
 import { Accordion } from "../Accordion/Accordion";
 import { Button } from "../Button/Button";
 import { Eyebrow } from "../Eyebrow/Eyebrow";
 import { FactList } from "../FactList/FactList";
 import { Icon } from "../Icon/Icon";
+import { StoreBadges } from "../StoreBadges/StoreBadges";
 import styles from "./StoreCard.module.scss";
 
 export type StoreCardProps = {
   priceLabel?: string;
   primary: { label: string; href: string } | null;
+  /** Store links: official Google Play and App Store badges, and a "Play in your browser" button for Web. */
+  stores?: StoreLink[];
   notify?: ReactNode;
   notifyTitle?: string;
   facts: { label: string; value: string }[];
@@ -17,7 +22,9 @@ export type StoreCardProps = {
   phoneFacts?: boolean;
 };
 
-export function StoreCard({ priceLabel, primary, notify, notifyTitle, facts, phoneFacts = true }: StoreCardProps) {
+export function StoreCard({ priceLabel, primary, stores = [], notify, notifyTitle, facts, phoneFacts = true }: StoreCardProps) {
+  // The web link doubles up when the main button already goes there.
+  const web = stores.find((s) => s.platform === "Web" && s.href !== primary?.href);
   return (
     <aside className={styles.root} aria-label="Get the game">
       <span className={styles.eyebrow}>
@@ -29,6 +36,12 @@ export function StoreCard({ priceLabel, primary, notify, notifyTitle, facts, pho
           {primary.label}
         </Button>
       ) : null}
+      {web ? (
+        <Button variant={primary ? "outline" : "accent"} size="l" block icon="globe" href={web.href} external>
+          {STORE_LINK_LABELS.Web.badge}
+        </Button>
+      ) : null}
+      <StoreBadges stores={stores} label="App stores" />
       {notify ? (
         <div className={styles.notify}>
           {notifyTitle ? (
