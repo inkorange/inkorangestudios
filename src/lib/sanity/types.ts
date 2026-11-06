@@ -5,6 +5,12 @@ export type { PortableTextBlock };
 
 export type ImageRef = { src: string; alt: string; width: number; height: number } | null;
 
+/** An image placed inside a portable text body in the Studio, mapped for rendering. */
+export type BodyImage = { _type: "image"; _key: string; image: NonNullable<ImageRef>; caption: string | null };
+
+/** A mapped portable text body: text blocks plus inline images. */
+export type RichBody = (PortableTextBlock | BodyImage)[];
+
 export type PostKind = "update" | "announcement" | "devlog" | "patch-notes";
 
 const POST_KIND_LABELS: Record<PostKind, string> = {
@@ -43,7 +49,7 @@ export type Game = {
   genres: string[];
   platforms: string[];
   blurb: string;
-  description: PortableTextBlock[];
+  description: RichBody;
   keyArt: ImageRef;
   coverArt: ImageRef;
   media: Media[];
@@ -76,19 +82,19 @@ export type PostSummary = {
   game: { slug: string; name: string } | null;
 };
 
-export type Post = PostSummary & { body: PortableTextBlock[] };
+export type Post = PostSummary & { body: RichBody };
 
 export type LegalPage = {
   slug: string;
   title: string;
   updatedAt: string | null;
-  body: PortableTextBlock[];
+  body: RichBody;
 };
 
 export type Faq = {
   id: string;
   question: string;
-  answer: PortableTextBlock[];
+  answer: RichBody;
   game: { slug: string; name: string } | null;
 };
 

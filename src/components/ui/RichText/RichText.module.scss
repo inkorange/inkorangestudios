@@ -65,3 +65,23 @@
   color: var(--color-ink);
   border-inline-start: 3px solid var(--color-accent);
 }
+
+.figure {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: var(--space-2) 0;
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-l);
+}
+
+.caption {
+  font-size: var(--text-body-s);
+  line-height: var(--leading-normal);
+  color: var(--color-ink-2);
+}

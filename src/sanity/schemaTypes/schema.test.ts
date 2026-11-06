@@ -54,4 +54,13 @@ describe("sanity schema", () => {
     }
     expect(images).toBeGreaterThan(0);
   });
+
+  it("body images offer hotspot, require alt and take an optional caption", () => {
+    const post = types.find((t) => t.name === "studioPost")!;
+    const body = post.fields!.find((f) => f.name === "body")!;
+    const image = body.of!.find((o) => o.type === "image") as Field & { options?: { hotspot?: boolean } };
+    expect(image.options?.hotspot).toBe(true);
+    expect(image.fields!.map((f) => f.name)).toEqual(["alt", "caption"]);
+    expect(image.fields!.find((f) => f.name === "caption")!.validation).toBeUndefined();
+  });
 });

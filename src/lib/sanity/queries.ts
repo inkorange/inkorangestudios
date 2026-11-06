@@ -1,7 +1,11 @@
-/** GROQ queries. Image fields project dimensions so toImageRef can size them. */
+/**
+ * GROQ queries. Image fields project dimensions so toImageRef can size them, and the Studio crop
+ * and hotspot so the image URL honours them. Portable text bodies come back raw: their inline
+ * images carry asset._ref (which encodes the dimensions), alt, caption, crop and hotspot.
+ */
 
 const img = (field: string) =>
-  `"${field}": ${field}{ "asset": asset{ _ref }, "dimensions": asset->metadata.dimensions{ width, height }, alt }`;
+  `"${field}": ${field}{ "asset": asset{ _ref }, "dimensions": asset->metadata.dimensions{ width, height }, alt, crop, hotspot }`;
 
 const GAME_FIELDS = `
   "slug": slug.current,

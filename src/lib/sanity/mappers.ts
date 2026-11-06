@@ -13,6 +13,7 @@ import type {
   Post,
   PostKind,
   PostSummary,
+  RichBody,
   SiteSettings,
 } from "./types";
 
@@ -38,9 +39,19 @@ const bool = z.unknown().transform((v) => v === true);
 const strList = z.unknown().transform((v) => (Array.isArray(v) ? v.map(clean).filter((s): s is string => s !== null) : []));
 const list = z.unknown().transform((v): unknown[] => (Array.isArray(v) ? v : []));
 const obj = z.unknown().transform((v): Record<string, unknown> | null => (v && typeof v === "object" && !Array.isArray(v) ? (v as Record<string, unknown>) : null));
-const blocks = z.unknown().transform((v): PortableTextBlock[] =>
+const BODY_IMAGE = 1600;
+
+/** Portable text: text blocks pass through; inline images become `BodyImage` (dropped without asset or alt); anything else is dropped. */
+const blocks = z.unknown().transform((v): RichBody =>
   Array.isArray(v)
-    ? (v.filter((b) => b && typeof b === "object" && (b as { _type?: unknown })._type === "block") as PortableTextBlock[])
+    ? v.flatMap((b, i): RichBody => {
+        if (!b || typeof b !== "object") return [];
+        const item = b as { _type?: unknown; _key?: unknown; caption?: unknown };
+        if (item._type === "block") return [b as PortableTextBlock];
+        if (item._type !== "image") return [];
+        const img = image(b, BODY_IMAGE);
+        return img ? [{ _type: "image", _key: clean(item._key) ?? `image-${i}`, image: img, caption: clean(item.caption) }] : [];
+      })
     : [],
 );
 

@@ -85,9 +85,28 @@ describe("mapGame", () => {
     expect(g.coverArt).toMatchObject({ alt: "Cover" });
   });
 
-  it("keeps only block items in description", () => {
-    const g = mapGame({ ...base, description: [{ _type: "block", children: [] }, { _type: "image" }, 3] })!;
-    expect(g.description).toHaveLength(1);
+  it("keeps block items and valid images in description, mapped to ImageRef + caption", () => {
+    const image = {
+      _type: "image",
+      _key: "img1",
+      alt: " A ridge at dusk ",
+      caption: " Early terrain ",
+      asset: { _ref: "image-a1b2c3d4-2000x1000-jpg" },
+      crop: { top: 0, bottom: 0, left: 0, right: 0.5 },
+    };
+    const g = mapGame({
+      ...base,
+      description: [{ _type: "block", children: [] }, image, { _type: "image", _key: "noalt", asset: { _ref: "image-a1b2c3d4-2000x1000-jpg" } }, { _type: "video" }, 3],
+    })!;
+    expect(g.description).toHaveLength(2);
+    expect(g.description[1]).toMatchObject({
+      _type: "image",
+      _key: "img1",
+      caption: "Early terrain",
+      image: { alt: "A ridge at dusk", width: 1600, height: 1600 },
+    });
+    const mapped = g.description[1] as { image: { src: string } };
+    expect(mapped.image.src).toContain("rect=0,0,1000,1000");
   });
 });
 

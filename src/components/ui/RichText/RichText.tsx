@@ -1,12 +1,30 @@
+import Image from "next/image";
 import Link from "next/link";
-import { PortableText, type PortableTextBlock, type PortableTextComponents } from "@portabletext/react";
+import { PortableText, type PortableTextComponents } from "@portabletext/react";
+import type { BodyImage, RichBody } from "@/lib/sanity/types";
 import styles from "./RichText.module.scss";
 
 export type RichTextProps = {
-  value: PortableTextBlock[];
+  value: RichBody;
 };
 
 const components: PortableTextComponents = {
+  types: {
+    // Mapped by src/lib/sanity/mappers.ts: alt is guaranteed, the caption is optional.
+    image: ({ value }: { value: BodyImage }) => (
+      <figure className={styles.figure}>
+        <Image
+          className={styles.image}
+          src={value.image.src}
+          alt={value.image.alt}
+          width={value.image.width}
+          height={value.image.height}
+          sizes="(min-width: 800px) 760px, 100vw"
+        />
+        {value.caption ? <figcaption className={styles.caption}>{value.caption}</figcaption> : null}
+      </figure>
+    ),
+  },
   block: {
     normal: ({ children }) => <p className={styles.p}>{children}</p>,
     h2: ({ children }) => <h2 className={styles.h2}>{children}</h2>,

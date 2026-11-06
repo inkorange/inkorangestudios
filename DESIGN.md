@@ -640,8 +640,8 @@ Portable Text rendered with the design system's type.
 
 - **Use for:** CMS body copy: news posts, game "About", legal pages.
 - **Don't use for:** hand-written UI copy (use `Text` and `Heading`).
-- **Props / variants:** `value` (`PortableTextBlock[]`). Supports h2-h4, paragraphs, bullet and numbered lists, blockquote and links. External links open in a new tab with `rel="noopener noreferrer"`; internal links (starting with `/`) use `next/link`.
-- **Accessibility:** headings keep their level (h2-h4) so the author controls the outline. Links are `--color-link` and underlined.
+- **Props / variants:** `value` (`RichBody`: portable text blocks plus mapped `BodyImage`s, from `src/lib/sanity/types.ts`). Supports h2-h4, paragraphs, bullet and numbered lists, blockquote, links and inline images. External links open in a new tab with `rel="noopener noreferrer"`; internal links (starting with `/`) use `next/link`. Images an editor places in a body render as a `figure`: `next/image` at full column width with `--radius-l` corners, and an optional `figcaption` (`--text-body-s`, `--color-ink-2`). The Studio crop and hotspot are honoured (the mapper passes them to the image URL builder).
+- **Accessibility:** headings keep their level (h2-h4) so the author controls the outline. Links are `--color-link` and underlined. Every image has alt text: the Studio requires it, and the mapper drops a body image without it.
 
 ### Breadcrumb
 

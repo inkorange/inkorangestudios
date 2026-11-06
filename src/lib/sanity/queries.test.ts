@@ -20,3 +20,11 @@ describe("postsQuery limit", () => {
     for (const l of [undefined, 0, -2, 0.5, NaN, Infinity]) expect(q(l)).not.toContain("[0...");
   });
 });
+
+describe("image projection", () => {
+  it("projects crop and hotspot for every image field", () => {
+    for (const field of ["keyArt", "coverArt", "poster", "image"]) {
+      expect(GAMES_QUERY).toMatch(new RegExp(`"${field}": ${field}\\{ "asset": asset\\{ _ref \\}, "dimensions": [^}]+\\}, alt, crop, hotspot \\}`));
+    }
+  });
+});

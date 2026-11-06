@@ -1,7 +1,7 @@
 import { defineField } from "sanity";
 
-/** Image field with a required alt subfield. */
-export function imageField(name: string, title: string, description?: string) {
+/** Image field with a required alt subfield (and, for images inside a body, an optional caption). */
+export function imageField(name: string, title: string, description?: string, opts: { caption?: boolean } = {}) {
   return defineField({
     name,
     title,
@@ -16,6 +16,16 @@ export function imageField(name: string, title: string, description?: string) {
         description: "Describe the image for screen readers.",
         validation: (rule) => rule.required(),
       }),
+      ...(opts.caption
+        ? [
+            defineField({
+              name: "caption",
+              title: "Caption",
+              type: "string",
+              description: "Optional. Shown under the image.",
+            }),
+          ]
+        : []),
     ],
   });
 }
@@ -40,7 +50,7 @@ export function bodyField(name = "body", title = "Body") {
           { title: "Numbered", value: "number" },
         ],
       },
-      imageField("image", "Image"),
+      imageField("image", "Image", "Crop and hotspot are applied on the site.", { caption: true }),
     ],
   });
 }

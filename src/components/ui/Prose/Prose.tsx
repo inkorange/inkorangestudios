@@ -1,4 +1,4 @@
-import type { PortableTextBlock } from "@portabletext/react";
+import type { RichBody } from "@/lib/sanity/types";
 import { Container } from "../Container/Container";
 import { Display } from "../Display/Display";
 import { RichText } from "../RichText/RichText";
@@ -10,7 +10,7 @@ export type ProseProps = {
   title: string;
   /** e.g. "Last updated Nov 5, 2026". Hidden when empty. */
   meta?: string;
-  body: PortableTextBlock[];
+  body: RichBody;
 };
 
 /** A long-form page (privacy, terms): title, a meta line, then rich text in the narrow column. */
