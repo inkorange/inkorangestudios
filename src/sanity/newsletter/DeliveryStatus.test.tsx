@@ -1,5 +1,8 @@
+import { render, screen } from "@testing-library/react";
+import { ThemeProvider } from "@sanity/ui";
+import { buildTheme } from "@sanity/ui/theme";
 import { describe, expect, it } from "vitest";
-import { describeDelivery } from "./DeliveryStatus";
+import { DeliveryStatus, describeDelivery } from "./DeliveryStatus";
 
 describe("describeDelivery", () => {
   it("says nothing has gone out yet", () => {
@@ -35,5 +38,17 @@ describe("describeDelivery", () => {
     const { lines, tone } = describeDelivery({ status: "idle", error: "Add the mailing address in Settings → Newsletter before sending." });
     expect(lines).toContain("Add the mailing address in Settings → Newsletter before sending.");
     expect(tone).toBe("critical");
+  });
+});
+
+describe("DeliveryStatus", () => {
+  it("says the status couldn't be loaded instead of showing a possibly stale one", () => {
+    render(
+      <ThemeProvider theme={buildTheme()}>
+        <DeliveryStatus delivery={{ status: "sending" }} error />
+      </ThemeProvider>,
+    );
+    expect(screen.getByText("Couldn't load delivery status")).toBeInTheDocument();
+    expect(screen.queryByText("Sending…")).not.toBeInTheDocument();
   });
 });

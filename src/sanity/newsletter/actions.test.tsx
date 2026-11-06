@@ -9,7 +9,7 @@ import type { Delivery } from "./useDelivery";
 
 const client = { create: vi.fn() };
 const toast = { push: vi.fn() };
-let delivery: { delivery: Delivery | null; loading: boolean } = { delivery: null, loading: false };
+let delivery: { delivery: Delivery | null; loading: boolean; error?: boolean } = { delivery: null, loading: false };
 
 vi.mock("sanity", () => ({ useClient: () => client }));
 vi.mock("@sanity/ui/toast", () => ({ useToast: () => toast }));
@@ -219,6 +219,24 @@ describe("Send to subscribers", () => {
     const button = screen.getByRole("button", { name: "Send to subscribers" });
     expect(button).toBeDisabled();
     expect(button).toHaveAttribute("title", "Sending is in progress");
+  });
+
+  it("is disabled when the delivery status couldn't be loaded", () => {
+    delivery = { delivery: null, loading: false, error: true };
+    render(<Harness action={SendToSubscribersAction} actionProps={props()} />);
+    const button = screen.getByRole("button", { name: "Send to subscribers" });
+    expect(button).toBeDisabled();
+    expect(button).toHaveAttribute("title", "Couldn't load delivery status");
+  });
+
+  it("disables Send in an open dialog if the status is lost", async () => {
+    const user = userEvent.setup();
+    delivery = { delivery: { status: "idle", countedAt: minutesAgo(60) }, loading: false };
+    const { rerender } = render(<Harness action={SendToSubscribersAction} actionProps={props()} />);
+    await user.click(screen.getByRole("button", { name: "Send to subscribers" }));
+    delivery = { delivery: { status: "idle", audienceCount: 4, countedAt: new Date().toISOString() }, loading: false, error: true };
+    rerender(<Harness action={SendToSubscribersAction} actionProps={props()} />);
+    expect(screen.getByRole("button", { name: "Send" })).toBeDisabled();
   });
 
   it("counts on open, waits for a fresh count, then broadcasts the published revision", async () => {

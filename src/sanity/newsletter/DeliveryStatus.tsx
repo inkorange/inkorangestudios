@@ -47,7 +47,32 @@ export function describeDelivery(d: Delivery | null): { lines: string[]; tone: D
 }
 
 /** Live delivery status, shown above the email preview and in the "Send to subscribers" dialog. */
-export function DeliveryStatus({ delivery, loading = false }: { delivery: Delivery | null; loading?: boolean }) {
+export const LOAD_ERROR = "Couldn't load delivery status";
+
+export function DeliveryStatus({
+  delivery,
+  loading = false,
+  error = false,
+}: {
+  delivery: Delivery | null;
+  loading?: boolean;
+  error?: boolean;
+}) {
+  if (error) {
+    // Whatever was known before may be stale: say so rather than show it as current.
+    return (
+      <Card padding={3} radius={2} border tone="caution" role="status">
+        <Stack gap={3}>
+          <Text size={1} weight="semibold">
+            {LOAD_ERROR}
+          </Text>
+          <Text size={1} muted>
+            Retrying. Reload the Studio if this stays.
+          </Text>
+        </Stack>
+      </Card>
+    );
+  }
   if (loading) {
     return (
       <Card padding={3} radius={2} border>

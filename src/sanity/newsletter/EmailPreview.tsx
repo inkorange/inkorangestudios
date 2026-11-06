@@ -41,7 +41,7 @@ export function renderPreview(raw: unknown, settings: { mailingAddress?: string 
 export function EmailPreview({ documentId, document }: Props) {
   const client = useClient({ apiVersion: API_VERSION });
   const id = publishedId(documentId);
-  const { delivery, loading } = useDelivery(id);
+  const { delivery, loading, error } = useDelivery(id);
   const [width, setWidth] = useState<Width>("desktop");
   const [preview, setPreview] = useState<Preview>({ state: "loading" });
   // Refetch whenever the draft or published revision changes.
@@ -70,7 +70,7 @@ export function EmailPreview({ documentId, document }: Props) {
   return (
     <Flex direction="column" height="fill">
       <Stack gap={3} padding={3}>
-        <DeliveryStatus delivery={delivery} loading={loading} />
+        <DeliveryStatus delivery={delivery} loading={loading} error={error} />
         <Inline gap={2}>
           <Button
             icon={DesktopIcon}

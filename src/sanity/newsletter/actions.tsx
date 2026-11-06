@@ -5,7 +5,7 @@ import { Button, Flex, Stack, Text } from "@sanity/ui";
 import { useToast } from "@sanity/ui/toast";
 import { useEffect, useState } from "react";
 import { useClient, type DocumentActionComponent, type SanityClient, type SanityDocument } from "sanity";
-import { DeliveryStatus, formatDate } from "./DeliveryStatus";
+import { DeliveryStatus, LOAD_ERROR, formatDate } from "./DeliveryStatus";
 import { API_VERSION, publishedId, useDelivery, type Delivery } from "./useDelivery";
 
 export type RequestKind = "test" | "count" | "broadcast" | "resume";
@@ -92,7 +92,7 @@ SendTestAction.displayName = "SendTestAction";
 export const SendToSubscribersAction: DocumentActionComponent = (props) => {
   const client = useClient({ apiVersion: API_VERSION });
   const toast = useToast();
-  const { delivery, loading } = useDelivery(props.id);
+  const { delivery, loading, error } = useDelivery(props.id);
   // The countedAt seen when the dialog opened: a count is fresh once it changes.
   const [opened, setOpened] = useState<{ countedAt: string | undefined } | null>(null);
   const [busy, setBusy] = useState(false);
@@ -102,9 +102,11 @@ export const SendToSubscribersAction: DocumentActionComponent = (props) => {
   const revision = props.published?._rev;
   const subject = typeof props.published?.subject === "string" ? props.published.subject : "this issue";
   const waitingForServer = requested !== null && delivery?._updatedAt === requested.updatedAt;
-  const reason = loading
-    ? "Checking delivery status…"
-    : (sendDisabledReason(props, delivery) ?? (waitingForServer ? "Sending has been requested" : null));
+  const reason = error
+    ? LOAD_ERROR
+    : loading
+      ? "Checking delivery status…"
+      : (sendDisabledReason(props, delivery) ?? (waitingForServer ? "Sending has been requested" : null));
 
   const close = () => {
     setOpened(null);
@@ -156,7 +158,7 @@ export const SendToSubscribersAction: DocumentActionComponent = (props) => {
       onClose: close,
       content: (
         <Stack gap={4}>
-          <DeliveryStatus delivery={delivery} loading={loading} />
+          <DeliveryStatus delivery={delivery} loading={loading} error={error} />
           <Text size={2}>{body}</Text>
           {reason ? (
             <Text size={1} muted>

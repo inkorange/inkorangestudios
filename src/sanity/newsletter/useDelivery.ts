@@ -33,41 +33,87 @@ const LISTEN = /* groq */ `*[_id == $id]`;
 
 type ListenEvent = { type?: string; transition?: string; result?: Delivery };
 
-/** The issue's delivery document: fetched once, then kept live with `client.listen`. */
-export function useDelivery(issueId: string): { delivery: Delivery | null; loading: boolean } {
+/** How long to wait before re-listening after the listener errors. */
+export const RETRY_MS = 5_000;
+
+export type DeliveryState = {
+  delivery: Delivery | null;
+  /** Nothing known yet: no fetch or live event has landed. */
+  loading: boolean;
+  /** The live status couldn't be loaded or the listener dropped: what's shown may be stale. */
+  error: boolean;
+};
+
+/**
+ * The issue's delivery document, kept live. Listens for `welcome` and `mutation`: every `welcome`
+ * (first connect and every reconnect) refetches, so writes made while disconnected aren't lost.
+ * A listener error is shown as `error` and the listener is re-established after RETRY_MS.
+ */
+export function useDelivery(issueId: string): DeliveryState {
   const client = useClient({ apiVersion: API_VERSION });
   const id = deliveryId(issueId);
-  const [state, setState] = useState<{ id: string; delivery: Delivery | null; loading: boolean }>({
+  const [state, setState] = useState<DeliveryState & { id: string }>({
     id,
     delivery: null,
     loading: true,
+    error: false,
   });
 
   useEffect(() => {
-    let live = false; // once a live event lands, a slower initial fetch must not overwrite it
     let cancelled = false;
-    const subscription = client.listen<Delivery>(LISTEN, { id }, { includeResult: true, visibility: "query" }).subscribe(
-      (event: ListenEvent) => {
-        if (event.type !== "mutation") return;
-        live = true;
-        const delivery = event.transition === "disappear" ? null : (event.result ?? null);
-        setState({ id, delivery, loading: false });
-      },
-    );
-    client.fetch<Delivery | null>(QUERY, { id }).then(
-      (delivery) => {
-        if (!cancelled && !live) setState({ id, delivery: delivery ?? null, loading: false });
-      },
-      () => {
-        if (!cancelled && !live) setState({ id, delivery: null, loading: false });
-      },
-    );
+    let mutations = 0; // a fetch started before the latest live event must not overwrite it
+    let fetches = 0; // only the latest fetch may land
+    let subscription: { unsubscribe(): void } | null = null;
+    let retry: ReturnType<typeof setTimeout> | null = null;
+
+    // Keep the last known delivery (for this issue only) but flag it as possibly stale.
+    const fail = () =>
+      setState((prev) => ({ id, delivery: prev.id === id ? prev.delivery : null, loading: false, error: true }));
+
+    const refetch = () => {
+      const fetchNo = ++fetches;
+      const seenMutations = mutations;
+      const stale = () => cancelled || fetchNo !== fetches || seenMutations !== mutations;
+      client.fetch<Delivery | null>(QUERY, { id }).then(
+        (delivery) => {
+          if (!stale()) setState({ id, delivery: delivery ?? null, loading: false, error: false });
+        },
+        () => {
+          if (!stale()) fail();
+        },
+      );
+    };
+
+    const connect = () => {
+      retry = null;
+      subscription = client
+        .listen<Delivery>(LISTEN, { id }, { includeResult: true, visibility: "query", events: ["welcome", "mutation"] })
+        .subscribe({
+          next: (event: ListenEvent) => {
+            if (event.type === "welcome") return refetch();
+            if (event.type !== "mutation") return;
+            mutations++;
+            const delivery = event.transition === "disappear" ? null : (event.result ?? null);
+            setState({ id, delivery, loading: false, error: false });
+          },
+          error: () => {
+            if (cancelled) return;
+            fail();
+            retry = setTimeout(connect, RETRY_MS);
+          },
+        });
+    };
+
+    connect();
     return () => {
       cancelled = true;
-      subscription.unsubscribe();
+      if (retry) clearTimeout(retry);
+      subscription?.unsubscribe();
     };
   }, [client, id]);
 
   // A different issue in the same component: don't show the previous issue's status.
-  return state.id === id ? { delivery: state.delivery, loading: state.loading } : { delivery: null, loading: true };
+  return state.id === id
+    ? { delivery: state.delivery, loading: state.loading, error: state.error }
+    : { delivery: null, loading: true, error: false };
 }
