@@ -8,11 +8,13 @@
     "start": "next start",
     "lint": "eslint && stylelint \"src/**/*.{scss,css,sass}\"",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "seed": "node --env-file=.env.local scripts/seed-sanity.mjs"
   },
   "dependencies": {
     "@next/third-parties": "^16.4.5",
     "@portabletext/react": "^8.0.1",
+    "@sanity/client": "^8.14.1",
     "@sanity/image-url": "^2.1.1",
     "@sanity/vision": "^6.22.0",
     "@supabase/supabase-js": "^2.119.0",
