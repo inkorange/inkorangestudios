@@ -19,21 +19,6 @@
   }
 }
 
-// Phone: chips above the name (visual order only; chips aren't focusable).
-// Desktop: name on the left, chips bottom-right on the name's baseline row.
-.row {
-  display: flex;
-  flex-direction: column-reverse;
-  gap: var(--space-4);
-
-  @include bp(lg) {
-    flex-flow: row wrap;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: var(--space-6);
-  }
-}
-
 // The app icon (when there is one) and the name, side by side, the icon's top
 // on the name's first line so a name that wraps hangs below it.
 .name {
@@ -72,9 +57,6 @@
   padding: 0;
   list-style: none;
 
-  @include bp(lg) {
-    padding-bottom: var(--space-2);
-  }
 }
 
 // Line the chips up by their boxes, not their text baselines: a chip with a logo
