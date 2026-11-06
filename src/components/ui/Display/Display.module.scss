@@ -47,9 +47,10 @@
   &[data-paint="true"] {
     padding-block: var(--highlight-bleed);
 
-    // Bleeds past the end of the text only; the brush's rounded start supplies the lead-in.
-    padding-inline-end: calc(var(--space-2) + var(--highlight-bleed-inline));
-    margin-inline-end: calc(var(--highlight-bleed-inline) * -1);
+    // Extra paint before (--space-2) and past the end (--highlight-bleed-inline) of the text,
+    // taken back as negative margin so the words don't move.
+    padding-inline: calc(var(--space-2) * 2) calc(var(--space-2) + var(--highlight-bleed-inline));
+    margin-inline: calc(var(--space-2) * -1) calc(var(--highlight-bleed-inline) * -1);
     background-color: transparent;
     background-image: var(--texture-brush-stroke);
     background-size: 100% 100%;
