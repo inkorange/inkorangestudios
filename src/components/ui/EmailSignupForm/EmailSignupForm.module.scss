@@ -1,0 +1,32 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: 100%;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+.field {
+  flex: 1 1 var(--space-24);
+  min-width: 0;
+}
+
+.root[data-layout="stacked"] .row {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.root[data-layout="stacked"] .field {
+  flex-basis: auto;
+}
+
+.root[data-tone="on-dark"] {
+  color: var(--color-on-dark);
+}

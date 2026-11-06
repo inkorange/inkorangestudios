@@ -57,8 +57,14 @@
     color: var(--color-ink);
     background-color: var(--color-accent);
 
+    // The gloss is ::before (earlier in the DOM); icon and label are
+    // positioned, so they paint above it.
+    > * {
+      position: relative;
+    }
+
     // Gloss sweep: a soft light band that crosses the button on hover.
-    &::after {
+    &::before {
       position: absolute;
       inset: 0;
       content: "";
@@ -66,19 +72,19 @@
       background: linear-gradient(105deg, transparent 35%, var(--color-card) 50%, transparent 65%);
       opacity: 0;
       transform: translateX(-100%);
-    }
-
-    &:hover:not(:disabled)::after {
-      opacity: 0.5;
-      transform: translateX(100%);
       transition:
         transform var(--duration-slow) var(--ease-standard),
         opacity var(--duration-slow) var(--ease-standard);
     }
 
+    &:hover:not(:disabled)::before {
+      opacity: 0.5;
+      transform: translateX(100%);
+    }
+
     @include reduced-motion {
-      &::after,
-      &:hover:not(:disabled)::after {
+      &::before,
+      &:hover:not(:disabled)::before {
         display: none;
       }
     }

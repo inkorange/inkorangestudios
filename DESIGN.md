@@ -472,11 +472,53 @@ A row of toggle pills that pick one value.
 - **Props / variants:** `options` (readonly strings), `value`, `onChange(value)`, `label` (names the group).
 - **Accessibility:** a `role="group"` of buttons; the current one has `aria-pressed="true"`. Each is at least `--tap-min`.
 
+### TextField
+
+A pill-shaped single-line input with its label.
+
+- **Use for:** email and short text fields.
+- **Don't use for:** multi-line text (use `TextArea`).
+- **Props / variants:** `label` (required); `hideLabel` (visually hidden, still the accessible name); `name`; `type`: `text` (default) or `email`; `placeholder`; `required`; `tone`: `on-light` (card fill, default), `on-card` (paper fill, for inputs inside a card), `on-dark` (paper fill, accent focus ring, for ink surfaces); `size`: `m` (`--control-height`, default) or `s` (`--tap-min`); `error`; `autoComplete`; optional controlled `value` / `onChange`.
+- **Accessibility:** a real `label` linked by id. With `error`, the input gets `aria-invalid="true"` and `aria-describedby` pointing at the message, and the border thickens (never color alone). A placeholder never replaces the label.
+
+### TextArea
+
+A multi-line input with its label.
+
+- **Use for:** the contact message and other free text.
+- **Don't use for:** single-line values (use `TextField`).
+- **Props / variants:** `label`, `name`, `rows` (default 5), `required`, `error`.
+- **Accessibility:** same label, `aria-invalid` and `aria-describedby` wiring as `TextField`. Resizes vertically only.
+
+### FormMessage
+
+The result line of a form.
+
+- **Use for:** a form's success or error outcome.
+- **Don't use for:** per-field errors (use the `error` prop of the field).
+- **Props / variants:** `status`: `success` or `error`; `children`.
+- **Accessibility:** `success` is `role="status"`, `error` is `role="alert"`. Errors carry a thicker border so they differ without color. Text inherits the surface color, so it reads on light and ink.
+
+### EmailSignupForm
+
+An email input plus submit button bound to a server action.
+
+- **Use for:** the footer newsletter, the beta signup and the launch-alert ("Notify me") box.
+- **Don't use for:** forms with more than an email (build those from `TextField` / `TextArea`).
+- **Props / variants:** `action(prev, data)` returning a `FormState`; `label` (visually hidden); `placeholder`; `submitLabel`; `tone`: `on-dark` (footer: paper input, accent button), `on-card` (store card box: paper input, ink button), `on-accent` (callout band: card input, ink button); `layout`: `inline` (row that wraps when narrow, default) or `stacked` (phone / footer column, full-width button); `hidden` (extra fields sent with the form); `successMessage`.
+- **Accessibility:** the label stays the input's accessible name. Submit is disabled while pending. Success replaces the form with a `status` message; an error shows in an `alert` and keeps what was typed. Includes `Turnstile`, which renders only when `CAPTCHA_REQUIRED`.
+
+### Turnstile
+
+The Cloudflare human check, invisible to the layout when off.
+
+- **Use for:** inside any public form that posts to a server action (`EmailSignupForm` includes it).
+- **Don't use for:** pages with no form.
+- **Props / variants:** `resetKey` (change it after each submit result to renew the single-use token). Loads `api.js?render=explicit` and writes the token into a hidden `captchaToken` input so `FormData` carries it. Site key from `publicEnv.turnstileSiteKey`.
+- **Accessibility:** renders nothing when `CAPTCHA_REQUIRED` is false (`next dev`, tests, no keys). Cloudflare's widget supplies its own labelling.
+
 Still coming, in this order (names may change as they are built):
 
-- **Form controls (coming):** TextField, TextArea, FormMessage (success /
-  error), EmailSignupForm (inline pill input + button; light and dark),
-  Turnstile.
 - **Content blocks (coming):** SectionHeader (title + rule + optional action),
   GameTile (cover + status chip), NewsCard, UpdateRow, FeatureList (numbered),
   FactList (`dl`), Accordion, InfoCard (press / help), CalloutBand, RichText,

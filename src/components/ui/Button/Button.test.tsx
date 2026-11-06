@@ -26,3 +26,9 @@ it("disables only the button element", () => {
   render(<Button variant="ink" disabled>No</Button>);
   expect(screen.getByRole("button", { name: "No" })).toBeDisabled();
 });
+it("renders a link without disabled semantics when href and disabled are both given", () => {
+  render(<Button variant="ink" href="/x" disabled>Link</Button>);
+  const a = screen.getByRole("link", { name: "Link" });
+  expect(a).not.toHaveAttribute("disabled");
+  expect(a).not.toHaveAttribute("aria-disabled");
+});
