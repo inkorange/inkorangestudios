@@ -42,13 +42,12 @@ it("Cookie settings asks the banner to reopen", async () => {
   window.removeEventListener("io:consent-open", cb);
 });
 
-it("gives the Studio column the press anchor, holding the Press kit link", () => {
+it("has no circular Press kit link or press anchor until a global press kit exists", () => {
   const { container } = render(<SiteFooter newsletter={null} socialLinks={[]} />);
-  const press = container.querySelector("#press");
-  expect(press).not.toBeNull();
-  expect(press).toHaveTextContent("Studio");
-  expect(screen.getByRole("link", { name: "Press kit" })).toHaveAttribute("href", "/#press");
-  expect(press).toContainElement(screen.getByRole("link", { name: "Press kit" }));
+  expect(container.querySelector("#press")).toBeNull();
+  expect(screen.queryByRole("link", { name: /press/i })).toBeNull();
+  expect(screen.getByRole("link", { name: "About" })).toHaveAttribute("href", "/about");
+  expect(screen.getByRole("link", { name: "News" })).toHaveAttribute("href", "/news");
 });
 
 it("reserves room for the phone sticky play bar only when asked", () => {

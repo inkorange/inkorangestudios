@@ -70,7 +70,7 @@ The site shows empty states, never placeholder text, until these exist.
 - [ ] Cover art for every game, and key art for the games other than TerraForge.
 - [ ] Confirm the seeded founded line is right.
 - [ ] Confirm or rewrite the Exoplanet Explorer and Strata blurbs (the seed wrote first drafts).
-- [ ] Press kit: the "Press" nav item and "Press kit" footer link currently just scroll to the footer. Set `pressKitUrl` per game in Studio to fill the game page's Press kit card.
+- [ ] Press kit: set `pressKitUrl` per game in Studio to show the game page's Press kit card. There is no site-wide "Press" nav item or footer link yet; add them (in `src/lib/nav.ts` and `SiteFooter`) once a studio-wide press kit URL exists.
 - [ ] Optional: an SVG logo to replace the PNG.
 
 ## 7. Where signups land

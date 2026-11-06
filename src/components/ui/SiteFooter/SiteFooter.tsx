@@ -19,9 +19,9 @@ export type SiteFooterProps = {
 
 type FooterLink = { label: string; href: string; external?: boolean };
 
-function LinkColumn({ title, links, id }: { title: string; links: FooterLink[]; id?: string }) {
+function LinkColumn({ title, links }: { title: string; links: FooterLink[] }) {
   return (
-    <div className={styles.column} id={id}>
+    <div className={styles.column}>
       <Eyebrow tone="on-dark-4">{title}</Eyebrow>
       <ul className={styles.links} role="list">
         {links.map((link) => (
@@ -61,7 +61,7 @@ export function SiteFooter({ newsletter, variant = "full", socialLinks, supportE
   const studioLinks: FooterLink[] = [
     { label: "About", href: "/about" },
     { label: "News", href: "/news" },
-    { label: "Press kit", href: "/#press" },
+    // No "Press kit" link until a global press-kit URL exists; game pages link their own.
   ];
   const helpLinks: FooterLink[] = [
     { label: "Support", href: "/support" },
@@ -93,8 +93,7 @@ export function SiteFooter({ newsletter, variant = "full", socialLinks, supportE
           {variant === "full" ? (
             <div className={styles.columns}>
               <LinkColumn title="Games" links={gamesLinks} />
-              {/* "Press" in the nav and "Press kit" land here until a press page exists. */}
-              <LinkColumn title="Studio" links={studioLinks} id="press" />
+              <LinkColumn title="Studio" links={studioLinks} />
               <LinkColumn title="Help" links={helpLinks} />
               {followLinks.length > 0 ? <LinkColumn title="Follow" links={followLinks} /> : null}
             </div>

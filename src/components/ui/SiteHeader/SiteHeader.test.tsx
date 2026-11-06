@@ -101,9 +101,9 @@ it("uses the game variant with Games active on a game page", () => {
 
 it("lets explicit props override the pathname", () => {
   nav.pathname = "/games/terraforge";
-  const { container } = render(<SiteHeader active="press" variant="default" />);
+  const { container } = render(<SiteHeader active="support" variant="default" />);
   expect(container.querySelector("header")).toHaveAttribute("data-variant", "default");
-  expect(within(screen.getByRole("navigation", { name: "Primary" })).getByRole("link", { name: "Press" })).toHaveAttribute("aria-current", "page");
+  expect(within(screen.getByRole("navigation", { name: "Primary" })).getByRole("link", { name: "Support" })).toHaveAttribute("aria-current", "page");
 });
 
 it("marks an exact section page with aria-current=page in the bar and the sheet", async () => {

@@ -8,7 +8,8 @@ it.each([
   ["/about", { active: "studio", current: "page", variant: "default" }],
   ["/news", { active: "news", current: "page", variant: "default" }],
   ["/news/a-post", { active: "news", current: "true", variant: "default" }],
-  ["/press", { active: "press", current: "page", variant: "default" }],
+  // No press page or nav item until a global press kit exists.
+  ["/press", { active: undefined, current: "page", variant: "default" }],
   ["/support", { active: "support", current: "page", variant: "default" }],
   ["/privacy", { active: undefined, current: "page", variant: "default" }],
   ["/newsletter-thing", { active: undefined, current: "page", variant: "default" }],

@@ -24,7 +24,7 @@ beforeEach(() => {
   content.getSettings.mockReset().mockResolvedValue(settings);
 });
 
-it("full: newsletter form, game links, socials, support email and the press anchor from content", async () => {
+it("full: newsletter form, game links, socials and support email from content", async () => {
   const { container } = render(await SiteFooterBlock({ variant: "full" }));
   const footer = screen.getByRole("contentinfo");
   expect(footer).toHaveAttribute("id", "newsletter");
@@ -35,7 +35,8 @@ it("full: newsletter form, game links, socials, support email and the press anch
   expect(within(footer).getByRole("link", { name: "Strata" })).toHaveAttribute("href", "/games/strata");
   expect(within(footer).getByRole("link", { name: "Bluesky" })).toHaveAttribute("href", "https://bsky.app/profile/inkorange");
   expect(within(footer).getByRole("link", { name: "Player support" })).toHaveAttribute("href", "mailto:help@inkorangestudios.com");
-  expect(container.querySelector("#press")).toContainElement(within(footer).getByRole("link", { name: "Press kit" }));
+  expect(container.querySelector("#press")).toBeNull();
+  expect(within(footer).queryByRole("link", { name: "Press kit" })).toBeNull();
 });
 
 it("hides Player support when settings have no support email", async () => {
