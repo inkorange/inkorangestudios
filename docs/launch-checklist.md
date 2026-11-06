@@ -67,7 +67,7 @@ The site shows empty states, never placeholder text, until these exist.
 - [ ] Support email (Settings).
 - [ ] Social links (Settings).
 - [ ] Studio photo (Settings).
-- [ ] Cover art for every game, and key art for the games other than TerraForge.
+- [ ] All game art. The seed writes no images, so every game (TerraForge included) needs its cover art (3:4) and key art (wide hero) uploaded, plus any screenshots and a trailer poster. Fill in each image's alt text; an image without alt is not shown. Until then the site shows the hatched placeholder.
 - [ ] Confirm the seeded founded line is right.
 - [ ] Confirm or rewrite the Exoplanet Explorer and Strata blurbs (the seed wrote first drafts).
 - [ ] Press kit: set `pressKitUrl` per game in Studio to show the game page's Press kit card. There is no site-wide "Press" nav item or footer link yet; add them (in `src/lib/nav.ts` and `SiteFooter`) once a studio-wide press kit URL exists.
