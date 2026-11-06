@@ -20,3 +20,8 @@ it("is a labelled complementary landmark", () => {
   render(<StickyPlayBar title="TerraForge" meta="m" action={{ label: "Go", href: "/play" }} />);
   expect(screen.getByRole("complementary", { name: "TerraForge quick play" })).toBeInTheDocument();
 });
+
+it("hides the meta line when none is given", () => {
+  const { container } = render(<StickyPlayBar title="TerraForge" action={{ label: "Go", href: "/play" }} />);
+  expect(container.querySelectorAll("span > span")).toHaveLength(1);
+});

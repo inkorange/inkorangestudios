@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import {
   FAQS_QUERY,
   FEATURED_QUERY,
@@ -40,19 +41,19 @@ function compact<T>(items: (T | null)[]): T[] {
   return items.filter((i): i is T => i !== null);
 }
 
-export function getGames(): Promise<GameSummary[]> {
+function getGamesUncached(): Promise<GameSummary[]> {
   return safely("getGames", [], async () =>
     compact(rows(await sanityFetch(GAMES_QUERY, {}, TAGS.game)).map(mapGameSummary)),
   );
 }
 
-export function getFeatured(): Promise<Featured[]> {
+function getFeaturedUncached(): Promise<Featured[]> {
   return safely("getFeatured", [], async () =>
     compact(rows(await sanityFetch(FEATURED_QUERY, {}, TAGS.game)).map(mapGame)).map(toFeatured),
   );
 }
 
-export function getGame(slug: string): Promise<Game | null> {
+function getGameUncached(slug: string): Promise<Game | null> {
   return safely("getGame", null, async () => mapGame(await sanityFetch(GAME_QUERY, { slug }, TAGS.game)));
 }
 
@@ -62,7 +63,7 @@ export function getGameSlugs(): Promise<string[]> {
   );
 }
 
-export function getPosts(limit?: number, gameSlug?: string): Promise<PostSummary[]> {
+function getPostsUncached(limit?: number, gameSlug?: string): Promise<PostSummary[]> {
   return safely("getPosts", [], async () => {
     const query = postsQuery({ limit, filterByGame: Boolean(gameSlug) });
     const params = gameSlug ? { gameSlug } : {};
@@ -70,18 +71,28 @@ export function getPosts(limit?: number, gameSlug?: string): Promise<PostSummary
   });
 }
 
-export function getPost(slug: string): Promise<Post | null> {
+function getPostUncached(slug: string): Promise<Post | null> {
   return safely("getPost", null, async () => mapPost(await sanityFetch(POST_QUERY, { slug }, TAGS.post)));
 }
 
-export function getLegalPage(slug: "privacy" | "terms"): Promise<LegalPage | null> {
+function getLegalPageUncached(slug: "privacy" | "terms"): Promise<LegalPage | null> {
   return safely("getLegalPage", null, async () => mapLegalPage(await sanityFetch(LEGAL_PAGE_QUERY, { slug }, TAGS.page)));
 }
 
-export function getFaqs(): Promise<Faq[]> {
+function getFaqsUncached(): Promise<Faq[]> {
   return safely("getFaqs", [], async () => compact(rows(await sanityFetch(FAQS_QUERY, {}, TAGS.faq)).map(mapFaq)));
 }
 
-export function getSettings(): Promise<SiteSettings> {
+function getSettingsUncached(): Promise<SiteSettings> {
   return safely("getSettings", mapSettings(null), async () => mapSettings(await sanityFetch(SETTINGS_QUERY, {}, TAGS.settings)));
 }
+
+// Per-request dedupe: layouts and pages read the same content, so each fetch runs once per render.
+export const getGames = cache(getGamesUncached);
+export const getFeatured = cache(getFeaturedUncached);
+export const getGame = cache(getGameUncached);
+export const getPosts = cache(getPostsUncached);
+export const getPost = cache(getPostUncached);
+export const getLegalPage = cache(getLegalPageUncached);
+export const getFaqs = cache(getFaqsUncached);
+export const getSettings = cache(getSettingsUncached);

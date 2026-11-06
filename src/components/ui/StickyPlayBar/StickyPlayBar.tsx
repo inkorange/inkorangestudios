@@ -4,7 +4,8 @@ import styles from "./StickyPlayBar.module.scss";
 
 export type StickyPlayBarProps = {
   title: string;
-  meta: string;
+  /** Hidden when empty. */
+  meta?: string;
   action: { label: string; href: string };
 };
 
@@ -14,7 +15,7 @@ export function StickyPlayBar({ title, meta, action }: StickyPlayBarProps) {
       <div className={styles.bar}>
         <span className={styles.text}>
           <span className={styles.title}>{title}</span>
-          <span className={styles.meta}>{meta}</span>
+          {meta ? <span className={styles.meta}>{meta}</span> : null}
         </span>
         <Button variant="accent" href={action.href} external={isAbsoluteUrl(action.href)}>
           {action.label}

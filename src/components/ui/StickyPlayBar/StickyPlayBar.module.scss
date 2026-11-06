@@ -1,8 +1,17 @@
 @use "../../../styles/mixins" as *;
 
 // Phone only. Sticks to the bottom of the viewport inside the page flow.
-// Pages add `padding-bottom: var(--sticky-bar-space)` so the footer's last
-// content can scroll clear of the bar.
+// The bottom room for it comes from SiteFooter's `stickyBarSpace` (set in the
+// game layout), and `scroll-padding-bottom` keeps focused links from landing
+// under the bar.
+:global(html):has(.root) {
+  scroll-padding-bottom: var(--sticky-bar-space);
+
+  @include bp(lg) {
+    scroll-padding-bottom: 0;
+  }
+}
+
 .root {
   position: sticky;
   bottom: var(--space-3);

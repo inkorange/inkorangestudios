@@ -719,7 +719,7 @@ A floating ink pill with the game name and a "Play now" button, phone only.
 
 - **Use for:** the bottom of a phone game page.
 - **Don't use for:** desktop (hidden from `lg` up) or general navigation.
-- **Props / variants:** `title`, `meta` (for example `Free · Web`), `action` (`{ label, href }`). Sits on `--z-sticky` with the system's one shadow. It overlaps the last `--sticky-bar-space` of its container. The game layout (`src/app/(site)/(game)/games/[slug]/layout.tsx`) renders it after the compact footer, which gets `stickyBarSpace`, so the bar stays stuck through the footer and comes to rest over the footer's reserved bottom room. Its label is "Play now" for out-now games, otherwise the CTA's own label.
+- **Props / variants:** `title`, `meta` (for example `Free · Web`; optional, hidden when empty), `action` (`{ label, href }`). Sits on `--z-sticky` with the system's one shadow. It overlaps the last `--sticky-bar-space` of its container. The game layout (`src/app/(site)/(game)/games/[slug]/layout.tsx`) renders it after the compact footer, which gets `stickyBarSpace`, so the bar stays stuck through the footer and comes to rest over the footer's reserved bottom room. Its label is "Play now" for out-now games, otherwise the CTA's own label. While it is on the page, below `lg` the `html` element gets `scroll-padding-bottom: var(--sticky-bar-space)` so focused links scroll clear of it.
 - **Accessibility:** an `aside` named "{title} quick play". The action is a real link at least `--tap-min` tall with the accent-on-ink focus ring. Only the pill takes pointer events, so it never blocks content beside it.
 
 ### ShowcaseHero
@@ -803,10 +803,64 @@ The game page body: named slots placed for desktop and reordered for phones.
 - **Props / variants:** `games` (`GameSummary[]`; pass the other games, not the current one); `title` (default "More from inkOrange"); `action` (default "All games →" to `/#games`). Below `md` the tiles are `--rail-tile-width` wide in one row that scrolls sideways with snap points, running past the right gutter; from `md` an auto-fill grid at `--grid-min-tile-s` with a `--space-5` gap. Each tile links to `/games/{slug}` with a "Genre · Platform" meta line. Renders nothing for no games, so the page drops the band.
 - **Accessibility:** a list named "More games"; each tile is one link. The scroller is native overflow.
 
+### LegalEmpty
+
+A calm placeholder for a legal page whose copy hasn't been published.
+
+- **Use for:** `/privacy` and `/terms` while Sanity has no body for them.
+- **Don't use for:** other empty states (a short `Text` line is enough) or anything that could read as legal text.
+- **Props / variants:** `title` (`Display` `h1` size `m`); the body is always "This page is being written." in `--color-ink-2`, inside a narrow `Section`.
+- **Accessibility:** owns the page's `h1`. Pair it with `robots: { index: false }`.
+
+### FaqList
+
+Questions as `Accordion`s, grouped by game once any question has one.
+
+- **Use for:** the Support page's FAQs.
+- **Don't use for:** a single disclosure (use `Accordion`).
+- **Props / variants:** `items` (`Faq[]`; answers render through `RichText`). With no game on any item it is one flat list. Otherwise each group gets an `h2` `Heading`: ungrouped questions first under "General", then one group per game in first-seen order. Renders nothing for no items, so the page shows its own "coming soon" note.
+- **Accessibility:** native `details`/`summary`; group headings are `h2`, so the page `h1` comes from `PageHero`.
+
+### PageHero
+
+The top of a content page: eyebrow, `h1` and intro.
+
+- **Use for:** About and Support.
+- **Don't use for:** the home or game pages (they own their own heading blocks) or long-form text (use `Prose`).
+- **Props / variants:** `eyebrow` (in `--color-link`, hidden when empty); `title` (`Display` `h1` size `l`); `intro` (`Text` `lead`, hidden when empty). At most `--content-narrow` wide.
+- **Accessibility:** owns the page's only `h1`.
+
+### Prose
+
+A long-form page: title, meta line and rich text in the narrow column.
+
+- **Use for:** `/privacy` and `/terms` when content exists.
+- **Don't use for:** news posts (they have their own layout) or empty legal pages (use `LegalEmpty`).
+- **Props / variants:** `title` (`Display` `h1` size `m`); `meta` (e.g. "Last updated Nov 5, 2026", hidden when empty); `body` (Portable Text through `RichText`). Wrapped in a `Section` and `Container width="narrow"`.
+- **Accessibility:** owns the page's `h1`.
+
+### FramedPhoto
+
+A wide photo in a bordered, rounded frame.
+
+- **Use for:** the About page's studio photo.
+- **Don't use for:** the home studio band (`StudioTeaser` has its own photo column) or media galleries.
+- **Props / variants:** `photo` (`ImageRef`; `null` shows the hatched `Placeholder`); `label` (placeholder text). 16:9, `--radius-xl` on phone and `--radius-2xl` from `lg`.
+- **Accessibility:** alt text comes from the CMS; the placeholder is decorative-grade.
+
+### LinkList
+
+A plain vertical list of links.
+
+- **Use for:** the Support page's "Game help" links.
+- **Don't use for:** navigation (use `NavPillBar`) or footers.
+- **Props / variants:** `label` (accessible name); `items` (`{ label, href }[]`, internal links through `next/link`). Links are `--color-link` semibold with a `--tap-min` tall target. Renders nothing for no items.
+- **Accessibility:** a list named by `label`; each link has the global focus ring.
+
 Still coming, in this order (names may change as they are built):
 
 - **Game page (coming):** ShareTitle (not yet specified).
-- **Other pages (coming):** LegalEmpty, FaqList, DesignGallery.
+- **Other pages (coming):** DesignGallery.
 
 Form components that talk to the server (newsletter, beta, launch alert,
 contact) live in `src/components/forms/`. They own no SCSS and are built only
