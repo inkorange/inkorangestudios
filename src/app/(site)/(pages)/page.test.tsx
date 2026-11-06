@@ -108,6 +108,13 @@ it("renders the first featured game as the page h1, then the home sections in or
   expect(content.getPosts).toHaveBeenCalledWith(3);
 });
 
+it("describes the studio and the site as structured data", async () => {
+  withContent(true);
+  const { container } = render(await Home());
+  const ld = JSON.parse(container.querySelector('script[type="application/ld+json"]')!.textContent ?? "");
+  expect(ld["@graph"].map((node: { "@type": string }) => node["@type"])).toEqual(["Organization", "WebSite"]);
+});
+
 it("fills the grid, the beta callout, the studio teaser and three news cards", async () => {
   withContent(true);
   const { container } = render(await Home());
@@ -154,4 +161,5 @@ it("hides the callout when the configured callout has no game to sign up for", a
 it("has its own title", async () => {
   const { metadata } = await import("./page");
   expect(metadata.title).toBe("inkOrange Studios — Games that make you think");
+  expect(metadata.alternates).toEqual({ canonical: "/" });
 });

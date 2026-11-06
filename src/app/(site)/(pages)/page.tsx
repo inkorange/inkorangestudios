@@ -13,11 +13,15 @@ import {
   Statement,
   StudioTeaser,
 } from "@/components/ui";
+import { JsonLd } from "@/components/site/JsonLd";
+import { publicEnv } from "@/lib/env";
+import { siteJsonLd } from "@/lib/jsonLd";
 import { getFeatured, getGames, getPosts, getSettings } from "@/lib/sanity/content";
+import { pageMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
 
-export const metadata: Metadata = { title: "inkOrange Studios — Games that make you think" };
+export const metadata: Metadata = pageMetadata({ title: "inkOrange Studios — Games that make you think", path: "/" });
 
 const VALUES = [
   { title: "Play first", body: "Fun in the first minute." },
@@ -32,6 +36,7 @@ export default async function Home() {
 
   return (
     <>
+      <JsonLd data={siteJsonLd(publicEnv.siteUrl, settings)} />
       {featured.length > 0 ? (
         <Section space="none">
           <Container>

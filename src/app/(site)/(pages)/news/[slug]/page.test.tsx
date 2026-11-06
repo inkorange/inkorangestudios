@@ -67,6 +67,14 @@ it("a sparse post shows no cover, falls back to the excerpt and drops the game b
   expect(screen.queryByRole("heading", { name: "The game" })).not.toBeInTheDocument();
 });
 
+it("describes the post as a BlogPosting", async () => {
+  content.getPost.mockResolvedValue(post);
+  content.getGames.mockResolvedValue([]);
+  const { container } = render(await PostPage(params("terrain-tools")));
+  const ld = JSON.parse(container.querySelector('script[type="application/ld+json"]')!.textContent ?? "");
+  expect(ld).toMatchObject({ "@type": "BlogPosting", headline: "New terrain tools", url: "https://www.inkorangestudios.com/news/terrain-tools" });
+});
+
 it("calls notFound for a missing post", async () => {
   content.getPost.mockResolvedValue(null);
   await expect(PostPage(params("nope"))).rejects.toThrow("NEXT_NOT_FOUND");
@@ -78,7 +86,17 @@ it("builds metadata from the post", async () => {
   const meta = await generateMetadata(params("terrain-tools"));
   expect(meta.title).toBe("New terrain tools — inkOrange Studios");
   expect(meta.description).toBe("Brushes, biomes and more.");
-  expect(meta.openGraph).toMatchObject({ type: "article", images: [{ url: "/cover.jpg", width: 1600, height: 900, alt: "The new terrain brush" }] });
+  expect(meta.alternates).toEqual({ canonical: "/news/terrain-tools" });
+  expect(meta.openGraph).toMatchObject({
+    type: "article",
+    url: "/news/terrain-tools",
+    siteName: "inkOrange Studios",
+    publishedTime: post.date,
+    images: [{ url: "/cover.jpg", width: 1600, height: 900, alt: "The new terrain brush" }],
+  });
   content.getPost.mockResolvedValue(null);
-  expect(await generateMetadata(params("nope"))).toEqual({ title: "Page not found — inkOrange Studios" });
+  expect(await generateMetadata(params("nope"))).toEqual({
+    title: "Page not found — inkOrange Studios",
+    robots: { index: false, follow: true },
+  });
 });

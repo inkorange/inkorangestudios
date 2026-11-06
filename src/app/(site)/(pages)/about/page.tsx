@@ -2,13 +2,15 @@ import type { Metadata } from "next";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { Container, FramedPhoto, Heading, PageHero, Section, Stack, Text, ValueList } from "@/components/ui";
 import { getSettings } from "@/lib/sanity/content";
+import { pageMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "About — inkOrange Studios",
-  description: "A small studio with a big backlog of ideas.",
-};
+  description: "inkOrange Studios is a small, independent game studio with a big backlog of ideas. Meet the studio and get in touch.",
+  path: "/about",
+});
 
 const STORY =
   "Founded in New York in 2020 by design engineer Chris West, inkOrange Studios builds games that are easy to pick up and worth figuring out. Every title runs on SpaceUI, our own open-source design system.";

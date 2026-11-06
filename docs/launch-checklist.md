@@ -4,26 +4,26 @@ Work top to bottom. Env var names all come from `.env.example`.
 
 ## 1. Vercel and domain
 
-- [ ] Create the Vercel project from this repo (branch `main` for production).
-- [ ] Add the domain `inkorangestudios.com` (and `www`, redirecting to the apex) in Vercel.
-- [ ] Point DNS at Vercel as the dashboard instructs; wait for the certificate.
-- [ ] Add every env var below to Vercel (Production and Preview). Preview deploys share the production secrets, and Turnstile will not pass on random preview hostnames unless you add them (section 5).
-  - [ ] `NEXT_PUBLIC_SITE_URL` = `https://inkorangestudios.com`
-  - [ ] `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET` (same project and dataset as the portfolio). Required: a production build without the project id fails on purpose.
-  - [ ] `SANITY_API_TOKEN`: optional, not used by the site (content reads are unauthenticated). Do not put an Editor token in Vercel.
-  - [ ] `SANITY_REVALIDATE_SECRET` (a long random string; see section 3)
-  - [ ] `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
-  - [ ] `POSTMARK_SERVER_TOKEN`, `FEEDBACK_FROM_EMAIL=hello@inkorangestudios.com`, `FEEDBACK_NOTIFY_EMAIL=thrillgraphics@gmail.com`
-  - [ ] `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` (set both; see section 5)
-  - [ ] `NEXT_PUBLIC_GTM_ID` (Google Tag Manager container id; it only loads after a visitor accepts cookies)
+- [x] Create the Vercel project from this repo (branch `main` for production).
+- [x] Add `www.inkorangestudios.com` as the primary domain in Vercel, with `inkorangestudios.com` redirecting to it (308). Canonical URLs, the sitemap and share links all use www.
+- [x] Point DNS at Vercel as the dashboard instructs; wait for the certificate.
+- [x] Add every env var below to Vercel (Production and Preview). Preview deploys share the production secrets, and Turnstile will not pass on random preview hostnames unless you add them (section 5).
+  - [x] `NEXT_PUBLIC_SITE_URL` = `https://www.inkorangestudios.com`
+  - [x] `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET` (same project and dataset as the portfolio). Required: a production build without the project id fails on purpose.
+  - [x] `SANITY_API_TOKEN`: optional, not used by the site (content reads are unauthenticated). Do not put an Editor token in Vercel.
+  - [x] `SANITY_REVALIDATE_SECRET` (a long random string; see section 3)
+  - [x] `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
+  - [x] `POSTMARK_SERVER_TOKEN`, `FEEDBACK_FROM_EMAIL=hello@inkorangestudios.com`, `FEEDBACK_NOTIFY_EMAIL=thrillgraphics@gmail.com`
+  - [x] `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` (set both; see section 5)
+  - [x] `NEXT_PUBLIC_GTM_ID` (Google Tag Manager container id; it only loads after a visitor accepts cookies)
   - `SANITY_WRITE_TOKEN` is only for seeding on your machine. Do not put it in Vercel.
 - [ ] Deploy, then open the production URL and click through every page. Every build runs `npm run lint` and `npm test` first (`prebuild`), so a failing check stops the deploy; read the Vercel build log if it does.
 - [ ] On GitHub, the CI workflow (`.github/workflows/ci.yml`) runs lint, tests and a build on every push and pull request. It needs no secrets. Optionally make it a required check for `main` (Settings, Branches).
 
 ## 2. Seed the starting content
 
-- [ ] In Sanity (manage.sanity.io, API, Tokens) create a token with the **Editor** role.
-- [ ] Put it in `.env.local` as `SANITY_WRITE_TOKEN=...`.
+- [x] In Sanity (manage.sanity.io, API, Tokens) create a token with the **Editor** role.
+- [x] Put it in `.env.local` as `SANITY_WRITE_TOKEN=...`.
 - [ ] Run `npm run seed`. It is safe to run twice: it only creates documents that do not exist, so it never overwrites your edits.
 - [ ] Open `/studio` and confirm the five games (TerraForge, Space Cowboy, Mission Control, Exoplanet Explorer, Strata) and the settings document appear.
 - [ ] Open the home page and confirm the games show.
@@ -31,9 +31,9 @@ Work top to bottom. Env var names all come from `.env.example`.
 
 ## 3. Sanity: CORS and webhook
 
-- [ ] Sanity CORS origins: add `https://inkorangestudios.com` (and the Vercel preview domain if you want Studio on previews). Credentials allowed.
+- [ ] Sanity CORS origins: add `https://www.inkorangestudios.com` (and the Vercel preview domain if you want Studio on previews). Credentials allowed.
 - [ ] Create a webhook (manage.sanity.io, API, Webhooks):
-  - URL: `https://inkorangestudios.com/api/revalidate`
+  - URL: `https://www.inkorangestudios.com/api/revalidate`
   - Method: POST
   - Dataset: production
   - Trigger on: create, update, delete, published documents only (leave Drafts off)
@@ -53,7 +53,7 @@ Work top to bottom. Env var names all come from `.env.example`.
 
 ## 5. Cloudflare Turnstile
 
-- [ ] Create a Turnstile widget with hostnames `inkorangestudios.com` and the Vercel preview domain.
+- [ ] Create a Turnstile widget with hostnames `inkorangestudios.com` (covers `www`) and the Vercel preview domain.
 - [ ] Set **both** `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY`. If only one of them is set, the server logs `[turnstile] Exactly one of …` once and rejects every form submission (fail closed) until both are set.
 - [ ] Submit a form on the live site to confirm it works.
 

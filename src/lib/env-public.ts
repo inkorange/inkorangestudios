@@ -20,7 +20,7 @@ export type PublicEnv = {
 
 /** Literal `process.env.NEXT_PUBLIC_*` access so Next can inline them. */
 export const publicEnv: PublicEnv = {
-  siteUrl: clean(process.env.NEXT_PUBLIC_SITE_URL) ?? "https://inkorangestudios.com",
+  siteUrl: clean(process.env.NEXT_PUBLIC_SITE_URL) ?? "https://www.inkorangestudios.com",
   sanityProjectId: clean(process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) ?? "",
   sanityDataset: clean(process.env.NEXT_PUBLIC_SANITY_DATASET) ?? "production",
   turnstileSiteKey: clean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY),

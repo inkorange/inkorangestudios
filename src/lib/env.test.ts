@@ -11,7 +11,7 @@ describe("env", () => {
   it("defaults publicEnv.siteUrl when NEXT_PUBLIC_SITE_URL is unset", async () => {
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "");
     const { publicEnv } = await import("./env");
-    expect(publicEnv.siteUrl).toBe("https://inkorangestudios.com");
+    expect(publicEnv.siteUrl).toBe("https://www.inkorangestudios.com");
   });
 
   it("defaults sanityDataset to production", async () => {

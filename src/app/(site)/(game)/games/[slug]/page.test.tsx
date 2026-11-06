@@ -103,25 +103,33 @@ describe("route config", () => {
     expect(revalidate).toBe(3600);
   });
 
-  it("builds metadata from the game: title, blurb, key art", async () => {
+  it("builds metadata from the game: title, blurb, key art, canonical", async () => {
     content.getGame.mockResolvedValue(full);
     const meta = await generateMetadata(params("terraforge"));
     expect(content.getGame).toHaveBeenCalledWith("terraforge");
     expect(meta.title).toBe("TerraForge — inkOrange Studios");
     expect(meta.description).toBe("Build planets and entire star systems.");
+    expect(meta.alternates).toEqual({ canonical: "/games/terraforge" });
+    expect(meta.twitter).toMatchObject({ card: "summary_large_image", images: [full.keyArt!.src] });
     expect(meta.openGraph).toMatchObject({
+      type: "website",
+      siteName: "inkOrange Studios",
+      url: "/games/terraforge",
       title: "TerraForge — inkOrange Studios",
       description: "Build planets and entire star systems.",
       images: [{ url: full.keyArt!.src, width: 2000, height: 1000, alt: "TerraForge key art" }],
     });
   });
 
-  it("returns no metadata for an unknown slug and no OG image without key art", async () => {
+  it("returns not-found metadata for an unknown slug and the site share image without key art", async () => {
     content.getGame.mockResolvedValue(null);
-    expect(await generateMetadata(params("nope"))).toEqual({ title: "Page not found — inkOrange Studios" });
+    expect(await generateMetadata(params("nope"))).toEqual({
+      title: "Page not found — inkOrange Studios",
+      robots: { index: false, follow: true },
+    });
     content.getGame.mockResolvedValue(sparse);
     const meta = await generateMetadata(params("terraforge"));
-    expect(meta.openGraph).not.toHaveProperty("images");
+    expect(meta.openGraph).toMatchObject({ images: [{ url: "/opengraph-image" }] });
   });
 });
 
@@ -218,7 +226,7 @@ it("the full TerraForge game renders every block in place", async () => {
     genre: ["Sandbox", "Creative"],
     gamePlatform: ["Web"],
     publisher: { "@type": "Organization", name: "inkOrange Studios" },
-    url: "https://inkorangestudios.com/games/terraforge",
+    url: "https://www.inkorangestudios.com/games/terraforge",
     image: full.keyArt!.src,
   });
 

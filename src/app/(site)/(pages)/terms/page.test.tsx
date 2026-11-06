@@ -17,7 +17,7 @@ it("without content shows the empty state and is not indexed", async () => {
   render(await Terms());
   expect(screen.getByText("This page is being written.")).toBeInTheDocument();
   const meta = await generateMetadata();
-  expect(meta.robots).toEqual({ index: false });
+  expect(meta.robots).toEqual({ index: false, follow: true });
   expect(meta.title).toBe("Terms of use — inkOrange Studios");
 });
 
@@ -35,5 +35,5 @@ it("with an empty body shows the empty state and is not indexed", async () => {
   render(await Terms());
   expect(screen.getByText("This page is being written.")).toBeInTheDocument();
   expect(screen.queryByText(/Last updated/)).not.toBeInTheDocument();
-  expect((await generateMetadata()).robots).toEqual({ index: false });
+  expect((await generateMetadata()).robots).toEqual({ index: false, follow: true });
 });

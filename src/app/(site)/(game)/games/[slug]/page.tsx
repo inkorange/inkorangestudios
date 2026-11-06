@@ -25,6 +25,7 @@ import { publicEnv } from "@/lib/env";
 import { videoGameJsonLd } from "@/lib/jsonLd";
 import { splitLead } from "@/lib/portableText";
 import { getGame, getGames, getGameSlugs, getPosts } from "@/lib/sanity/content";
+import { notFoundMetadata, pageMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
 export const dynamicParams = true;
@@ -38,19 +39,13 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const game = await getGame(slug);
-  if (!game) return { title: "Page not found — inkOrange Studios" };
-  const title = `${game.name} — inkOrange Studios`;
-  const description = game.blurb || undefined;
-  const art = game.keyArt;
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      ...(art ? { images: [{ url: art.src, width: art.width, height: art.height, alt: art.alt }] } : {}),
-    },
-  };
+  if (!game) return notFoundMetadata;
+  return pageMetadata({
+    title: `${game.name} — inkOrange Studios`,
+    description: game.blurb || `${game.name}, a game by inkOrange Studios.`,
+    path: `/games/${game.slug}`,
+    image: game.keyArt,
+  });
 }
 
 export default async function GamePage({ params }: Props) {

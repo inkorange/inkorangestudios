@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
 import { Container, Grid, NewsCard, PillLinks, Section, SectionHeader, Text } from "@/components/ui";
 import { getPosts } from "@/lib/sanity/content";
+import { pageMetadata } from "@/lib/seo";
 import type { PostSummary } from "@/lib/sanity/types";
 
 export const revalidate = 3600;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "News — inkOrange Studios",
   description: "Updates, devlogs and patch notes from inkOrange Studios.",
-};
+  path: "/news",
+});
 
 type Props = { searchParams: Promise<{ game?: string | string[] }> };
 

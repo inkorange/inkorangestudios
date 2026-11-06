@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import { Container, FaqList, Heading, InfoCard, LinkList, PageHero, Section, Stack, Text } from "@/components/ui";
 import { getFaqs, getGames, getSettings } from "@/lib/sanity/content";
+import { pageMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Support — inkOrange Studios",
-  description: "Help with our games, and answers to common questions.",
-};
+  description: "Help with inkOrange Studios games: answers to common questions and how to reach player support.",
+  path: "/support",
+});
 
 export default async function Support() {
   const [faqs, games, settings] = await Promise.all([getFaqs(), getGames(), getSettings()]);

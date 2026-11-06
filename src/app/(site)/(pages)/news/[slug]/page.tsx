@@ -17,6 +17,10 @@ import {
 import { formatDate } from "@/lib/format";
 import { getGames, getPost, getPosts } from "@/lib/sanity/content";
 import { postKindLabel } from "@/lib/sanity/types";
+import { JsonLd } from "@/components/site/JsonLd";
+import { publicEnv } from "@/lib/env";
+import { blogPostingJsonLd } from "@/lib/jsonLd";
+import { notFoundMetadata, pageMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
 export const dynamicParams = true;
@@ -30,21 +34,14 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPost(slug);
-  if (!post) return { title: "Page not found — inkOrange Studios" };
-  const title = `${post.title} — inkOrange Studios`;
-  const description = post.excerpt ?? undefined;
-  const image = post.image;
-  return {
-    title,
-    description,
-    openGraph: {
-      type: "article",
-      title,
-      description,
-      publishedTime: post.date,
-      ...(image ? { images: [{ url: image.src, width: image.width, height: image.height, alt: image.alt }] } : {}),
-    },
-  };
+  if (!post) return notFoundMetadata;
+  return pageMetadata({
+    title: `${post.title} — inkOrange Studios`,
+    description: post.excerpt ?? `${post.title}: news from inkOrange Studios.`,
+    path: `/news/${post.slug}`,
+    image: post.image,
+    publishedTime: post.date,
+  });
 }
 
 export default async function PostPage({ params }: Props) {
@@ -56,6 +53,7 @@ export default async function PostPage({ params }: Props) {
 
   return (
     <>
+      <JsonLd data={blogPostingJsonLd(post, publicEnv.siteUrl)} />
       <Section space="top">
         <Container width="narrow">
           <Stack gap={8}>
