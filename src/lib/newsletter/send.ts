@@ -230,9 +230,49 @@ async function broadcast(deps: Deps, req: NewsletterRequest): Promise<void> {
   await runBatches(deps, issueId);
 }
 
+type SendState = {
+  status: string;
+  recipient_count: number | null;
+  failed_count: number | null;
+  uncertain_count: number | null;
+  finished_at: string | null;
+  error: string | null;
+};
+
+async function readSend(deps: Deps, issueId: string): Promise<SendState | null> {
+  const res = await deps.db
+    .from(SENDS)
+    .select("status, recipient_count, failed_count, uncertain_count, finished_at, error")
+    .eq("issue_id", issueId)
+    .maybeSingle();
+  if (res.error) throw new DbError(SENDS, "select", res.error);
+  return res.data as SendState | null;
+}
+
+/**
+ * Copy the send row (the source of truth) onto the delivery document. Resume on a send that can't
+ * be reopened lands here, so a delivery status left wrong by a lost or late Sanity write is fixed.
+ */
+function mirror(deps: Deps, issueId: string, row: SendState): Promise<void> {
+  return note(deps, issueId, {
+    status: row.status,
+    sentAt: row.finished_at,
+    recipientCount: row.recipient_count,
+    failedCount: row.failed_count,
+    uncertainCount: row.uncertain_count,
+    error: row.error,
+  });
+}
+
 async function resume(deps: Deps, issueId: string): Promise<void> {
   const { db } = deps;
   const at = deps.now().toISOString();
+  const row = await readSend(deps, issueId);
+  if (!row) return; // never started: nothing to resume
+  if (row.status !== "sending" && row.status !== "failed") return mirror(deps, issueId, row);
+
+  // Written before reopening, so it can't land after a concurrent runner's final "sent".
+  await note(deps, issueId, { status: "sending", error: null });
   const reopened = await db
     .from(SENDS)
     .update({ status: "sending", error: null, updated_at: at })
@@ -240,7 +280,12 @@ async function resume(deps: Deps, issueId: string): Promise<void> {
     .in("status", ["sending", "failed"])
     .select("issue_id");
   if (reopened.error) throw new DbError(SENDS, "reopen", reopened.error);
-  if (!reopened.data?.length) return; // nothing to resume: never started, or already sent
+  if (!reopened.data?.length) {
+    // Finished meanwhile: show what the send row says, not our "sending".
+    const now = await readSend(deps, issueId);
+    if (now) await mirror(deps, issueId, now);
+    return;
+  }
 
   // A batch left in flight may or may not have reached Postmark: never send it again.
   const stale = await db
@@ -249,7 +294,6 @@ async function resume(deps: Deps, issueId: string): Promise<void> {
     .eq("issue_id", issueId)
     .eq("status", "in_flight");
   if (stale.error) throw new DbError(BATCHES, "update uncertain", stale.error);
-  await note(deps, issueId, { status: "sending", error: null });
 
   // The first run may have stopped between claiming the issue and storing its batches. With no
   // batches nobody has been sent anything, so snapshotting the audience now is safe.

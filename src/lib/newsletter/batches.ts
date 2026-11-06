@@ -195,7 +195,9 @@ async function finish(deps: Deps, issueId: string, stop: Stop): Promise<void> {
     .from(SENDS)
     .update({ status: "failed", error, updated_at: at, failed_count: failedCount, uncertain_count: uncertainCount })
     .eq("issue_id", issueId)
-    .eq("status", "sending");
+    .eq("status", "sending")
+    .select("issue_id");
   if (failed.error) throw new DbError(SENDS, "update failed", failed.error);
-  await note(deps, issueId, { status: "failed", error, failedCount, uncertainCount });
+  // No row: a concurrent runner already finished (or failed) the send and wrote the delivery status.
+  if (failed.data?.length) await note(deps, issueId, { status: "failed", error, failedCount, uncertainCount });
 }

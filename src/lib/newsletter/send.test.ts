@@ -31,6 +31,8 @@ function fakeDb() {
   const tables: Record<string, Row[]> = { [SIGNUPS]: [], [REQUESTS]: [], [SENDS]: [], [BATCHES]: [] };
   let ids = 0;
   let fail: ((table: string, op: string) => DbError | null) | null = null;
+  // Awaited before each statement runs: lets a test run another request at an exact point.
+  let before: ((table: string, op: string, values: Row | Row[]) => Promise<void> | void) | null = null;
 
   const defaults = (table: string): Row => {
     if (table === BATCHES) return { id: `batch-${String(ids++).padStart(4, "0")}`, status: "pending", failed_count: 0 };
@@ -119,7 +121,11 @@ function fakeDb() {
         single = true;
         return q;
       },
-      then: (res: (v: unknown) => unknown, rej: (e: unknown) => unknown) => tick().then(run).then(res, rej),
+      then: (res: (v: unknown) => unknown, rej: (e: unknown) => unknown) =>
+        tick()
+          .then(() => before?.(table, op, values))
+          .then(run)
+          .then(res, rej),
     };
     return q;
   }
@@ -129,6 +135,9 @@ function fakeDb() {
     client: { from } as unknown as SupabaseClient,
     failWhen(fn: (table: string, op: string) => DbError | null) {
       fail = fn;
+    },
+    onStatement(fn: (table: string, op: string, values: Row | Row[]) => Promise<void> | void) {
+      before = fn;
     },
   };
 }
@@ -606,6 +615,80 @@ describe("resume", () => {
     expect(sendBatch).not.toHaveBeenCalled();
     expect(db.tables[SENDS][0]?.status ?? null).toBe(status);
     expect(delivery()?.status).not.toBe("sending");
+  });
+
+  it("corrects a delivery document left at sending when the send already finished", async () => {
+    seed("sent", ["sent", "uncertain"]);
+    Object.assign(db.tables[SENDS][0], { recipient_count: 6, failed_count: 1, uncertain_count: 3, finished_at: "2026-11-05T09:00:00.000Z" });
+    docs.push({ _id: "newsletter.delivery.i1", _type: "studioNewsletterDelivery", status: "sending", error: "old" });
+    await handleRequest(req("resume", { revision: null }), deps());
+    expect(sendBatch).not.toHaveBeenCalled();
+    expect(db.tables[SENDS][0].status).toBe("sent");
+    const d = delivery()!;
+    expect(d).toMatchObject({
+      status: "sent",
+      sentAt: "2026-11-05T09:00:00.000Z",
+      recipientCount: 6,
+      failedCount: 1,
+      uncertainCount: 3,
+    });
+    expect(d.error).toBeUndefined();
+  });
+
+  it("doesn't leave delivery at sending when another runner finishes just before the resume reopens", async () => {
+    seed("sending", ["sent", "pending"]);
+    db.onStatement((t, op, values) => {
+      if (t === SENDS && op === "update" && (values as Row).status === "sending") {
+        // Another runner finishes the send (and writes delivery "sent") right now.
+        Object.assign(db.tables[SENDS][0], { status: "sent", finished_at: NOW.toISOString(), recipient_count: 6 });
+        db.tables[BATCHES][1].status = "sent";
+        const d = docs.find((x) => x._id === "newsletter.delivery.i1");
+        if (d) d.status = "sent";
+      }
+    });
+    await handleRequest(req("resume", { revision: null }), deps());
+    expect(sendBatch).not.toHaveBeenCalled();
+    expect(delivery()).toMatchObject({ status: "sent", recipientCount: 6, sentAt: NOW.toISOString() });
+  });
+
+  it("doesn't leave delivery at sending when a concurrent resume finishes right after this one reopened", async () => {
+    seed("failed", ["sent", "pending"]);
+    let raced = false;
+    db.onStatement(async (t, op, values) => {
+      // After A has reopened the send: B runs to completion before A's next statement.
+      if (!raced && t === BATCHES && op === "update" && (values as Row).status === "uncertain") {
+        raced = true;
+        await handleRequest(req("resume", { revision: null }), deps());
+      }
+    });
+    await handleRequest(req("resume", { revision: null }), deps());
+    expect(raced).toBe(true);
+    expect(sendBatch).toHaveBeenCalledTimes(1);
+    expect(db.tables[SENDS][0].status).toBe("sent");
+    expect(delivery()).toMatchObject({ status: "sent", recipientCount: 6 });
+  });
+
+  it("a runner whose batch was rejected doesn't mark delivery failed after a concurrent resume finished the send", async () => {
+    seed("failed", ["sent", "pending"]);
+    sendBatch.mockImplementationOnce(async () => {
+      await tick();
+      return { ok: false, status: 422 };
+    });
+    let raced = false;
+    db.onStatement(async (t, op, values) => {
+      // Runner A is about to record "failed": a second resume claims the batch A just put back and finishes.
+      if (!raced && t === SENDS && op === "update" && (values as Row).status === "failed") {
+        raced = true;
+        await handleRequest(req("resume", { revision: null }), deps());
+      }
+    });
+    await handleRequest(req("resume", { revision: null }), deps());
+    expect(raced).toBe(true);
+    expect(sendBatch).toHaveBeenCalledTimes(2);
+    expect(batches().map((b) => b.status)).toEqual(["sent", "sent"]);
+    expect(db.tables[SENDS][0].status).toBe("sent");
+    expect(delivery()).toMatchObject({ status: "sent", recipientCount: 6 });
+    expect(delivery()?.error).toBeUndefined();
   });
 
   it("builds the batches when the first run stopped before snapshotting the audience", async () => {
