@@ -23,6 +23,7 @@ const game: Game = {
   stores: [],
   blurb: "Build planets.",
   description: [],
+  appIcon: null,
   keyArt: null,
   coverArt: null,
   media: [],

@@ -12,6 +12,7 @@ function playBar(game: Game | null) {
   if (!game || !cta) return null;
   return {
     title: game.name,
+    icon: game.appIcon,
     meta: [game.priceLabel, game.platforms.join(" · ")].filter(Boolean).join(" · ") || undefined,
     // "Play now" only makes sense once the game is out; otherwise keep the CTA's own words ("Wishlist", "Join the beta").
     action: { label: game.status === "out-now" ? "Play now" : cta.label, href: cta.href },
@@ -32,7 +33,7 @@ export default async function GameRouteLayout({ children, params }: { children: 
     <>
       <main>{children}</main>
       <SiteFooterBlock variant="compact" stickyBarSpace={bar !== null} />
-      {bar ? <StickyPlayBar title={bar.title} meta={bar.meta} action={bar.action} /> : null}
+      {bar ? <StickyPlayBar title={bar.title} meta={bar.meta} action={bar.action} icon={bar.icon} /> : null}
     </>
   );
 }

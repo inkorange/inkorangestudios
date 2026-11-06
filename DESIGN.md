@@ -247,6 +247,8 @@ them for every margin, padding and gap.
 | `--logo-width-m` | 160px | `Logo` width at size `m` (default). |
 | `--logo-width-l` | 220px | `Logo` width at size `l`. |
 | `--play-button-size` | 68 → 96px (fluid) | Diameter of the accent play button on the `MediaViewer` stage. |
+| `--app-icon-size` | 56 → 96px (fluid) | The game's app icon beside its name in `GameTitle`. |
+| `--app-icon-size-s` | 40px | The app icon at the start of the phone `StickyPlayBar`. |
 | `--thumb-height` | 60 → 92px (fluid) | Height of `MediaViewer` thumbnails; phone strip thumbs are 1.6 times this wide. |
 | `--sticky-bar-space` | 96px | Room the `StickyPlayBar` occupies at the bottom of a phone page. The game layout renders the bar after a `SiteFooter` with `stickyBarSpace`, which adds this much bottom padding below `lg` so the footer's last line scrolls clear of the bar. |
 | `--statement-body-max` | 400px | Maximum width of the paragraph beside a `Statement` heading. |
@@ -279,6 +281,7 @@ most components need no breakpoint at all; the mockups are built that way.
 | `--radius-xl` | 20px | Press and help cards, the phone media viewer and details accordion, phone studio photo. |
 | `--radius-2xl` | 24px | The store card, desktop studio photo, phone hero card, phone callout, phone menu sheet. |
 | `--radius-3xl` | 28px | The big surfaces: desktop showcase hero, media viewer, callout band. |
+| `--radius-app-icon` | 22.5% | A game's app icon (`GameTitle`, `StickyPlayBar`): a percentage so the rounding keeps the icon's shape at any size. |
 | `--radius-pill` | 999px | Every button, chip, input, nav bar, filter pill, round icon button and the sticky play bar. |
 
 Rule of thumb: the bigger the surface, the bigger the radius. On phone, step a
@@ -735,7 +738,7 @@ A floating ink pill with the game name and a "Play now" button, phone only.
 
 - **Use for:** the bottom of a phone game page.
 - **Don't use for:** desktop (hidden from `lg` up) or general navigation.
-- **Props / variants:** `title`, `meta` (for example `Free · Web`; optional, hidden when empty), `action` (`{ label, href }`). Sits on `--z-sticky` with the system's one shadow. It overlaps the last `--sticky-bar-space` of its container. The game layout (`src/app/(site)/(game)/games/[slug]/layout.tsx`) renders it after the compact footer, which gets `stickyBarSpace`, so the bar stays stuck through the footer and comes to rest over the footer's reserved bottom room. Its label is "Play now" for out-now games, otherwise the CTA's own label. While it is on the page, below `lg` the `html` element gets `scroll-padding-bottom: var(--sticky-bar-space)` so focused links scroll clear of it.
+- **Props / variants:** `title`, `meta` (for example `Free · Web`; optional, hidden when empty), `action` (`{ label, href }`), `icon` (optional `ImageRef`: the game's app icon at `--app-icon-size-s` and `--radius-app-icon`, at the start of the bar, which then drops its left text padding; decorative, `alt=""`). Sits on `--z-sticky` with the system's one shadow. It overlaps the last `--sticky-bar-space` of its container. The game layout (`src/app/(site)/(game)/games/[slug]/layout.tsx`) renders it after the compact footer, which gets `stickyBarSpace`, so the bar stays stuck through the footer and comes to rest over the footer's reserved bottom room. Its label is "Play now" for out-now games, otherwise the CTA's own label; without a CTA the game's first store link stands in. While it is on the page, below `lg` the `html` element gets `scroll-padding-bottom: var(--sticky-bar-space)` so focused links scroll clear of it.
 - **Accessibility:** an `aside` named "{title} quick play". The action is a real link at least `--tap-min` tall with the accent-on-ink focus ring. Only the pill takes pointer events, so it never blocks content beside it.
 
 ### ShowcaseHero
@@ -753,7 +756,7 @@ The row of selectable game cards under the hero, desktop only.
 
 - **Use for:** inside `ShowcaseHero`.
 - **Don't use for:** general game lists (`GameTile`).
-- **Props / variants:** `games`, `activeIndex`, `onPick(index)`. Each card has a 56px thumb, the name and "genre · status". The active card has the card background and an ink border. Hidden below `lg`.
+- **Props / variants:** `games`, `activeIndex`, `onPick(index)`. Each card has a 56px thumb (the game's app icon, or its key art when it has none), the name and "genre · status". The active card has the card background and an ink border. Hidden below `lg`.
 - **Accessibility:** a `group` named "Choose a featured game" holding buttons; the active one has `aria-current="true"`. The thumb is decorative.
 
 ### GameGrid
@@ -798,7 +801,7 @@ The game page's title block: a breadcrumb, the page `h1` and the chips.
 
 - **Use for:** the top of `/games/[slug]`, in `GameLayout`'s `title` slot.
 - **Don't use for:** other page titles (use `Display` in the page) or the showcase hero.
-- **Props / variants:** `name` (`Display as="h1" size="xl"`); `status` (accent `Chip` with `statusLabel`); `tags` (genres as outline chips; blanks and duplicates dropped); `platforms` (`Platform[]`, last, each an outline chip with its logo: Android `android`, iOS `apple`, Web `globe`); `crumbs` (`Breadcrumb` items, e.g. Games / TerraForge); `lead` (optional, phone only: the blurb under the name). From `lg`: breadcrumb, then the name on the left with the chips bottom-right. Below `lg`: no breadcrumb (the header's "‹ Games" back link replaces it), chips above the name, then the lead.
+- **Props / variants:** `name` (`Display as="h1" size="xl"`); `status` (accent `Chip` with `statusLabel`); `tags` (genres as outline chips; blanks and duplicates dropped); `platforms` (`Platform[]`, last, each an outline chip with its logo: Android `android`, iOS `apple`, Web `globe`); `icon` (optional `ImageRef`: the game's app icon beside the name at `--app-icon-size` and `--radius-app-icon`, `--space-4` apart, `--space-6` from `lg`; decorative, `alt=""`, since the name is right next to it); `crumbs` (`Breadcrumb` items, e.g. Games / TerraForge); `lead` (optional, phone only: the blurb under the name). From `lg`: breadcrumb, then the name on the left with the chips bottom-right. Below `lg`: no breadcrumb (the header's "‹ Games" back link replaces it), chips above the name, then the lead.
 - **Accessibility:** owns the page's only `h1`. The chips are a list after the `h1` in the DOM; the phone puts them above it with `column-reverse`, which is safe because chips aren't focusable. The phone lead is `display: none` from `lg`, so it is read once.
 
 ### GameLayout

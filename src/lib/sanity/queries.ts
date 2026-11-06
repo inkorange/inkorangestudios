@@ -16,6 +16,7 @@ const GAME_FIELDS = `
   "storeLinks": storeLinks{ googlePlay, appStore, web },
   blurb,
   description,
+  ${img("appIcon")},
   ${img("keyArt")},
   ${img("coverArt")},
   "trailer": trailer{ url, duration, ${img("poster")} },

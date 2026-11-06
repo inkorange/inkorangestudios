@@ -104,6 +104,7 @@ export default async function GamePage({ params }: Props) {
         title={
           <GameTitle
             name={game.name}
+            icon={game.appIcon}
             status={game.status}
             tags={game.genres}
             platforms={game.platforms}

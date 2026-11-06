@@ -1,5 +1,10 @@
 import { render, screen, within } from "@testing-library/react";
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
+vi.mock("next/image", () => ({
+  // eslint-disable-next-line @next/next/no-img-element -- plain img stands in for next/image in jsdom
+  default: ({ alt, src }: { alt: string; src: string }) => <img alt={alt} src={src} />,
+}));
+
 import { GameTitle } from "./GameTitle";
 
 const crumbs = [{ label: "Games", href: "/#games" }, { label: "TerraForge" }];
@@ -36,4 +41,16 @@ it("shows each platform last, as an outline chip with its logo", () => {
   const chips = [...container.querySelectorAll('ul [data-tone="outline"]')];
   expect(chips.map((el) => el.textContent)).toEqual(["Puzzle", "Android", "iOS", "Web"]);
   expect(chips.map((el) => el.getAttribute("data-icon"))).toEqual(["false", "true", "true", "true"]);
+});
+
+it("shows the app icon beside the name, hidden from screen readers since the name is right there", () => {
+  const { container } = render(<GameTitle name="TerraForge" icon={{ src: "https://cdn.sanity.io/images/p/d/icon-512x512.png?w=256", alt: "TerraForge app icon", width: 256, height: 256 }} status="out-now" tags={[]} crumbs={crumbs} />);
+  const img = container.querySelector("img")!;
+  expect(img).toHaveAttribute("alt", "");
+  expect(img.nextElementSibling).toBe(screen.getByRole("heading", { level: 1, name: "TerraForge" }));
+});
+
+it("has no image without an app icon", () => {
+  const { container } = render(<GameTitle name="TerraForge" status="out-now" tags={[]} crumbs={crumbs} />);
+  expect(container.querySelector("img")).toBeNull();
 });

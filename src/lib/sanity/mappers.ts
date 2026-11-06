@@ -89,6 +89,8 @@ function lenient<S extends Record<string, z.ZodType>>(shape: S) {
 }
 
 const WIDE = 1600;
+/** Covers the 96px title icon at 2x. */
+const ICON = 256;
 const COVER = 600;
 const CARD = 800;
 
@@ -104,6 +106,7 @@ const gameShape = lenient({
   blurb: str,
   description: blocks,
   storeLinks: obj,
+  appIcon: obj,
   keyArt: z.unknown(),
   coverArt: z.unknown(),
   trailer: obj,
@@ -171,6 +174,7 @@ export function mapGame(raw: unknown): Game | null {
     stores: mapStores(d.platforms, d.storeLinks),
     blurb: d.blurb ?? "",
     description: d.description,
+    appIcon: d.appIcon ? image({ ...d.appIcon, alt: clean(d.appIcon.alt) ?? `${d.name} app icon` }, ICON) : null,
     keyArt,
     coverArt: image(d.coverArt, COVER),
     media: mapMedia(d.trailer, d.screenshots, keyArt),
@@ -218,6 +222,7 @@ export function toFeatured(game: Game): Featured {
     platformLabel: game.platforms.join(" · ").toUpperCase(),
     blurb: game.blurb,
     art: game.keyArt ?? game.coverArt,
+    icon: game.appIcon,
     cta: game.primaryCta ?? { label: "Game details", href: detailHref },
     detailHref,
   };

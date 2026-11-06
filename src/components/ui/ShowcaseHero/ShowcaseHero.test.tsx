@@ -17,6 +17,7 @@ const make = (n: number, name: string, art: Featured["art"] = null): Featured =>
   platformLabel: "WEB",
   blurb: `${name} blurb`,
   art,
+  icon: null,
   cta: { label: `Play ${name}`, href: "https://example.com" },
   detailHref: `/games/g${n}`,
 });

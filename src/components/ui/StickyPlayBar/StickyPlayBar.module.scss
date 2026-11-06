@@ -35,10 +35,23 @@
   background-color: var(--color-ink);
   border-radius: var(--radius-pill);
   box-shadow: 0 var(--space-2) var(--space-6) var(--color-shadow);
+
+  // With an icon, it sits in the bar's rounded start instead of the text's padding.
+  &[data-icon="true"] {
+    padding-left: var(--space-2);
+  }
+}
+
+.icon {
+  flex: none;
+  width: var(--app-icon-size-s);
+  height: var(--app-icon-size-s);
+  border-radius: var(--radius-app-icon);
 }
 
 .text {
   display: flex;
+  flex: 1;
   flex-direction: column;
   min-width: 0;
 }

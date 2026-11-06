@@ -1,4 +1,6 @@
+import Image from "next/image";
 import { statusLabel, type GameStatus, type Platform } from "@/lib/games";
+import type { ImageRef } from "@/lib/sanity/types";
 import { Breadcrumb, type BreadcrumbProps } from "../Breadcrumb/Breadcrumb";
 import { Chip } from "../Chip/Chip";
 import { Display } from "../Display/Display";
@@ -7,6 +9,8 @@ import styles from "./GameTitle.module.scss";
 
 export type GameTitleProps = {
   name: string;
+  /** The game's app icon, beside the name. Decorative: the name is right next to it. */
+  icon?: ImageRef;
   status: GameStatus;
   /** Genres, shown as outline chips after the status chip. */
   tags: string[];
@@ -20,7 +24,7 @@ export type GameTitleProps = {
 const PLATFORM_ICONS: Record<Platform, IconName> = { Android: "android", iOS: "apple", Web: "globe" };
 
 /** The game page's title block: breadcrumb, the page h1 and the status / genre / platform chips. */
-export function GameTitle({ name, status, tags, platforms = [], crumbs, lead }: GameTitleProps) {
+export function GameTitle({ name, icon = null, status, tags, platforms = [], crumbs, lead }: GameTitleProps) {
   const unique = [...new Set(tags.map((tag) => tag.trim()).filter(Boolean))];
   return (
     <div className={styles.root}>
@@ -28,9 +32,12 @@ export function GameTitle({ name, status, tags, platforms = [], crumbs, lead }: 
         <Breadcrumb items={crumbs} />
       </div>
       <div className={styles.row}>
-        <Display as="h1" size="xl">
-          {name}
-        </Display>
+        <div className={styles.name}>
+          {icon ? <Image className={styles.icon} src={icon.src} alt="" width={icon.width} height={icon.height} sizes="96px" priority /> : null}
+          <Display as="h1" size="xl">
+            {name}
+          </Display>
+        </div>
         <ul className={styles.chips} role="list">
           <li>
             <Chip tone="accent">{statusLabel(status)}</Chip>

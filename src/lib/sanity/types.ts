@@ -38,6 +38,7 @@ export type Featured = {
   platformLabel: string;
   blurb: string;
   art: ImageRef;
+  icon: ImageRef;
   cta: { label: string; href: string };
   detailHref: string;
 };
@@ -63,6 +64,8 @@ export type Game = {
   stores: StoreLink[];
   blurb: string;
   description: RichBody;
+  /** Square app icon; alt text falls back to "<name> app icon". */
+  appIcon: ImageRef;
   keyArt: ImageRef;
   coverArt: ImageRef;
   media: Media[];

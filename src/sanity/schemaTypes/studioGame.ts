@@ -90,6 +90,11 @@ export const studioGame = defineType({
       validation: (r) => r.required(),
     }),
     bodyField("description", "Description"),
+    imageField(
+      "appIcon",
+      "App icon",
+      "Square, 512×512 PNG, the same icon as in the stores. Shows beside the name on the game page, in the home page's featured picker and in the phone play bar.",
+    ),
     imageField("keyArt", "Key art", "Wide hero art."),
     imageField("coverArt", "Cover art (3:4)", "Portrait cover, 3:4."),
     defineField({

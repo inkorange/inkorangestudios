@@ -11,6 +11,7 @@ const game: Game = {
   stores: [],
   blurb: "Build planets.",
   description: [],
+  appIcon: null,
   keyArt: { src: "https://cdn.sanity.io/images/p/d/key.jpg", alt: "Key art", width: 2000, height: 1000 },
   coverArt: null,
   media: [],

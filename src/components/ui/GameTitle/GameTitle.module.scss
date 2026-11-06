@@ -34,6 +34,25 @@
   }
 }
 
+// The app icon (when there is one) and the name, side by side.
+.name {
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
+  min-width: 0;
+
+  @include bp(lg) {
+    gap: var(--space-6);
+  }
+}
+
+.icon {
+  flex: none;
+  width: var(--app-icon-size);
+  height: var(--app-icon-size);
+  border-radius: var(--radius-app-icon);
+}
+
 .chips {
   display: flex;
   flex-wrap: wrap;

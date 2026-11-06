@@ -57,6 +57,7 @@ const full: Game = {
   stores: [],
   blurb: "Build planets and entire star systems.",
   description: [block("a", "TerraForge is a sandbox for making worlds."), block("b", "Visit real exoplanets.")],
+  appIcon: null,
   keyArt: { src: "https://cdn.sanity.io/images/p/d/key-2000x1000.jpg", alt: "TerraForge key art", width: 2000, height: 1000 },
   coverArt: null,
   media: [
@@ -175,7 +176,7 @@ it("the full TerraForge game renders every block in place", async () => {
 
   // Title row
   expect(within(screen.getByRole("navigation", { name: "Breadcrumb" })).getByRole("link", { name: "Games" })).toHaveAttribute("href", "/#games");
-  const titleRow = screen.getByRole("heading", { level: 1, name: "TerraForge" }).parentElement!;
+  const titleRow = screen.getByRole("heading", { level: 1, name: "TerraForge" }).closest("div")!.parentElement!;
   for (const chip of ["OUT NOW", "Sandbox", "Creative", "Web"]) expect(within(titleRow).getByText(chip)).toBeInTheDocument();
 
   // The trailer takes the key art's place under the title

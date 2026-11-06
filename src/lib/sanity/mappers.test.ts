@@ -127,6 +127,18 @@ describe("mapGame platforms", () => {
   });
 });
 
+describe("mapGame app icon", () => {
+  it("maps the icon, falling back to '<name> app icon' for its alt text", () => {
+    expect(mapGame({ ...base, appIcon: img("Planet icon") })!.appIcon).toMatchObject({ alt: "Planet icon" });
+    expect(mapGame({ ...base, appIcon: { ...img(), alt: " " } })!.appIcon).toMatchObject({ alt: "TerraForge app icon" });
+    expect(mapGame(base)!.appIcon).toBeNull();
+  });
+  it("is the featured game's icon", () => {
+    const g = mapGame({ ...base, appIcon: img("Icon") })!;
+    expect(toFeatured(g).icon).toMatchObject({ alt: "Icon" });
+  });
+});
+
 describe("mapGame store links", () => {
   const links = { googlePlay: "https://play.google.com/store/apps/details?id=x", appStore: "https://apps.apple.com/app/id1", web: "https://play.example.com" };
   const stores = (platforms: unknown, storeLinks: unknown) => mapGame({ slug: "s", name: "S", platforms, storeLinks })!.stores;
