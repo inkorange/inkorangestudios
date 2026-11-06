@@ -241,6 +241,9 @@ them for every margin, padding and gap.
 | `--logo-width-s` | 120px | `Logo` width at size `s`. |
 | `--logo-width-m` | 160px | `Logo` width at size `m` (default). |
 | `--logo-width-l` | 220px | `Logo` width at size `l`. |
+| `--play-button-size` | 68 → 96px (fluid) | Diameter of the accent play button on the `MediaViewer` stage. |
+| `--thumb-height` | 60 → 92px (fluid) | Height of `MediaViewer` thumbnails; phone strip thumbs are 1.6 times this wide. |
+| `--sticky-bar-space` | 96px | Room the `StickyPlayBar` occupies at the bottom of a phone page. Pages (or the footer) add `padding-bottom: var(--sticky-bar-space)` below `lg` so the last content scrolls clear of the bar. |
 
 ### Breakpoints
 
@@ -665,10 +668,36 @@ The cookie consent sheet fixed to the bottom of the viewport.
 - **Props / variants:** none. Shown when no choice is stored (`io-consent` in localStorage) or when "Cookie settings" is clicked. "Accept" (accent) stores `granted`; "Decline" (outline on ink) stores `denied`. `Analytics` loads Google Tag Manager only after `granted`.
 - **Accessibility:** a labelled region; it does not steal focus. Sits on `--z-banner`, above everything. When reopened from "Cookie settings" focus moves to the banner; on first visit it does not. Consent Mode defaults (denied) come from the server component `ConsentDefaults` (`src/components/analytics/`), which the root layout renders; `Analytics` loads GTM after consent.
 
+### MediaViewer
+
+The game page's large stage with a thumbnail strip beneath it.
+
+- **Use for:** a game's trailer and screenshots, trailer first.
+- **Don't use for:** a single decorative image (use `next/image` in a section) or a carousel that moves on its own (`ShowcaseHero`).
+- **Props / variants:** `items` (`Media[]`: `trailer` with `poster`, `url`, optional `duration`; or `image`) and `title`. Stage is 16/7.5 on `--radius-3xl`, 16/10 on `--radius-xl` below `md`. Thumbs are a grid from `md`, a horizontal scroll strip below. Renders nothing when `items` is empty; a single item shows no thumbs. Missing art shows the dark `Placeholder`.
+- **Accessibility:** the trailer play button is named `Play the {title} trailer`. Nothing plays until it is pressed; then YouTube and Vimeo URLs become an `iframe` (titled `{title} trailer`) and other URLs a `video` with controls. Switching thumbs stops playback. Thumbs are buttons with `aria-pressed` and `aria-label="Show {label}"`; the selected one has an ink border. The stage is a `figure` whose caption carries the label.
+
+### StoreCard
+
+The game page's "get the game" card.
+
+- **Use for:** price, the main play/store link, the notify-me form and the fact sheet.
+- **Don't use for:** other call-out cards (use `InfoCard`).
+- **Props / variants:** `priceLabel`, `primary` (`{ label, href }` or `null`; absolute URLs open in a new tab), `notify` (a node, normally `EmailSignupForm`), `notifyTitle`, `facts`. Blocks without data are not rendered, so a sparse game shows only the eyebrow and button. Facts render twice: a `dl` from `lg`, and a "Game details" `Accordion` below `lg`; CSS switches between them.
+- **Accessibility:** an `aside` named "Get the game". The hidden rendering is `display: none`, so assistive tech reads the facts once.
+
+### StickyPlayBar
+
+A floating ink pill with the game name and a "Play now" button, phone only.
+
+- **Use for:** the bottom of a phone game page.
+- **Don't use for:** desktop (hidden from `lg` up) or general navigation.
+- **Props / variants:** `title`, `meta` (for example `Free · Web`), `action` (`{ label, href }`). Sits on `--z-sticky` with the system's one shadow. It overlaps the last `--sticky-bar-space` of the page, so give the page or footer `padding-bottom: var(--sticky-bar-space)` below `lg`.
+- **Accessibility:** the action is a real link at least `--tap-min` tall with the accent-on-ink focus ring. Only the pill takes pointer events, so it never blocks content beside it.
+
 Still coming, in this order (names may change as they are built):
 
-- **Game page (coming):** MediaViewer (trailer + thumbnails), StoreCard,
-  StickyPlayBar, ShareTitle.
+- **Game page (coming):** ShareTitle (not yet specified).
 - **Home (coming):** ShowcaseHero (carousel), SpotlightRail, GameGrid.
 - **Other pages (coming):** LegalEmpty, FaqList, DesignGallery.
 

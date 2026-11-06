@@ -112,6 +112,9 @@
   --logo-width-s: 120px;
   --logo-width-m: 160px;
   --logo-width-l: 220px;
+  --play-button-size: #{fluid(68, 96)};
+  --thumb-height: #{fluid(60, 92)};
+  --sticky-bar-space: 96px;
 
   // Radius
   --radius-xs: 10px;

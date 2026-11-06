@@ -12,3 +12,7 @@ const POST_KIND_LABELS: Record<PostKind, string> = {
 export function postKindLabel(kind: PostKind): string {
   return POST_KIND_LABELS[kind];
 }
+
+export type Media =
+  | { kind: "trailer"; label: string; poster: ImageRef; url: string; duration?: string }
+  | { kind: "image"; label: string; image: ImageRef };
