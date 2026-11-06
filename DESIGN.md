@@ -118,7 +118,7 @@ another token looks close.
 | `--color-guide` | `#B9C4CC` | The faint blue-grey construction lines (`GuideLines`). Decorative only. |
 | `--color-shadow` | ink at 25% | The one shadow in the system, for floating layers only: the sticky play bar and the open `Select` menu. |
 | `--texture-watercolor` | `url(/brand/watercolor-wash.webp)` | The watercolor wash for the callout band. Layer it over `--color-accent` so the band still reads if the image fails to load. |
-| `--texture-brush-stroke` | `url(/brand/brush-stroke.webp)` | The painted highlight behind the one highlighted phrase: a dry-brush stroke in `--color-accent` with the `--texture-watercolor` wash soft-light blended in (baked into the image), a rounded bristled start, ragged edges, a few dry streaks, paint flecks and a frayed end. Transparent outside the paint, so it sits directly on the paper with no accent fill underneath. |
+| `--texture-brush-stroke` | `url(/brand/brush-stroke.webp)` | The painted highlight behind the one highlighted phrase: a brush stroke built from individual bristles in `--color-accent`, with the `--texture-watercolor` wash soft-light blended in (baked into the image): a rounded start with hairs sweeping around it, a solid core, dry bristle edges, a few flecks and a frayed end. Transparent outside the paint, so it sits directly on the paper with no accent fill underneath. |
 
 ### Pairings
 
