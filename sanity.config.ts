@@ -2,6 +2,7 @@ import { visionTool } from "@sanity/vision";
 import { defineConfig } from "sanity";
 import { structureTool } from "sanity/structure";
 import { schemaTypes } from "./src/sanity/schemaTypes";
+import { filterTemplates } from "./src/sanity/templates";
 import { structure } from "./src/sanity/structure";
 
 const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
@@ -18,13 +19,16 @@ export default defineConfig({
   plugins: [structureTool({ structure }), visionTool()],
   schema: {
     types: schemaTypes,
-    // Settings is a singleton: it can't be created from the "new document" menu.
-    templates: (templates) => templates.filter((t) => t.schemaType !== "studioSettings"),
+    // Settings is a singleton and newsletter requests/deliveries are made by code:
+    // none of them can be created from the "new document" menu.
+    templates: filterTemplates,
   },
   document: {
     actions: (prev, { schemaType }) =>
       schemaType === "studioSettings"
-        ? prev.filter(({ action }) => action !== "duplicate" && action !== "delete")
+        ? prev.filter(
+            ({ action }) => action !== "duplicate" && action !== "delete",
+          )
         : prev,
   },
 });

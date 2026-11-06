@@ -9,11 +9,15 @@ export const structure: StructureResolver = (S) =>
         .title("Settings")
         .id("studioSettings")
         .child(
-          S.document().schemaType("studioSettings").documentId("studioSettings").title("Settings"),
+          S.document()
+            .schemaType("studioSettings")
+            .documentId("studioSettings")
+            .title("Settings"),
         ),
       S.divider(),
       S.documentTypeListItem("studioGame").title("Games"),
       S.documentTypeListItem("studioPost").title("News"),
+      S.documentTypeListItem("studioNewsletterIssue").title("Newsletter"),
       S.documentTypeListItem("studioPage").title("Pages"),
       S.documentTypeListItem("studioFaq").title("FAQs"),
     ]);
