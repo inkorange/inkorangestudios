@@ -60,4 +60,42 @@ describe("env-public", () => {
     expect(publicEnv.turnstileSiteKey).toBeUndefined();
     expect(publicEnv.gtmId).toBe("GTM-X");
   });
+
+  describe("readNewsletterEnv", () => {
+    const vars = {
+      POSTMARK_SERVER_TOKEN: "pm",
+      NEWSLETTER_FROM_EMAIL: "news@x.com",
+      NEWSLETTER_TEST_EMAIL: "me@x.com",
+      POSTMARK_BROADCAST_STREAM: "broadcast",
+      NEWSLETTER_WEBHOOK_SECRET: "wh",
+      POSTMARK_WEBHOOK_USER: "u",
+      POSTMARK_WEBHOOK_PASSWORD: "p",
+      SANITY_API_TOKEN: "tok",
+    };
+
+    it("returns each value trimmed, without Supabase vars", async () => {
+      vi.stubEnv("SUPABASE_URL", "");
+      vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "");
+      vi.stubEnv("SUPABASE_SERVICE_ROLE_KEY", "");
+      for (const [k, v] of Object.entries(vars)) vi.stubEnv(k, `  ${v}  `);
+      const { readNewsletterEnv } = await import("./env");
+      expect(readNewsletterEnv()).toEqual({
+        postmarkToken: "pm",
+        fromEmail: "news@x.com",
+        testEmail: "me@x.com",
+        broadcastStream: "broadcast",
+        webhookSecret: "wh",
+        postmarkWebhookUser: "u",
+        postmarkWebhookPassword: "p",
+        sanityToken: "tok",
+      });
+    });
+
+    it("turns blank values into undefined", async () => {
+      for (const k of Object.keys(vars)) vi.stubEnv(k, "   ");
+      const { readNewsletterEnv } = await import("./env");
+      const env = readNewsletterEnv();
+      expect(Object.values(env).every((v) => v === undefined)).toBe(true);
+    });
+  });
 });
