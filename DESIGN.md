@@ -118,7 +118,7 @@ another token looks close.
 | `--color-guide` | `#B9C4CC` | The faint blue-grey construction lines (`GuideLines`). Decorative only. |
 | `--color-shadow` | ink at 25% | The one shadow in the system, for floating layers only: the sticky play bar and the open `Select` menu. |
 | `--texture-watercolor` | `url(/brand/watercolor-wash.webp)` | The watercolor wash for the callout band. Layer it over `--color-accent` so the band still reads if the image fails to load. |
-| `--texture-brush-stroke` | `url(/brand/brush-stroke.webp)` | The painted highlight behind the one highlighted phrase: a dry-brush stroke in flat `--color-accent`, with ragged bristle edges, a few dry streaks, paint flecks and a frayed end. Transparent outside the paint, so it sits directly on the paper with no accent fill underneath. |
+| `--texture-brush-stroke` | `url(/brand/brush-stroke.webp)` | The painted highlight behind the one highlighted phrase: a dry-brush stroke in `--color-accent` with the `--texture-watercolor` wash soft-light blended in (baked into the image), a rounded bristled start, ragged edges, a few dry streaks, paint flecks and a frayed end. Transparent outside the paint, so it sits directly on the paper with no accent fill underneath. |
 
 ### Pairings
 
@@ -241,6 +241,8 @@ them for every margin, padding and gap.
 | `--marker-size` | 36px | Diameter of the numbered accent circle in `FeatureList`. |
 | `--date-column` | 120px | Width of the mono date column in `UpdateRow`. |
 | `--wash-opacity` | 0.35 | Opacity of the watercolor edge on `CalloutBand`; keeps ink text above 4.5:1 on the accent. |
+| `--highlight-bleed` | 0.12em | How far the painted `Highlight` stroke reaches above and below its text. In `em`, so it scales with the heading. Inline padding, so line spacing is unchanged. |
+| `--highlight-bleed-inline` | 0.25em | How far the painted stroke reaches before and after its text. Added as padding and taken back as negative margin, so the words don't move. |
 | `--logo-width-s` | 120px | `Logo` width at size `s`. |
 | `--logo-width-m` | 160px | `Logo` width at size `m` (default). |
 | `--logo-width-l` | 220px | `Logo` width at size `l`. |

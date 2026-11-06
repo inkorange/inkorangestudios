@@ -45,6 +45,9 @@
   // The stroke image carries its own orange and fades to transparent, so the
   // flat accent fill is dropped; stretching keeps the fade across each line.
   &[data-paint="true"] {
+    padding-block: var(--highlight-bleed);
+    padding-inline: calc(var(--space-2) + var(--highlight-bleed-inline));
+    margin-inline: calc(var(--highlight-bleed-inline) * -1);
     background-color: transparent;
     background-image: var(--texture-brush-stroke);
     background-size: 100% 100%;
