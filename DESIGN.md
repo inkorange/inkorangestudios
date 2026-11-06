@@ -60,7 +60,7 @@ flat digital orange on near-black. The system uses each stage on purpose:
 |---|---|---|---|
 | **Sketch** — construction lines | Faint blue-grey guide lines in `--color-guide`, drawn by the `GuideLines` component | Decorative backgrounds on a few surfaces: hero edges, section dividers, the `/design` page, empty states | Behind body text, on dark surfaces, or on more than one or two surfaces per page. Always `aria-hidden`. |
 | **Shade** — pencil hatching | The diagonal-stripe placeholder (`--color-sand` / `--color-stripe` on light, `--color-dark-stripe` / `--color-dark-stripe-2` on dark), drawn by `Placeholder` | Art that doesn't exist yet: covers, key art, screenshots, photos. It means "not finished yet", so it is the right look for coming-soon and in-development games | As decoration on finished content, or as an empty box with no stripe. Missing art is always the hatched placeholder. |
-| **Paint** — watercolor wash | The texture images `--texture-watercolor` and `--texture-watercolor-stroke` (real image assets, not CSS gradients) | The accent callout band and the one highlighted phrase ("make you think.") | Anywhere else. At most once or twice per page. Never behind small text. |
+| **Paint** — watercolor wash | The texture images `--texture-watercolor` (wash) and `--texture-brush-stroke` (dry brush), real image assets, not CSS gradients | The accent callout band and the one highlighted phrase ("make you think.") | Anywhere else. At most once or twice per page. Never behind small text. |
 | **Digital** — flat orange on ink | Dark `--color-ink` surfaces with `--color-on-dark` text and the accent | The showcase hero, media viewer, footer, phone menu sheet and sticky play bar: where real game art lives | Light-page sections that just want "contrast". A page has one dark hero area at most, plus the footer. |
 
 Motion follows the same story: an optional one-time **draw-on** reveal
@@ -118,7 +118,7 @@ another token looks close.
 | `--color-guide` | `#B9C4CC` | The faint blue-grey construction lines (`GuideLines`). Decorative only. |
 | `--color-shadow` | ink at 25% | The one shadow in the system, for floating layers only: the sticky play bar and the open `Select` menu. |
 | `--texture-watercolor` | `url(/brand/watercolor-wash.webp)` | The watercolor wash for the callout band. Layer it over `--color-accent` so the band still reads if the image fails to load. |
-| `--texture-watercolor-stroke` | `url(/brand/watercolor-stroke.webp)` | The painted highlight behind the one highlighted phrase: solid `--color-accent` on the left that blotches and fades to paper on the right. Transparent where it fades, so it sits directly on the paper with no accent fill underneath. |
+| `--texture-brush-stroke` | `url(/brand/brush-stroke.webp)` | The painted highlight behind the one highlighted phrase: a dry-brush stroke in flat `--color-accent`, with ragged bristle edges, a few dry streaks, paint flecks and a frayed end. Transparent outside the paint, so it sits directly on the paper with no accent fill underneath. |
 
 ### Pairings
 
@@ -388,7 +388,7 @@ The condensed uppercase display heading, with `Highlight` for the one accent phr
 
 - **Use for:** page titles, the hero game name, the studio one-liner, the callout heading.
 - **Don't use for:** section headers (use `Heading`) or anything smaller than a heading.
-- **Props / variants:** `as`: `h2` (default) or `h1`; `size`: `hero` (`ShowcaseHero` only), `xl`, `l`, `m`; `tone`: `ink` (default) or `on-dark`. `Highlight` takes `paint` to swap the flat accent for `--texture-watercolor-stroke` (orange that blotches and fades left to right); use at most one per page. The heading is an isolated stacking context and the highlight box sits behind the text (`--z-behind`), so the box never covers the line above it.
+- **Props / variants:** `as`: `h2` (default) or `h1`; `size`: `hero` (`ShowcaseHero` only), `xl`, `l`, `m`; `tone`: `ink` (default) or `on-dark`. `Highlight` takes `paint` to swap the flat accent box for `--texture-brush-stroke` (a dry-brush stroke); use at most one per page. The heading is an isolated stacking context and the highlight box sits behind the text (`--z-behind`), so the box never covers the line above it.
 - **Accessibility:** renders a real heading; keep one `h1` per page. `Highlight` is a plain `span`, text stays selectable and readable (ink on accent is 6.6:1).
 
 ### Heading

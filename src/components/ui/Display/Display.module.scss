@@ -46,7 +46,7 @@
   // flat accent fill is dropped; stretching keeps the fade across each line.
   &[data-paint="true"] {
     background-color: transparent;
-    background-image: var(--texture-watercolor-stroke);
+    background-image: var(--texture-brush-stroke);
     background-size: 100% 100%;
     background-repeat: no-repeat;
   }
