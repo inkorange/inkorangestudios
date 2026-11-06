@@ -234,6 +234,10 @@ them for every margin, padding and gap.
 | `--grid-min-card` | 300px | Minimum column width of a `Grid` of news cards. |
 | `--grid-min-rail` | 240px | Minimum column width of the spotlight rail `Grid`. |
 | `--grid-min-thumb` | 150px | Minimum column width of a `Grid` of media thumbnails. |
+| `--card-image-height` | 180px | Height of the image area of a `NewsCard`. |
+| `--marker-size` | 36px | Diameter of the numbered accent circle in `FeatureList`. |
+| `--date-column` | 120px | Width of the mono date column in `UpdateRow`. |
+| `--wash-opacity` | 0.35 | Opacity of the watercolor edge on `CalloutBand`; keeps ink text above 4.5:1 on the accent. |
 | `--logo-width-s` | 120px | `Logo` width at size `s`. |
 | `--logo-width-m` | 160px | `Logo` width at size `m` (default). |
 | `--logo-width-l` | 220px | `Logo` width at size `l`. |
@@ -517,12 +521,116 @@ The Cloudflare human check, invisible to the layout when off.
 - **Props / variants:** `resetKey` (change it after each submit result to renew the single-use token). Loads `api.js?render=explicit` and writes the token into a hidden `captchaToken` input so `FormData` carries it. Site key from `publicEnv.turnstileSiteKey`.
 - **Accessibility:** renders nothing when `CAPTCHA_REQUIRED` is false (`next dev`, tests, no keys). Cloudflare's widget supplies its own labelling.
 
+### SectionHeader
+
+A section title with a 2px ink rule beneath and an optional action link.
+
+- **Use for:** the top of every content section ("All games", "News", "More from inkOrange").
+- **Don't use for:** the page title (use `Display`) or headings inside body copy (use `Heading`).
+- **Props / variants:** `title`; `as`: `h2` (default) or `h1`; `size`: `l` (default) or `m`; `action` (`{ label, href }`, rendered in `--color-link`); `children` (e.g. `FilterPills`, placed between title and action); `rule` (default true).
+- **Accessibility:** the title is the section's heading, so pick `as` to fit the outline. The action link is at least `--tap-min` tall with a visible focus ring.
+
+### GameTile
+
+A 3:4 cover with a status chip, the game name and a meta line, all one link.
+
+- **Use for:** game grids on the home page, the games index and "More from inkOrange".
+- **Don't use for:** news (use `NewsCard`) or the showcase hero.
+- **Props / variants:** `name`, `href`, `cover` (`ImageRef`; `null` shows a `Placeholder` labelled with the name), `status` (`GameStatus`; `out-now` gets the accent chip, everything else ink), `meta` ("Sandbox · Web"), `size`: `m` (default) or `s`.
+- **Accessibility:** the whole tile is one link whose name is chip + name + meta. Cover alt text comes from the CMS image. Visible focus ring.
+
+### NewsCard
+
+A card with an image area, a mono "DATE · KIND" line and a headline.
+
+- **Use for:** the news grid on the home page and the news index.
+- **Don't use for:** compact lists (use `UpdateRow`).
+- **Props / variants:** `href`, `image` (`ImageRef`, `null` shows a `Placeholder`), `date` (ISO, shown as `NOV 5, 2026` in UTC), `kind` (`PostKind`, shown as UPDATE / ANNOUNCEMENT / DEVLOG / PATCH NOTES), `title`.
+- **Accessibility:** one link wrapping the card. The date format never depends on server timezone.
+
+### UpdateRow
+
+A ruled row with a mono date column and a semibold headline.
+
+- **Use for:** "Latest updates" lists on a game page.
+- **Don't use for:** the main news grid (use `NewsCard`).
+- **Props / variants:** `href`, `date` (ISO), `title`. Rows draw a top rule; the last row also draws a bottom rule.
+- **Accessibility:** the row is the link. The date column wraps above the headline on narrow screens.
+
+### FeatureList
+
+A numbered, ruled list of features with an accent circle marker.
+
+- **Use for:** the "Features" section of a game page.
+- **Don't use for:** short value statements (use `ValueList`).
+- **Props / variants:** `items` of `{ title, body }`; numbers `01`, `02`... are generated.
+- **Accessibility:** an ordered list; the visual number is `aria-hidden` because the list already numbers itself. Titles are `h3`, so place it under an `h2`.
+
+### FactList
+
+A two-column definition list of label and value.
+
+- **Use for:** the fact sheet in the store card (platform, genre, release).
+- **Don't use for:** long text or lists of links.
+- **Props / variants:** `items` of `{ label, value }`. Labels use `--color-ink-3`; the list has a top hairline.
+- **Accessibility:** a real `dl` with `dt`/`dd` pairs grouped in `div`s.
+
+### Accordion
+
+A single disclosure with a +/- marker.
+
+- **Use for:** phone game-page details and FAQ entries.
+- **Don't use for:** primary content that should always be visible.
+- **Props / variants:** `title`, `children`, `defaultOpen`.
+- **Accessibility:** native `details`/`summary`, so keyboard and screen readers work with no script. The summary is at least `--tap-min` tall. The +/- marker is CSS-generated and decorative.
+
+### InfoCard
+
+A small sand card with a title, a line of copy and an action link.
+
+- **Use for:** the press kit and help cards beside the store card.
+- **Don't use for:** primary calls to action (use `Button`).
+- **Props / variants:** `title`, `body`, `link` (`{ label, href }`; `http(s):` and `mailto:` render a plain anchor), `layout`: `stack` (default) or `row`.
+- **Accessibility:** the link text must describe its destination. Link is `--color-link` on sand and at least `--tap-min` tall.
+
+### CalloutBand
+
+The big accent band with a mono eyebrow, a Display title, body copy and an action slot.
+
+- **Use for:** the one beta / recruiting callout per page.
+- **Don't use for:** several per page, or small notices (use `FormMessage` or `InfoCard`).
+- **Props / variants:** `eyebrow`, `title`, `body`, `action` (a node, usually a `Button variant="ink"` or an `EmailSignupForm tone="on-accent"`), `paint` (watercolor along the right edge at `--wash-opacity`).
+- **Accessibility:** all text is `--color-ink` on the accent. The wash is decorative, low opacity and sits behind the content; do not raise its opacity.
+
+### RichText
+
+Portable Text rendered with the design system's type.
+
+- **Use for:** CMS body copy: news posts, game "About", legal pages.
+- **Don't use for:** hand-written UI copy (use `Text` and `Heading`).
+- **Props / variants:** `value` (`PortableTextBlock[]`). Supports h2-h4, paragraphs, bullet and numbered lists, blockquote and links. External links open in a new tab with `rel="noopener noreferrer"`.
+- **Accessibility:** headings keep their level (h2-h4) so the author controls the outline. Links are `--color-link` and underlined.
+
+### Breadcrumb
+
+A "Games / TerraForge" trail.
+
+- **Use for:** the top of detail pages.
+- **Don't use for:** primary navigation (use the site header).
+- **Props / variants:** `items` of `{ label, href? }`. The last item is the current page in ink; earlier items are links in `--color-ink-3`.
+- **Accessibility:** `nav` labelled "Breadcrumb" containing an ordered list; the last item has `aria-current="page"`. Separators are `aria-hidden`.
+
+### ValueList
+
+Three-up (or fewer) values, each under a 3px ink rule.
+
+- **Use for:** the studio band's "Play first / Smart, not stuffy / Play anywhere".
+- **Don't use for:** numbered features (use `FeatureList`).
+- **Props / variants:** `items` of `{ title, body }`; columns wrap automatically.
+- **Accessibility:** a list; the title is a paragraph, not a heading.
+
 Still coming, in this order (names may change as they are built):
 
-- **Content blocks (coming):** SectionHeader (title + rule + optional action),
-  GameTile (cover + status chip), NewsCard, UpdateRow, FeatureList (numbered),
-  FactList (`dl`), Accordion, InfoCard (press / help), CalloutBand, RichText,
-  Breadcrumb, ValueList.
 - **Site chrome (coming):** NavPillBar, SiteHeader (desktop pill nav + CTA;
   phone hamburger + sheet), SiteFooter (with newsletter), ConsentBanner.
 - **Game page (coming):** MediaViewer (trailer + thumbnails), StoreCard,

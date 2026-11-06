@@ -1,0 +1,56 @@
+@use "../../../styles/mixins" as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  color: var(--color-ink);
+  text-decoration: none;
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+
+  &[data-size="s"] {
+    gap: var(--space-2);
+  }
+}
+
+.cover {
+  position: relative;
+  display: block;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-l);
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.chip {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+}
+
+.name {
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-title);
+  line-height: var(--leading-snug);
+  text-transform: uppercase;
+
+  .root[data-size="s"] & {
+    font-size: var(--text-title-s);
+  }
+}
+
+.meta {
+  font-size: var(--text-body-s);
+  color: var(--color-ink-3);
+}

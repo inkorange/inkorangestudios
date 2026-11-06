@@ -1,0 +1,56 @@
+@use "../../../styles/mixins" as *;
+
+.root {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-10);
+  padding: var(--space-8);
+  overflow: hidden;
+  color: var(--color-ink);
+  background-color: var(--color-accent);
+  border-radius: var(--radius-3xl);
+
+  @include bp(md) {
+    padding: var(--space-14);
+  }
+
+  &[data-paint="true"]::before {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: 0;
+    width: 35%;
+    content: "";
+    pointer-events: none;
+    background-image: var(--texture-watercolor);
+    background-position: center;
+    background-size: cover;
+    opacity: var(--wash-opacity);
+  }
+}
+
+.text,
+.action {
+  position: relative;
+}
+
+.text {
+  display: flex;
+  flex: 1 1 460px;
+  flex-direction: column;
+  gap: var(--space-3);
+
+  // The eyebrow defaults to ink-3, which is too faint on the accent.
+  > :first-child {
+    color: var(--color-ink);
+  }
+}
+
+.body {
+  max-width: 520px;
+  margin: 0;
+  font-size: var(--text-lead);
+  line-height: var(--leading-body);
+}
