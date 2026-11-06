@@ -87,7 +87,7 @@ const eslintConfig = defineConfig([
         {
           patterns: [
             {
-              group: ["*.css", "./*.scss", "../*.scss", "!@/styles/globals.scss"],
+              group: ["*.scss", "*.css", "!@/styles/globals.scss"],
               message: `Only @/styles/globals.scss may be imported here ${SEE}.`,
             },
           ],

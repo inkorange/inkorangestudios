@@ -46,6 +46,7 @@ describe("eslint design-system rules", () => {
   });
   it("layout.tsx may not import other scss or use style", async () => {
     expect((await lint('import "./x.scss";\nexport const a = 1;', "src/app/layout.tsx")).length).toBeGreaterThan(0);
+    expect((await lint('import "@/styles/other.scss";\nexport const a = 1;', "src/app/layout.tsx")).length).toBeGreaterThan(0);
     expect((await lint('export default function L() { return <html style={{"--a":"1"}}/>; }', "src/app/layout.tsx")).length).toBeGreaterThan(0);
   });
   it("ignores src/app/studio and sanity.config.ts", async () => {
