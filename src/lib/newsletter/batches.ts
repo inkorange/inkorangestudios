@@ -120,6 +120,7 @@ export async function runBatches(deps: Deps, issueId: string): Promise<void> {
         text: send.text_body,
         stream: env.broadcastStream ?? "",
         tag: `issue-${issueId}`,
+        replyTo: env.replyTo,
       })),
     );
     if (result.ok) {

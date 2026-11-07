@@ -13,6 +13,8 @@ export type OutboundMessage = {
   stream: string;
   from: string;
   tag?: string;
+  /** Where replies go; omitted from the request when unset. */
+  replyTo?: string;
 };
 
 /**
@@ -42,6 +44,7 @@ function toPayload(m: OutboundMessage) {
     TextBody: m.text,
     MessageStream: m.stream,
     Tag: m.tag,
+    ...(m.replyTo ? { ReplyTo: m.replyTo } : {}),
   };
 }
 

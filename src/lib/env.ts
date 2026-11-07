@@ -71,6 +71,7 @@ export type NewsletterEnv = {
   postmarkWebhookUser?: string;
   postmarkWebhookPassword?: string;
   sanityToken?: string;
+  replyTo?: string;
 };
 
 /**
@@ -87,6 +88,7 @@ export function readNewsletterEnv(): NewsletterEnv {
     postmarkWebhookUser: clean(process.env.POSTMARK_WEBHOOK_USER),
     postmarkWebhookPassword: clean(process.env.POSTMARK_WEBHOOK_PASSWORD),
     sanityToken: clean(process.env.SANITY_API_TOKEN),
+    replyTo: clean(process.env.NEWSLETTER_REPLY_TO),
   };
 }
 

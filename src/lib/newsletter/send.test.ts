@@ -189,6 +189,7 @@ const ENV: NewsletterEnv = {
   testEmail: "chris@ink.test",
   broadcastStream: "newsletter",
   sanityToken: "sk",
+  replyTo: "info@ink.test",
 };
 const issueDoc = (over: Row = {}): Row => ({
   _id: "i1",
@@ -378,6 +379,7 @@ describe("test send", () => {
       from: "Ink Co <news@ink.test>",
       subject: "[Test] Draft subject",
       stream: "outbound",
+      replyTo: "info@ink.test",
     });
     expect(msg.html).toContain("(Unsubscribe link appears here)");
     expect(msg.html).not.toContain("pm:unsubscribe");
@@ -467,6 +469,7 @@ describe("broadcast", () => {
       subject: "Hello",
       stream: "newsletter",
       tag: "issue-i1",
+      replyTo: "info@ink.test",
     });
     expect(msgs[0].to).not.toContain(",");
     expect(msgs[0].html).toContain(UNSUBSCRIBE_PLACEHOLDER);

@@ -66,6 +66,7 @@ const env = vi.hoisted(() => ({
   postmarkToken: "pm" as string | undefined,
   fromEmail: "news@x.co" as string | undefined,
   broadcastStream: "broadcast" as string | undefined,
+  replyTo: "info@x.co" as string | undefined,
 }));
 vi.mock("@/lib/env", () => ({
   readNewsletterEnv: () => env,
@@ -118,7 +119,7 @@ describe("subscribe", () => {
     expect(sendEmail).toHaveBeenCalledTimes(1);
     const [token, msg] = sendEmail.mock.calls[0];
     expect(token).toBe("pm");
-    expect(msg).toMatchObject({ to: "a@b.co", stream: "outbound", from: "Ink Co <news@x.co>" });
+    expect(msg).toMatchObject({ to: "a@b.co", stream: "outbound", from: "Ink Co <news@x.co>", replyTo: "info@x.co" });
     const url = /https:\/\/site\.test\/newsletter\/confirm\?token=([A-Za-z0-9_-]+)/.exec(msg.text)!;
     expect(url[1]).not.toBe(hash);
     expect(sha(url[1])).toBe(hash);

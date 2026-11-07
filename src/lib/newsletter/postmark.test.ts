@@ -45,6 +45,15 @@ describe("sendEmail", () => {
     });
   });
 
+  it("sets ReplyTo only when a reply-to address is given", async () => {
+    fetchMock.mockResolvedValue(json({ ErrorCode: 0, MessageID: "m-2" }));
+    await sendEmail("tok", { ...msg, replyTo: "info@chriswest.tech" });
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body).ReplyTo).toBe("info@chriswest.tech");
+    fetchMock.mockResolvedValue(json({ ErrorCode: 0, MessageID: "m-3" }));
+    await sendEmail("tok", msg);
+    expect(JSON.parse(fetchMock.mock.calls[1][1].body)).not.toHaveProperty("ReplyTo");
+  });
+
   it("returns status and Postmark ErrorCode on non-2xx", async () => {
     fetchMock.mockResolvedValue(json({ ErrorCode: 406, Message: "inactive" }, 422));
     expect(await sendEmail("tok", msg)).toEqual({ ok: false, status: 422, code: 406 });

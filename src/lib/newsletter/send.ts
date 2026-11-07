@@ -175,6 +175,7 @@ async function sendTest(deps: Deps, issueId: string): Promise<void> {
     text: rendered.text,
     stream: "outbound",
     tag: "newsletter-test",
+    replyTo: deps.env.replyTo,
   });
   if (!result.ok) {
     console.error("[newsletter] test not sent", result.status);

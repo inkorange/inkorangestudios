@@ -324,6 +324,7 @@ New environment variables (all in `.env.example` with comments):
 
 - `NEWSLETTER_FROM_EMAIL`: verified sender, e.g. `news@inkorangestudios.com`.
 - `NEWSLETTER_TEST_EMAIL`: where tests go.
+- `NEWSLETTER_REPLY_TO` (optional): where subscriber replies go, set as Reply-To on issues, tests and confirmation emails (news@ has no mailbox).
 - `POSTMARK_BROADCAST_STREAM`: the Broadcast stream id, e.g. `broadcast`.
 - `NEWSLETTER_WEBHOOK_SECRET`: Sanity webhook secret for sending.
 - `POSTMARK_WEBHOOK_USER`, `POSTMARK_WEBHOOK_PASSWORD`: basic auth for the

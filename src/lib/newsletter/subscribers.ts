@@ -47,7 +47,7 @@ function hashToken(token: string): string {
  * send leaves the row unstamped so the next signup retries immediately.
  */
 async function sendConfirmation(email: string, token: string): Promise<boolean> {
-  const { postmarkToken, fromEmail } = readNewsletterEnv();
+  const { postmarkToken, fromEmail, replyTo } = readNewsletterEnv();
   if (!postmarkToken || !fromEmail) return false;
 
   type Settings = { mailingAddress?: string | null; fromName?: string | null };
@@ -71,6 +71,7 @@ async function sendConfirmation(email: string, token: string): Promise<boolean> 
     text: rendered.text,
     stream: "outbound",
     tag: "newsletter-confirm",
+    replyTo,
   });
   return result.ok;
 }

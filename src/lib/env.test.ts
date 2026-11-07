@@ -71,6 +71,7 @@ describe("env-public", () => {
       POSTMARK_WEBHOOK_USER: "u",
       POSTMARK_WEBHOOK_PASSWORD: "p",
       SANITY_API_TOKEN: "tok",
+      NEWSLETTER_REPLY_TO: "info@x.com",
     };
 
     it("returns each value trimmed, without Supabase vars", async () => {
@@ -88,6 +89,7 @@ describe("env-public", () => {
         postmarkWebhookUser: "u",
         postmarkWebhookPassword: "p",
         sanityToken: "tok",
+        replyTo: "info@x.com",
       });
     });
 
