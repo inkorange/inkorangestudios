@@ -72,7 +72,7 @@ Everything in `CLAUDE.md` applies, in particular:
 
 - **Layout A** from the mockups: logo and issue line at the top, optional
   headline and intro, then one full-width card per section (art, status chips,
-  title, text, one button), free sections on the watercolor wash, dark footer.
+  title, text, one button), free sections on a solid sand panel (the watercolor wash was dropped: text over it was hard to read), dark footer.
 - **Sending from the Studio**: Preview, Send test (to himself only), Send to
   subscribers with a confirmation that names the recipient count; the issue is
   then marked sent with the date and can't be sent again.

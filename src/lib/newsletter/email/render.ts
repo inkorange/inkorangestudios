@@ -66,10 +66,10 @@ function button(b: EmailButton | null): { html: string; href: string | null } {
   };
 }
 
-function section(s: EmailSection, siteUrl: string): string {
+function section(s: EmailSection): string {
   const free = s.kind === "free";
   const wrapAttrs = free
-    ? `bgcolor="${theme.sand}" background="${esc(`${base(siteUrl)}/brand/watercolor-wash.jpg`)}" style="background-color:${theme.sand};background-image:url('${esc(`${base(siteUrl)}/brand/watercolor-wash.jpg`)}');background-size:cover;border-radius:${theme.radiusCard};"`
+    ? `bgcolor="${theme.sand}" style="background-color:${theme.sand};border-radius:${theme.radiusCard};"`
     : `bgcolor="${theme.card}" style="background-color:${theme.card};border:1px solid ${theme.line};border-radius:${theme.radiusCard};"`;
   const parts: string[] = [];
   if (s.image) parts.push(`<tr><td style="padding:0 0 18px 0;">${image(s.image)}</td></tr>`);
@@ -184,7 +184,7 @@ export function renderIssue(issue: IssueData, footer: Footer): RenderedEmail {
       `<tr><td style="padding:0 24px 24px 24px;font-family:${theme.fontBody};font-size:17px;line-height:27px;color:${theme.ink2};">${blocksToHtml(issue.intro)}</td></tr>`,
     );
   }
-  const rows = [...head, ...issue.sections.map((s) => section(s, siteUrl))].join("\n");
+  const rows = [...head, ...issue.sections.map((s) => section(s))].join("\n");
   const html = document({
     title: issue.subject,
     preheader: issue.preheader,

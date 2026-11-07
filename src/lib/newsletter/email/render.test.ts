@@ -116,9 +116,9 @@ describe("renderIssue", () => {
     expect(none.text).not.toContain("View in browser");
   });
 
-  it("uses a JPEG watercolor background fallback on free sections, never WebP", () => {
-    expect(out.html).toContain('background="https://www.example.com/brand/watercolor-wash.jpg"');
-    expect(out.html).toContain("url('https://www.example.com/brand/watercolor-wash.jpg')");
+  it("gives free sections a solid sand panel, with no background image behind the text", () => {
+    expect(out.html).toContain(`bgcolor="${theme.sand}"`);
+    expect(out.html).not.toMatch(/watercolor|background-image|\sbackground="/i);
     expect(out.html).not.toMatch(/\.webp/i);
   });
 
