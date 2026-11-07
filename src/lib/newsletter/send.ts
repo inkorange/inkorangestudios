@@ -4,9 +4,9 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { publicEnv, readNewsletterEnv, type NewsletterEnv } from "@/lib/env";
 import { renderIssue } from "@/lib/newsletter/email/render";
 import { resolveIssue, type ImageConfig } from "@/lib/newsletter/issue";
-import { listSuppressed, sendBatch, sendEmail } from "@/lib/newsletter/postmark";
+import { fromLine, listSuppressed, sendBatch, sendEmail } from "@/lib/newsletter/postmark";
 import { createServiceClient } from "@/lib/supabase/server";
-import { DbError, SENDS, BATCHES, fromLine, logFailure, note, runBatches, snapshotBatches } from "./batches";
+import { DbError, SENDS, BATCHES, logFailure, note, runBatches, snapshotBatches } from "./batches";
 import { getWriteClient, readIssueForSend, readSettings, type NewsletterSanity } from "./sanityServer";
 
 /*

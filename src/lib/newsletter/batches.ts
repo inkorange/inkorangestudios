@@ -1,5 +1,6 @@
 import "server-only";
 
+import { fromLine } from "./postmark";
 import { patchDelivery, readSettings } from "./sanityServer";
 import type { Deps } from "./send";
 
@@ -13,7 +14,6 @@ import type { Deps } from "./send";
 export const SENDS = "studio_newsletter_sends";
 export const BATCHES = "studio_newsletter_send_batches";
 export const BATCH_SIZE = 500;
-const DEFAULT_FROM_NAME = "inkOrange Studios";
 
 type Failure = { code?: string } | null;
 
@@ -38,12 +38,6 @@ export async function note(deps: Deps, issueId: string, fields: Record<string, u
   } catch (e) {
     logFailure("studioNewsletterDelivery patch", e);
   }
-}
-
-export function fromLine(fromName: string | null, fromEmail: string): string {
-  const name = fromName ?? DEFAULT_FROM_NAME;
-  const safe = /[",<>@:;()[\]\\]/.test(name) ? `"${name.replace(/["\\]/g, "\\$&")}"` : name;
-  return `${safe} <${fromEmail}>`;
 }
 
 /**

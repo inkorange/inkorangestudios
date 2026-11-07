@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
-import { listSuppressed, sendBatch, sendEmail, type OutboundMessage } from "./postmark";
+import { deleteSuppression, fromLine, listSuppressed, sendBatch, sendEmail, type OutboundMessage } from "./postmark";
 
 const msg: OutboundMessage = {
   to: "a@example.com",
@@ -143,5 +143,49 @@ describe("listSuppressed", () => {
     expect(await listSuppressed("tok", "s")).toBeNull();
     fetchMock.mockRejectedValueOnce(new Error("x"));
     expect(await listSuppressed("tok", "s")).toBeNull();
+  });
+});
+
+describe("deleteSuppression", () => {
+  beforeEach(() => vi.spyOn(console, "error").mockImplementation(() => {}));
+  afterEach(() => vi.restoreAllMocks());
+
+  it("posts the address to the stream's suppressions/delete and reports a deletion", async () => {
+    fetchMock.mockResolvedValue(json({ Suppressions: [{ EmailAddress: "a@b.co", Status: "Deleted", Message: null }] }));
+    expect(await deleteSuppression("tok", "broad cast", "a@b.co")).toBe(true);
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe("https://api.postmarkapp.com/message-streams/broad%20cast/suppressions/delete");
+    expect(init.method).toBe("POST");
+    expect(init.headers["X-Postmark-Server-Token"]).toBe("tok");
+    expect(init.signal).toBeInstanceOf(AbortSignal);
+    expect(JSON.parse(init.body)).toEqual({ Suppressions: [{ EmailAddress: "a@b.co" }] });
+  });
+
+  it("is false, never throws, and logs only the status on any failure", async () => {
+    fetchMock.mockResolvedValueOnce(json({ ErrorCode: 10, Message: "bad token" }, 401));
+    expect(await deleteSuppression("tok", "s", "a@b.co")).toBe(false);
+    fetchMock.mockResolvedValueOnce(json({ Suppressions: [{ EmailAddress: "a@b.co", Status: "Failed", Message: "nope" }] }));
+    expect(await deleteSuppression("tok", "s", "a@b.co")).toBe(false);
+    fetchMock.mockResolvedValueOnce(new Response("not json", { status: 200 }));
+    expect(await deleteSuppression("tok", "s", "a@b.co")).toBe(false);
+    fetchMock.mockRejectedValueOnce(new Error("network a@b.co"));
+    expect(await deleteSuppression("tok", "s", "a@b.co")).toBe(false);
+    const logged = JSON.stringify((console.error as unknown as { mock: { calls: unknown[] } }).mock.calls);
+    expect(logged).toContain("401");
+    expect(logged).not.toContain("a@b.co");
+    expect(logged).not.toContain("tok");
+  });
+});
+
+describe("fromLine", () => {
+  it("uses the name as is when it is safe, and the default when it is missing", () => {
+    expect(fromLine("Ink Co", "news@x.co")).toBe("Ink Co <news@x.co>");
+    expect(fromLine(null, "news@x.co")).toBe("inkOrange Studios <news@x.co>");
+    expect(fromLine("  ", "news@x.co")).toBe("inkOrange Studios <news@x.co>");
+    expect(fromLine(" Ink Co ", "news@x.co")).toBe("Ink Co <news@x.co>");
+  });
+  it("quotes names with specials and escapes quotes and backslashes", () => {
+    expect(fromLine("Ink, Co", "news@x.co")).toBe('"Ink, Co" <news@x.co>');
+    expect(fromLine('Ink "Co" \\ x', "news@x.co")).toBe('"Ink \\"Co\\" \\\\ x" <news@x.co>');
   });
 });

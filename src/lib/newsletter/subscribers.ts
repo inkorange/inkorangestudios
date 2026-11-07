@@ -4,7 +4,7 @@ import { createHash, randomBytes } from "node:crypto";
 import { publicEnv, readNewsletterEnv } from "@/lib/env";
 import { renderConfirmation } from "@/lib/newsletter/email/render";
 import { SETTINGS_QUERY } from "@/lib/newsletter/issue";
-import { sendEmail } from "@/lib/newsletter/postmark";
+import { deleteSuppression, fromLine, sendEmail } from "@/lib/newsletter/postmark";
 import { sanityFetch } from "@/lib/sanity/client";
 import { createServiceClient } from "@/lib/supabase/server";
 
@@ -12,11 +12,19 @@ export const CONFIRM_TTL_DAYS = 7;
 export const RESEND_THROTTLE_MINUTES = 10;
 
 const TABLE = "studio_newsletter_signups";
-const DEFAULT_FROM_NAME = "inkOrange Studios";
 const DAY_MS = 86_400_000;
 const MINUTE_MS = 60_000;
 
-type Row = { id: string; status?: string; confirm_sent_at?: string | null };
+/** Postmark's reason for a spam complaint: such an address is never revived by the form (R12). */
+const SPAM_COMPLAINT = "SpamComplaint";
+
+type Row = {
+  id: string;
+  email?: string;
+  status?: string;
+  confirm_sent_at?: string | null;
+  unsubscribe_reason?: string | null;
+};
 type Failure = { message: string } | null;
 
 function fail(op: string, error: Failure | unknown): void {
@@ -57,7 +65,7 @@ async function sendConfirmation(email: string, token: string): Promise<boolean> 
   });
   const result = await sendEmail(postmarkToken, {
     to: email,
-    from: `${settings?.fromName?.trim() || DEFAULT_FROM_NAME} <${fromEmail}>`,
+    from: fromLine(settings?.fromName, fromEmail),
     subject: rendered.subject,
     html: rendered.html,
     text: rendered.text,
@@ -87,7 +95,11 @@ async function deliver(email: string, token: string, hash: string, now: Date): P
 export async function subscribe(email: string, source: string, now: Date = new Date()): Promise<{ ok: boolean }> {
   try {
     const db = createServiceClient();
-    const { data, error } = await db.from(TABLE).select("id, status, confirm_sent_at").eq("email", email).maybeSingle();
+    const { data, error } = await db
+      .from(TABLE)
+      .select("id, status, confirm_sent_at, unsubscribe_reason")
+      .eq("email", email)
+      .maybeSingle();
     if (error) {
       fail("lookup", error);
       return { ok: false };
@@ -110,6 +122,8 @@ export async function subscribe(email: string, source: string, now: Date = new D
     }
 
     if (row.status === "confirmed") return { ok: true };
+    // A spam complaint isn't undone by whoever types the address: same answer, nothing sent.
+    if (row.status === "unsubscribed" && row.unsubscribe_reason === SPAM_COMPLAINT) return { ok: true };
 
     if (row.status === "pending" && row.confirm_sent_at) {
       const age = now.getTime() - new Date(row.confirm_sent_at).getTime();
@@ -118,6 +132,7 @@ export async function subscribe(email: string, source: string, now: Date = new D
 
     const patch: Record<string, unknown> = { confirm_token_hash: hash, confirm_sent_at: null };
     if (row.status === "unsubscribed") {
+      // unsubscribe_reason stays set so confirming knows to lift the Postmark suppression.
       patch.status = "pending";
       patch.unsubscribed_at = null;
     }
@@ -134,7 +149,21 @@ export async function subscribe(email: string, source: string, now: Date = new D
   }
 }
 
-/** Confirm by token. A token whose email was never accepted by Postmark counts as expired. */
+/**
+ * Lift the broadcast-stream suppression of a re-subscriber (R12). Best effort: skipped without
+ * the Postmark env, and a failure never fails the confirm.
+ */
+async function liftSuppression(email: string | undefined): Promise<void> {
+  const { postmarkToken, broadcastStream } = readNewsletterEnv();
+  if (!email || !postmarkToken || !broadcastStream) return;
+  await deleteSuppression(postmarkToken, broadcastStream, email);
+}
+
+/**
+ * Confirm by token. A token whose email was never accepted by Postmark counts as expired. The
+ * update is keyed on the token hash as well as the id, so a row that changed meanwhile (a newer
+ * token, an unsubscribe) is left alone and the link reads as invalid.
+ */
 export async function confirmSubscription(
   token: string,
   now: Date = new Date(),
@@ -142,10 +171,11 @@ export async function confirmSubscription(
   if (!token) return "invalid";
   try {
     const db = createServiceClient();
+    const hash = hashToken(token);
     const { data, error } = await db
       .from(TABLE)
-      .select("id, confirm_sent_at")
-      .eq("confirm_token_hash", hashToken(token))
+      .select("id, email, confirm_sent_at, unsubscribe_reason")
+      .eq("confirm_token_hash", hash)
       .maybeSingle();
     if (error) {
       fail("confirm lookup", error);
@@ -156,14 +186,18 @@ export async function confirmSubscription(
     if (!row.confirm_sent_at || now.getTime() - new Date(row.confirm_sent_at).getTime() > CONFIRM_TTL_DAYS * DAY_MS) {
       return "expired";
     }
-    const { error: updateError } = await db
+    const { data: updated, error: updateError } = await db
       .from(TABLE)
-      .update({ status: "confirmed", confirmed_at: now.toISOString(), confirm_token_hash: null })
-      .eq("id", row.id);
+      .update({ status: "confirmed", confirmed_at: now.toISOString(), confirm_token_hash: null, unsubscribe_reason: null })
+      .eq("id", row.id)
+      .eq("confirm_token_hash", hash)
+      .select("id");
     if (updateError) {
       fail("confirm update", updateError);
       return "invalid";
     }
+    if (!Array.isArray(updated) || updated.length === 0) return "invalid";
+    if (row.unsubscribe_reason) await liftSuppression(row.email);
     return "confirmed";
   } catch (e) {
     fail("confirm", e);

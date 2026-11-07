@@ -3,16 +3,28 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
-type Op = { table: string; kind: "select" | "insert" | "update"; values?: Record<string, unknown>; eq: [string, unknown][] };
+type Op = {
+  table: string;
+  kind: "select" | "insert" | "update";
+  values?: Record<string, unknown>;
+  eq: [string, unknown][];
+  columns?: string;
+  returning?: string;
+};
 const ops: Op[] = [];
 let existing: Record<string, unknown> | null = null;
 let dbError: { code?: string; message: string } | null = null;
+let updatedRows: { id: string }[] = [{ id: "1" }];
 
 function builder(table: string) {
   const op: Op = { table, kind: "select", eq: [] };
   ops.push(op);
   const b: Record<string, unknown> = {
-    select: () => b,
+    select: (cols: string) => {
+      if (op.kind === "update") op.returning = cols;
+      else op.columns = cols;
+      return b;
+    },
     insert: (v: Record<string, unknown>) => {
       op.kind = "insert";
       op.values = v;
@@ -29,19 +41,32 @@ function builder(table: string) {
     },
     maybeSingle: async () => ({ data: existing, error: dbError }),
     then: (res: (v: unknown) => unknown, rej: (e: unknown) => unknown) =>
-      Promise.resolve({ error: op.kind === "select" ? null : dbError }).then(res, rej),
+      Promise.resolve(
+        op.kind === "update" && op.returning
+          ? { data: dbError ? null : updatedRows, error: dbError }
+          : { error: op.kind === "select" ? null : dbError },
+      ).then(res, rej),
   };
   return b;
 }
 vi.mock("@/lib/supabase/server", () => ({ createServiceClient: () => ({ from: (t: string) => builder(t) }) }));
 
 const sendEmail = vi.fn();
-vi.mock("@/lib/newsletter/postmark", () => ({ sendEmail: (...a: unknown[]) => sendEmail(...a) }));
+const deleteSuppression = vi.fn();
+vi.mock("@/lib/newsletter/postmark", async (importOriginal) => ({
+  fromLine: (await importOriginal<typeof import("./postmark")>()).fromLine,
+  sendEmail: (...a: unknown[]) => sendEmail(...a),
+  deleteSuppression: (...a: unknown[]) => deleteSuppression(...a),
+}));
 
 const sanityFetch = vi.fn();
 vi.mock("@/lib/sanity/client", () => ({ sanityFetch: (...a: unknown[]) => sanityFetch(...a) }));
 
-const env = vi.hoisted(() => ({ postmarkToken: "pm" as string | undefined, fromEmail: "news@x.co" as string | undefined }));
+const env = vi.hoisted(() => ({
+  postmarkToken: "pm" as string | undefined,
+  fromEmail: "news@x.co" as string | undefined,
+  broadcastStream: "broadcast" as string | undefined,
+}));
 vi.mock("@/lib/env", () => ({
   readNewsletterEnv: () => env,
   publicEnv: { siteUrl: "https://site.test" },
@@ -67,9 +92,12 @@ beforeEach(() => {
   ops.length = 0;
   existing = null;
   dbError = null;
+  updatedRows = [{ id: "1" }];
   env.postmarkToken = "pm";
   env.fromEmail = "news@x.co";
+  env.broadcastStream = "broadcast";
   sendEmail.mockResolvedValue({ ok: true, messageId: "m" });
+  deleteSuppression.mockResolvedValue(true);
   sanityFetch.mockResolvedValue({ mailingAddress: "1 Main St", fromName: "Ink Co" });
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
@@ -105,6 +133,12 @@ describe("subscribe", () => {
     expect(sendEmail.mock.calls[0][1].from).toBe("inkOrange Studios <news@x.co>");
   });
 
+  it("quotes a from name that contains a comma", async () => {
+    sanityFetch.mockResolvedValue({ mailingAddress: null, fromName: "Ink, Co" });
+    await subscribe("a@b.co", "footer", NOW);
+    expect(sendEmail.mock.calls[0][1].from).toBe('"Ink, Co" <news@x.co>');
+  });
+
   it("pending sent under 10 minutes ago: nothing", async () => {
     existing = { id: "1", status: "pending", confirm_sent_at: ago(9 * MIN) };
     expect(await subscribe("a@b.co", "footer", NOW)).toEqual({ ok: true });
@@ -137,14 +171,24 @@ describe("subscribe", () => {
     expect(sendEmail).not.toHaveBeenCalled();
   });
 
-  it("unsubscribed: back to pending with new token, clears unsubscribed_at, sends", async () => {
-    existing = { id: "1", status: "unsubscribed", confirm_sent_at: ago(30 * DAY) };
+  it("unsubscribed: back to pending with new token, clears unsubscribed_at, keeps the reason, sends", async () => {
+    existing = { id: "1", status: "unsubscribed", confirm_sent_at: ago(30 * DAY), unsubscribe_reason: "ManualSuppression" };
     await subscribe("a@b.co", "footer", NOW);
+    expect(ops[0].columns).toContain("unsubscribe_reason");
     const [back, stamp] = writes("update");
     expect(back.values).toMatchObject({ status: "pending", unsubscribed_at: null, confirm_sent_at: null });
+    expect(back.values).not.toHaveProperty("unsubscribe_reason");
     expect(back.values!.confirm_token_hash).toMatch(/^[0-9a-f]{64}$/);
     expect(stamp.values).toEqual({ confirm_sent_at: NOW.toISOString() });
     expect(sendEmail).toHaveBeenCalledTimes(1);
+  });
+
+  it("unsubscribed by a spam complaint: same ok, but no email and no update", async () => {
+    existing = { id: "1", status: "unsubscribed", confirm_sent_at: ago(30 * DAY), unsubscribe_reason: "SpamComplaint" };
+    expect(await subscribe("a@b.co", "footer", NOW)).toEqual({ ok: true });
+    expect(writes("update")).toHaveLength(0);
+    expect(writes("insert")).toHaveLength(0);
+    expect(sendEmail).not.toHaveBeenCalled();
   });
 
   it("Postmark failure: ok, row left unstamped", async () => {
@@ -170,14 +214,54 @@ describe("subscribe", () => {
 });
 
 describe("confirmSubscription", () => {
-  it("looks up by hash and confirms", async () => {
-    existing = { id: "1", confirm_sent_at: ago(DAY) };
+  it("looks up by hash and confirms, keyed on id and the same hash", async () => {
+    existing = { id: "1", confirm_sent_at: ago(DAY), unsubscribe_reason: null };
     expect(await confirmSubscription("tok", NOW)).toBe("confirmed");
     const [sel] = ops;
     expect(sel.eq).toEqual([["confirm_token_hash", sha("tok")]]);
     const [upd] = writes("update");
-    expect(upd.values).toEqual({ status: "confirmed", confirmed_at: NOW.toISOString(), confirm_token_hash: null });
-    expect(upd.eq).toEqual([["id", "1"]]);
+    expect(upd.values).toEqual({
+      status: "confirmed",
+      confirmed_at: NOW.toISOString(),
+      confirm_token_hash: null,
+      unsubscribe_reason: null,
+    });
+    expect(upd.eq).toEqual([
+      ["id", "1"],
+      ["confirm_token_hash", sha("tok")],
+    ]);
+    expect(upd.returning).toBe("id");
+    expect(deleteSuppression).not.toHaveBeenCalled();
+  });
+  it("the row changed underneath (0 rows updated): invalid, no suppression call", async () => {
+    existing = { id: "1", confirm_sent_at: ago(DAY), unsubscribe_reason: "ManualSuppression" };
+    updatedRows = [];
+    expect(await confirmSubscription("tok", NOW)).toBe("invalid");
+    expect(deleteSuppression).not.toHaveBeenCalled();
+  });
+  it("a previously unsubscribed address: removes its broadcast suppression after confirming", async () => {
+    existing = { id: "1", email: "a@b.co", confirm_sent_at: ago(DAY), unsubscribe_reason: "ManualSuppression" };
+    expect(await confirmSubscription("tok", NOW)).toBe("confirmed");
+    expect(ops[0].columns).toContain("email");
+    expect(ops[0].columns).toContain("unsubscribe_reason");
+    expect(deleteSuppression).toHaveBeenCalledWith("pm", "broadcast", "a@b.co");
+    const [upd] = writes("update");
+    expect(upd.values).toMatchObject({ unsubscribe_reason: null });
+  });
+  it("still confirms when the suppression delete fails", async () => {
+    existing = { id: "1", email: "a@b.co", confirm_sent_at: ago(DAY), unsubscribe_reason: "HardBounce" };
+    deleteSuppression.mockResolvedValue(false);
+    expect(await confirmSubscription("tok", NOW)).toBe("confirmed");
+    expect(deleteSuppression).toHaveBeenCalledTimes(1);
+  });
+  it("skips the suppression delete when the Postmark env is missing", async () => {
+    existing = { id: "1", email: "a@b.co", confirm_sent_at: ago(DAY), unsubscribe_reason: "HardBounce" };
+    env.broadcastStream = undefined;
+    expect(await confirmSubscription("tok", NOW)).toBe("confirmed");
+    env.broadcastStream = "broadcast";
+    env.postmarkToken = undefined;
+    expect(await confirmSubscription("tok", NOW)).toBe("confirmed");
+    expect(deleteSuppression).not.toHaveBeenCalled();
   });
   it("older than 7 days: expired, no update", async () => {
     existing = { id: "1", confirm_sent_at: ago(8 * DAY) };
