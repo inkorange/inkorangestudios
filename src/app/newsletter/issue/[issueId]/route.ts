@@ -4,6 +4,9 @@ import { UNSUBSCRIBE_PLACEHOLDER } from "@/lib/newsletter/email/render";
 import { createServiceClient } from "@/lib/supabase/server";
 
 const ISSUE_ID = /^[A-Za-z0-9._-]{1,128}$/;
+// The html is frozen when the send is claimed, and earlier batches already carry the link, so an
+// unfinished (sending) or stopped (failed) send is served too.
+const VIEWABLE = ["sending", "sent", "failed"];
 
 const notFound = () => new Response("Not found", { status: 404, headers: { "x-robots-tag": "noindex" } });
 
@@ -19,7 +22,7 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ issueId: s
     .from("studio_newsletter_sends")
     .select("html")
     .eq("issue_id", issueId)
-    .eq("status", "sent")
+    .in("status", VIEWABLE)
     .maybeSingle();
   if (error || !data || typeof data.html !== "string") return notFound();
 

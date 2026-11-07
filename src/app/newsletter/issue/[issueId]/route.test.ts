@@ -6,7 +6,7 @@ const db = vi.hoisted(() => {
   const calls: Array<[string, ...unknown[]]> = [];
   const state = { result: { data: null as { html: string } | null, error: null as unknown } };
   const chain: Record<string, unknown> = {};
-  for (const name of ["from", "select", "eq"]) {
+  for (const name of ["from", "select", "eq", "in"]) {
     chain[name] = (...args: unknown[]) => {
       calls.push([name, ...args]);
       return chain;
@@ -32,10 +32,15 @@ beforeEach(() => {
   db.state.result = { data: null, error: null };
 });
 
-it("returns 404 for an unknown or unsent issue", async () => {
+it("returns 404 for an unknown issue", async () => {
   expect((await get("issue-1")).status).toBe(404);
   expect(db.calls).toContainEqual(["eq", "issue_id", "issue-1"]);
-  expect(db.calls).toContainEqual(["eq", "status", "sent"]);
+});
+
+it("serves sends that are sent, still sending or failed (html is frozen at claim time)", async () => {
+  await get("issue-1");
+  expect(db.calls).toContainEqual(["in", "status", ["sending", "sent", "failed"]]);
+  expect(db.calls.some(([name, col]) => name === "eq" && col === "status")).toBe(false);
 });
 
 it.each(["bad id", "a/b", "", "x".repeat(129), "id%00"])("returns 404 for malformed id %j without querying", async (id) => {
