@@ -2,7 +2,9 @@ import { visionTool } from "@sanity/vision";
 import { defineConfig } from "sanity";
 import { structureTool } from "sanity/structure";
 import { schemaTypes } from "./src/sanity/schemaTypes";
-import { structure } from "./src/sanity/structure";
+import { filterTemplates } from "./src/sanity/templates";
+import { newsletterActions } from "./src/sanity/newsletter/actions";
+import { defaultDocumentNode, structure } from "./src/sanity/structure";
 
 const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
 if (!projectId) throw new Error("NEXT_PUBLIC_SANITY_PROJECT_ID is not set");
@@ -15,16 +17,24 @@ export default defineConfig({
   basePath: "/studio",
   projectId,
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || "production",
-  plugins: [structureTool({ structure }), visionTool()],
+  plugins: [structureTool({ structure, defaultDocumentNode }), visionTool()],
   schema: {
     types: schemaTypes,
-    // Settings is a singleton: it can't be created from the "new document" menu.
-    templates: (templates) => templates.filter((t) => t.schemaType !== "studioSettings"),
+    // Settings is a singleton and newsletter requests/deliveries are made by code:
+    // none of them can be created from the "new document" menu.
+    templates: filterTemplates,
   },
   document: {
-    actions: (prev, { schemaType }) =>
-      schemaType === "studioSettings"
-        ? prev.filter(({ action }) => action !== "duplicate" && action !== "delete")
-        : prev,
+    // Settings can't be duplicated or deleted. Newsletter issues add the send
+    // actions after the defaults, so Publish stays primary and Duplicate stays.
+    actions: (prev, { schemaType }) => {
+      if (schemaType === "studioSettings")
+        return prev.filter(
+          ({ action }) => action !== "duplicate" && action !== "delete",
+        );
+      if (schemaType === "studioNewsletterIssue")
+        return [...prev, ...newsletterActions];
+      return prev;
+    },
   },
 });

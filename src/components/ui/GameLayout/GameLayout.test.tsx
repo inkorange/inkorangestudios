@@ -35,3 +35,8 @@ it("renders only the slots it is given", () => {
   expect(container.querySelector('[data-frame]')).toHaveAttribute("data-store", "false");
   expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
 });
+
+it("gives the beta slot the id beta so links can jump to the signup", () => {
+  const { container } = render(<GameLayout title={<h1>Title</h1>} beta={<p>Beta</p>} />);
+  expect(container.querySelector('[data-slot="beta"]')).toHaveAttribute("id", "beta");
+});

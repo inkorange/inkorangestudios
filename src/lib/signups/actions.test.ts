@@ -12,6 +12,8 @@ const createServiceClient = vi.fn();
 vi.mock("@/lib/supabase/server", () => ({ createServiceClient: () => createServiceClient() }));
 vi.mock("@/lib/signups/turnstile", () => ({ verifyTurnstile: (...a: unknown[]) => verifyTurnstile(...a) }));
 vi.mock("@/lib/signups/notify", () => ({ notifyOwner: (...a: unknown[]) => notifyOwner(...a) }));
+const subscribe = vi.fn();
+vi.mock("@/lib/newsletter/subscribers", () => ({ subscribe: (...a: unknown[]) => subscribe(...a) }));
 const getGame = vi.fn();
 vi.mock("@/lib/sanity/content", () => ({ getGame: (...a: unknown[]) => getGame(...a) }));
 
@@ -41,13 +43,13 @@ beforeEach(() => {
   insert.mockResolvedValue({ error: null });
   from.mockReturnValue({ upsert, insert });
   createServiceClient.mockReturnValue({ from });
+  subscribe.mockResolvedValue({ ok: true });
   getGame.mockResolvedValue({ slug: "terraforge", name: "TerraForge", beta: { state: "open", platforms: [], title: null, body: null } });
 });
 
 describe("infrastructure failures", () => {
   const cases: [string, () => Promise<unknown>][] = [
     ["beta", () => joinBeta(idle, form({ email: "a@b.co", game: "g" }))],
-    ["newsletter", () => subscribeNewsletter(idle, form({ email: "a@b.co" }))],
     ["launch alert", () => requestLaunchAlert(idle, form({ email: "a@b.co", game: "g", platform: "ios" }))],
     ["contact", () => sendContactMessage(idle, form({ name: "A", email: "a@b.co", message: "hi" }))],
   ];
@@ -172,29 +174,30 @@ describe("joinBeta", () => {
 });
 
 describe("subscribeNewsletter", () => {
-  it("stores with source, never notifies", async () => {
+  it("hands the email and source to subscribe, never notifies", async () => {
     expect(await subscribeNewsletter(idle, form({ email: "a@b.co", source: "home" }))).toEqual(OK);
-    expect(from).toHaveBeenCalledWith("studio_newsletter_signups");
-    expect(upsert).toHaveBeenCalledWith(
-      { email: "a@b.co", source: "home" },
-      { onConflict: "email", ignoreDuplicates: true },
-    );
+    expect(subscribe).toHaveBeenCalledWith("a@b.co", "home");
+    expect(from).not.toHaveBeenCalled();
     expect(notifyOwner).not.toHaveBeenCalled();
   });
   it("defaults source to footer; no x-forwarded-for passes undefined ip", async () => {
     headerGet.mockReturnValue(null);
     await subscribeNewsletter(idle, form({ email: "a@b.co" }));
-    expect(upsert.mock.calls[0][0].source).toBe("footer");
+    expect(subscribe).toHaveBeenCalledWith("a@b.co", "footer");
     expect(verifyTurnstile).toHaveBeenCalledWith("", undefined);
   });
-  it("supabase error -> error state", async () => {
-    upsert.mockReturnValue({ select: async () => ({ data: null, error: { message: "x" } }) });
+  it("subscribe failing -> error state", async () => {
+    subscribe.mockResolvedValue({ ok: false });
     expect(await subscribeNewsletter(idle, form({ email: "a@b.co" }))).toEqual(FAIL);
   });
-  it("failed human check -> error and no DB call", async () => {
+  it("subscribe throwing -> error state", async () => {
+    subscribe.mockRejectedValue(new Error("x"));
+    expect(await subscribeNewsletter(idle, form({ email: "a@b.co" }))).toEqual(FAIL);
+  });
+  it("failed human check -> error and no subscribe", async () => {
     verifyTurnstile.mockResolvedValue(false);
     expect(await subscribeNewsletter(idle, form({ email: "a@b.co" }))).toEqual(HUMAN);
-    expect(from).not.toHaveBeenCalled();
+    expect(subscribe).not.toHaveBeenCalled();
   });
 });
 

@@ -17,7 +17,7 @@ export function NewsletterForm({ tone, source }: NewsletterFormProps) {
       submitLabel="Subscribe"
       tone={tone}
       hidden={{ source }}
-      successMessage="You're on the list. Watch your inbox for news."
+      successMessage="Check your inbox to confirm your subscription."
     />
   );
 }

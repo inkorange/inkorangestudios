@@ -44,7 +44,7 @@ it("NewsletterForm submits with its source and shows the success copy", async ()
   render(<NewsletterForm tone="on-dark" source="footer" />);
   await userEvent.type(screen.getByRole("textbox", { name: "Email address" }), "a@b.co");
   await userEvent.click(screen.getByRole("button", { name: "Subscribe" }));
-  expect(await screen.findByRole("status")).toHaveTextContent("You're on the list. Watch your inbox for news.");
+  expect(await screen.findByRole("status")).toHaveTextContent("Check your inbox to confirm your subscription.");
   expect(subscribeNewsletter.mock.calls[0][1].get("source")).toBe("footer");
 });
 
