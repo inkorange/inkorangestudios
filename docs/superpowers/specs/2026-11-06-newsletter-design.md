@@ -148,7 +148,7 @@ the button already covers the action). *Builder's call if trivial.*
   return WebP). Every `<img>` has width/height and alt.
 - Links get absolute URLs on `NEXT_PUBLIC_SITE_URL`.
 - Footer: logo, "You're getting this because you signed up at
-  inkorangestudios.com", unsubscribe link (Postmark's `{{{pm:unsubscribe}}}`
+  inkorangestudios.com", unsubscribe link (Postmark's `{{{ pm:unsubscribe }}}`
   placeholder in both the HTML and text parts of the broadcast; stripped
   from the frozen copy used for "view in browser"; a plain note in previews
   and tests), "View in
@@ -232,7 +232,7 @@ explicitly (`after()` runs up to it).
   `studio_newsletter_requests (request_id unique, …)` first; a conflict means
   it was already handled (webhook retry): stop. This covers retries,
   redelivery and replays.
-- Responds 200 quickly and does the work in `after()`.
+- Responds 202 quickly and does the work in `after()`.
 - **test**: render, send one message on the transactional stream, write
   `lastTest` and `audienceCount` to the delivery document.
 - **count**: write `audienceCount`.
@@ -324,7 +324,7 @@ New environment variables (all in `.env.example` with comments):
 
 - `NEWSLETTER_FROM_EMAIL`: verified sender, e.g. `news@inkorangestudios.com`.
 - `NEWSLETTER_TEST_EMAIL`: where tests go.
-- `POSTMARK_BROADCAST_STREAM`: the Broadcast stream id, e.g. `newsletter`.
+- `POSTMARK_BROADCAST_STREAM`: the Broadcast stream id, e.g. `broadcast`.
 - `NEWSLETTER_WEBHOOK_SECRET`: Sanity webhook secret for sending.
 - `POSTMARK_WEBHOOK_USER`, `POSTMARK_WEBHOOK_PASSWORD`: basic auth for the
   Postmark webhook.
@@ -339,15 +339,17 @@ confirmation email simply can't go out until Postmark works (the row stays
 
 1. Verify the sending domain in Postmark (DKIM, Return-Path).
 2. Create the Broadcast message stream; set managed unsubscribe.
-3. Add the Subscription Change webhook (URL with basic auth).
-4. Add the Sanity webhook for `/api/newsletter/webhook`: type
+3. Apply `0002_newsletter.sql` by hand, before merging: merging deploys
+   production, and signups fail without the new columns.
+4. Set the new env vars in Vercel, before or with the merge. Confirm the
+   existing `SANITY_API_TOKEN` has the Editor role in sanity.io/manage → API →
+   Tokens (it can then write the whole shared project, portfolio included:
+   accepted by Chris).
+5. Merge (deploys production). Fill in the mailing address in Settings.
+6. Add the Subscription Change webhook (URL with basic auth).
+7. Add the Sanity webhook for `/api/newsletter/webhook`: type
    `studioNewsletterRequest`, create only, the projection above, secret set.
-5. Apply `0002_newsletter.sql` by hand.
-6. Set the new env vars in Vercel. Confirm the existing `SANITY_API_TOKEN`
-   has the Editor role in sanity.io/manage → API → Tokens (it can then write
-   the whole shared project, portfolio included: accepted by Chris). Fill in
-   the mailing address in Settings.
-7. Delete or re-subscribe the two test signups.
+8. Delete or re-subscribe the two test signups.
 
 ### Decisions made during the build
 
@@ -358,6 +360,8 @@ confirmation email simply can't go out until Postmark works (the row stays
 - The Postmark unsubscribe webhook returns 500 on a database error so Postmark retries.
 - "Resume sending" is offered for any failed send and for a send with no progress for 15 minutes.
 - "Send to subscribers" is disabled when there are 0 confirmed subscribers or the delivery status can't be loaded.
+- The unsubscribe placeholder is `{{{ pm:unsubscribe }}}` (with spaces), defined once in the renderer and reused by "view in browser" (R11).
+- Confirming an address that was unsubscribed lifts its suppression on the broadcast stream (best effort, never fails the confirm); an address unsubscribed by a spam complaint is not revived by the form, which answers the same as always and sends nothing (R12).
 
 ## Testing expectations
 
