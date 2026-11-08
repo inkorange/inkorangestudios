@@ -118,6 +118,9 @@
   --logo-width-l: 220px;
   --play-button-size: #{fluid(68, 96)};
   --thumb-height: #{fluid(60, 92)};
+  --thumb-height-tall: #{fluid(112, 160)};
+  --media-backdrop-blur: 24px;
+  --thumb-rail-width: #{fluid(120, 200)};
   --app-icon-size: #{fluid(56, 96)};
   --app-icon-size-s: 40px;
   --app-icon-nudge: 4px;

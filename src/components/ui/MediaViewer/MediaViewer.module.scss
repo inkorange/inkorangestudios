@@ -10,6 +10,11 @@
   }
 }
 
+// Space under the section heading, on top of the root's gap.
+.heading {
+  padding-bottom: var(--space-2);
+}
+
 .stage {
   position: relative;
   aspect-ratio: 16 / 10;
@@ -22,6 +27,17 @@
     aspect-ratio: 16 / 7.5;
     border-radius: var(--radius-3xl);
   }
+
+  // Upright phones: an upright screenshot gets a taller stage so it is big enough to read.
+  @media (orientation: portrait) {
+    &[data-orientation="portrait"] {
+      aspect-ratio: 4 / 5;
+
+      @include bp(md) {
+        aspect-ratio: 16 / 7.5;
+      }
+    }
+  }
 }
 
 .fill {
@@ -31,6 +47,64 @@
   height: 100%;
   border: 0;
   object-fit: cover;
+
+  // Screenshots are never cropped: the whole image shows, whatever its shape.
+  .stage[data-fit="contain"] & {
+    object-fit: contain;
+  }
+}
+
+// The picture fades in once loaded; until then the Loading spinner holds the frame.
+.fill,
+.backdrop {
+  transition: opacity var(--duration-base) var(--ease-out);
+
+  .stage[data-loaded="false"] & {
+    opacity: 0;
+  }
+}
+
+.loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner {
+  width: var(--space-12);
+  height: var(--space-12);
+  border: 3px solid var(--color-on-dark-4);
+  border-top-color: var(--color-accent);
+  border-radius: var(--radius-pill);
+  animation: media-spin var(--duration-draw) linear infinite;
+
+  // No motion: a still ring (accent quarter included) still reads as "loading".
+  @include reduced-motion {
+    animation: none;
+  }
+}
+
+.loading-text {
+  @include visually-hidden;
+}
+
+@keyframes media-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// A blurred, dimmed copy of the screenshot filling the space around it.
+.backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(var(--media-backdrop-blur)) brightness(0.55);
+  transform: scale(1.15);
 }
 
 .scrim {
@@ -81,26 +155,37 @@
   }
 }
 
+// Phones: a horizontal scroll strip. From md: a row that wraps.
 .thumbs {
+  --thumb-size: var(--thumb-height);
+
   display: flex;
   gap: var(--space-2);
   padding-bottom: var(--space-1);
   overflow-x: auto;
 
   @include bp(md) {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(var(--grid-min-thumb), 1fr));
+    flex-wrap: wrap;
     gap: var(--space-3);
     padding-bottom: 0;
     overflow-x: visible;
   }
+
+  // Upright screenshots need taller thumbs to stay readable and tappable.
+  &[data-tall="true"] {
+    --thumb-size: var(--thumb-height-tall);
+  }
 }
 
+// Each thumb is its picture's own shape (--thumb-ratio, set per item), so nothing is cropped.
 .thumb {
   position: relative;
   overflow: hidden;
-  flex: 0 0 calc(var(--thumb-height) * 1.6);
-  height: var(--thumb-height);
+  flex: 0 0 auto;
+  min-width: var(--tap-min);
+  max-width: calc(var(--thumb-size) * 2);
+  height: var(--thumb-size);
+  aspect-ratio: var(--thumb-ratio, 16 / 10);
   padding: var(--space-1);
   font-family: var(--font-mono);
   font-size: var(--text-mono-xs);
@@ -111,7 +196,6 @@
   border-radius: var(--radius-xs);
 
   @include bp(md) {
-    flex-basis: auto;
     padding: var(--space-2);
     border-radius: var(--radius-s);
   }
@@ -164,5 +248,230 @@
     @include focus-ring;
 
     outline-color: var(--color-on-dark);
+  }
+}
+
+// The zoomable layer over the stage. Not zoomed, a vertical swipe still scrolls the page.
+.surface {
+  position: absolute;
+  inset: 0;
+  cursor: zoom-in;
+  touch-action: pan-y;
+  user-select: none;
+
+  &[data-zoomed="true"] {
+    cursor: grab;
+    touch-action: none;
+  }
+
+  &[data-zoomed="true"][data-gesture="true"] {
+    cursor: grabbing;
+  }
+}
+
+.pan {
+  position: absolute;
+  inset: 0;
+  transform: translate(var(--zoom-x, 0), var(--zoom-y, 0)) scale(var(--zoom-scale, 1));
+  transition: transform var(--duration-base) var(--ease-out);
+
+  // Follow the fingers exactly while a gesture is under way.
+  .surface[data-gesture="true"] & {
+    transition: none;
+  }
+}
+
+// Opens the full-screen view.
+.zoom-open {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap-min);
+  height: var(--tap-min);
+  padding: 0;
+  color: var(--color-on-dark);
+  cursor: pointer;
+  background-color: var(--color-shadow);
+  border: 0;
+  border-radius: var(--radius-pill);
+
+  @include bp(md) {
+    top: var(--space-5);
+    right: var(--space-5);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+
+    outline-color: var(--color-on-dark);
+  }
+}
+
+// Full-screen zoom view (a modal dialog).
+.zoom {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  overscroll-behavior: contain;
+  color: var(--color-on-dark);
+  background-color: var(--color-ink);
+  border: 0;
+
+  &::backdrop {
+    background-color: var(--color-ink);
+  }
+}
+
+.zoom-area {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  cursor: zoom-in;
+  touch-action: none;
+  user-select: none;
+
+  &[data-zoomed="true"] {
+    cursor: grab;
+  }
+
+  &[data-zoomed="true"][data-gesture="true"] {
+    cursor: grabbing;
+  }
+}
+
+.zoom-picture {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  transform: translate(var(--zoom-x, 0), var(--zoom-y, 0)) scale(var(--zoom-scale, 1));
+  transition: transform var(--duration-base) var(--ease-out);
+
+  // Follow the fingers exactly while a gesture is under way.
+  .zoom-area[data-gesture="true"] & {
+    transition: none;
+  }
+}
+
+.zoom-image {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.zoom-controls {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  display: flex;
+  gap: var(--space-2);
+}
+
+// Holds the thumbs and the "N more" note over their end.
+.rail {
+  position: relative;
+}
+
+// Shown while some thumbs are out of view past the end: a fade with a count.
+.more-hint {
+  position: absolute;
+  display: flex;
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-xs);
+  letter-spacing: var(--tracking-mono);
+  color: var(--color-ink);
+  text-transform: uppercase;
+  pointer-events: none;
+
+  &[data-axis="y"] {
+    right: 0;
+    bottom: 0;
+    left: 0;
+    align-items: flex-end;
+    justify-content: center;
+    height: var(--space-16);
+    padding-bottom: var(--space-1);
+    background-image: linear-gradient(180deg, transparent, var(--color-paper) 70%);
+  }
+
+  &[data-axis="x"] {
+    top: 0;
+    right: 0;
+    bottom: var(--space-1);
+    align-items: center;
+    justify-content: flex-end;
+    width: var(--space-24);
+    padding-right: var(--space-1);
+    background-image: linear-gradient(90deg, transparent, var(--color-paper) 60%);
+  }
+}
+
+// Landscape screens (desktop, and phones held sideways): the thumbs become a rail on the
+// left, as tall as the stage and scrolling, with the stage on the right.
+@media (orientation: landscape) {
+  .root[data-rail="true"] {
+    display: grid;
+    grid-template-columns: var(--thumb-rail-width) minmax(0, 1fr);
+    column-gap: var(--space-3);
+
+    .heading {
+      grid-column: 1 / -1;
+    }
+
+    .stage {
+      grid-row: 2;
+      grid-column: 2;
+    }
+
+    // height 0 + min-height 100%: the rail adds nothing to the row's height (the stage alone
+    // sets it) and then fills it.
+    .rail {
+      grid-row: 2;
+      grid-column: 1;
+      height: 0;
+      min-height: 100%;
+    }
+
+    .thumbs {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+
+      // max-content: auto rows would shrink to fit the fixed-height rail and overlap the thumbs.
+      grid-auto-rows: max-content;
+      align-content: start;
+      gap: var(--space-2);
+      height: 100%;
+      padding: var(--space-1);
+      overflow: hidden auto;
+    }
+
+    .thumb {
+      width: 100%;
+      min-width: 0;
+      max-width: none;
+      height: auto;
+      padding: 0;
+
+      // Wide pictures take the whole rail; upright ones sit two to a row.
+      &[data-orientation="landscape"] {
+        grid-column: 1 / -1;
+      }
+    }
   }
 }

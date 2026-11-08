@@ -27,7 +27,7 @@ export type GameLayoutProps = {
 /**
  * The game page body. Desktop: title, key art and media full width, then a main column
  * beside the store card and info cards, then the full-width band. Phones: one
- * column in the mockup's order (media, title, key art, store, main column, beta, band, cards).
+ * column in the desktop order (title, key art, media, store, main column, beta, band, cards).
  */
 export function GameLayout({ title, art, media, store, about, features, details, updates, beta, cards, more }: GameLayoutProps) {
   const hasMain = Boolean(about || features || details || updates);

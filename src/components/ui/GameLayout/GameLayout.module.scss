@@ -54,7 +54,7 @@
 }
 
 .media {
-  order: 1;
+  order: 3;
 
   @include bp(lg) {
     grid-area: media;
@@ -66,7 +66,7 @@
 }
 
 .title {
-  order: 2;
+  order: 1;
 
   @include bp(lg) {
     grid-area: title;
@@ -74,9 +74,9 @@
   }
 }
 
-// The key art, right under the title on both phones and desktop.
+// The key art, right under the title on both phones and desktop; the media follows it.
 .art {
-  order: 3;
+  order: 2;
 
   @include bp(lg) {
     grid-area: art;
