@@ -50,7 +50,7 @@ export type Cta = { label: string; href: string };
  * and general release is open. Titles and bodies are the Studio's overrides (null: use the default).
  */
 export type GameBeta =
-  | { state: "open"; platforms: string[]; title: string | null; body: string | null; why: BetaWhy | null }
+  | { state: "open"; platforms: string[]; title: string | null; body: string | null; perk: string | null; why: BetaWhy | null }
   | { state: "closed"; title: string | null; body: string | null };
 
 /** The tester page's "why we need testers" section; null (hidden) without a title. */

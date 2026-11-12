@@ -83,6 +83,30 @@
   }
 }
 
+// The tester reward: semibold on-dark text after an ink check in an accent circle.
+.perk {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  margin: 0;
+  font-size: var(--text-body-l);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-normal);
+  color: var(--color-on-dark);
+}
+
+.perk-icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--space-7);
+  height: var(--space-7);
+  color: var(--color-ink);
+  background-color: var(--color-accent);
+  border-radius: var(--radius-pill);
+}
+
 .action {
   padding-top: var(--space-2);
 }

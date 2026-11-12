@@ -137,7 +137,7 @@ function mapBetaWhy(o: Record<string, unknown>): BetaWhy | null {
 
 function mapBeta(o: Record<string, unknown> | null): GameBeta | null {
   const copy = { title: clean(o?.title), body: clean(o?.body) };
-  if (o?.signup === "yes") return { state: "open", platforms: strList.parse(o.platforms), ...copy, why: mapBetaWhy(o) };
+  if (o?.signup === "yes") return { state: "open", platforms: strList.parse(o.platforms), ...copy, perk: clean(o.perk), why: mapBetaWhy(o) };
   if (o?.signup === "closed") return { state: "closed", ...copy };
   return null;
 }

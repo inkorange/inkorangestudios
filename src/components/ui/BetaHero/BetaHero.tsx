@@ -17,6 +17,8 @@ export type BetaHeroProps = {
   notice?: string | null;
   /** The icon beside the notice. */
   noticeIcon?: IconName;
+  /** What testers get, shown just above the action with a check mark. */
+  perk?: string | null;
   /** The signup form, or a button once testing has closed. */
   action?: ReactNode;
   /** A small line under the action: what happens next. */
@@ -30,7 +32,7 @@ export type BetaHeroProps = {
  * The top of a game's tester page: an optional notice on paper, then a dark card with the pitch and the
  * signup on one side and the key art on the other (stacked on a phone, art first).
  */
-export function BetaHero({ eyebrow, title, lead, notice, noticeIcon, action, note, art, artLabel }: BetaHeroProps) {
+export function BetaHero({ eyebrow, title, lead, notice, noticeIcon, perk, action, note, art, artLabel }: BetaHeroProps) {
   return (
     <div className={styles.root}>
       {notice ? (
@@ -60,6 +62,14 @@ export function BetaHero({ eyebrow, title, lead, notice, noticeIcon, action, not
             <Text size="lead" tone="on-dark-2">
               {lead}
             </Text>
+          ) : null}
+          {perk ? (
+            <p className={styles.perk}>
+              <span className={styles["perk-icon"]} aria-hidden="true">
+                <Icon name="check" size={16} />
+              </span>
+              <span>{perk}</span>
+            </p>
           ) : null}
           {action ? <div className={styles.action}>{action}</div> : null}
           {note ? (

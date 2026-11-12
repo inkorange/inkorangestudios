@@ -369,6 +369,7 @@ const COMPONENTS: Entry[] = [
         eyebrow="From the makers of TerraForge"
         title="Play Space Cowboy before anyone else."
         lead="A story-driven puzzle game: plan the perfect shot, slingshot around obstacles and hit the target."
+        perk="Testers get the full game free."
         action={
           <EmailSignupForm
             action={demoAction}

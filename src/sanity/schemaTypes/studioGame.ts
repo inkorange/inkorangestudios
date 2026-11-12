@@ -225,6 +225,13 @@ export const studioGame = defineType({
           hidden: ({ parent }) => parent?.signup === "no" || !parent?.signup,
         }),
         defineField({
+          name: "perk",
+          title: "Tester reward",
+          type: "string",
+          description: 'What testers get, shown beside the signup on the tester page, e.g. "Testers get the full game free." Leave empty to hide.',
+          hidden: ({ parent }) => parent?.signup !== "yes",
+        }),
+        defineField({
           name: "whyTitle",
           title: "Why we need testers: title",
           type: "string",

@@ -292,7 +292,7 @@ describe("beta tester band", () => {
   });
 
   it("Yes shows the signup for this game, tagged as from the game page", async () => {
-    await renderWith({ ...full, beta: { state: "open", platforms: ["ios", "android"], title: null, body: null, why: null } });
+    await renderWith({ ...full, beta: { state: "open", platforms: ["ios", "android"], title: null, body: null, perk: null, why: null } });
     const b = band()!;
     expect(within(b).getByText("Play TerraForge before anyone else.")).toBeInTheDocument();
     expect(within(b).getByText("Join the beta and help shape the game before launch.")).toBeInTheDocument();
@@ -303,7 +303,7 @@ describe("beta tester band", () => {
   });
 
   it("uses the Studio's title and body when set", async () => {
-    await renderWith({ ...full, beta: { state: "open", platforms: ["android"], title: "Test it first", body: "Android only.", why: null } });
+    await renderWith({ ...full, beta: { state: "open", platforms: ["android"], title: "Test it first", body: "Android only.", perk: null, why: null } });
     const b = band()!;
     expect(within(b).getByText("Test it first")).toBeInTheDocument();
     expect(within(b).getByText("Android only.")).toBeInTheDocument();
