@@ -49,3 +49,20 @@
     text-align: start;
   }
 }
+
+// Phone, longer copy: the title sits above its body, both left-aligned.
+.root[data-phone="stack"] .item {
+  display: block;
+}
+
+.root[data-phone="stack"] .title {
+  margin-bottom: var(--space-1);
+
+  @include bp(md) {
+    margin-bottom: var(--space-2);
+  }
+}
+
+.root[data-phone="stack"] .body {
+  text-align: start;
+}

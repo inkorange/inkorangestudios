@@ -229,8 +229,9 @@ describe("mapGame beta testing", () => {
       platforms: ["ios", "android"],
       title: "Test it",
       body: null,
+      why: null,
     });
-    expect(game({ signup: "yes" })).toEqual({ state: "open", platforms: [], title: null, body: null });
+    expect(game({ signup: "yes" })).toEqual({ state: "open", platforms: [], title: null, body: null, why: null });
   });
   it("Closed keeps only the copy", () => {
     expect(game({ signup: "closed", platforms: ["ios"], title: "Done" })).toEqual({ state: "closed", title: "Done", body: null });

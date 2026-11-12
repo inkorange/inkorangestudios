@@ -5,6 +5,7 @@ import type {
   Faq,
   Featured,
   Game,
+  BetaWhy,
   GameBeta,
   GameSummary,
   ImageRef,
@@ -123,9 +124,20 @@ const gameShape = lenient({
 });
 
 /** "yes" opens the signup, "closed" shows the closed notice; "no", unset or anything else shows nothing. */
+function mapBetaWhy(o: Record<string, unknown>): BetaWhy | null {
+  const title = clean(o.whyTitle);
+  if (!title) return null;
+  const reasons = list.parse(o.reasons).flatMap((r) => {
+    const item = obj.parse(r);
+    const reason = clean(item?.title);
+    return reason ? [{ title: reason, body: clean(item?.body) ?? "" }] : [];
+  });
+  return { title, body: clean(o.whyBody), reasons: reasons.slice(0, 3) };
+}
+
 function mapBeta(o: Record<string, unknown> | null): GameBeta | null {
   const copy = { title: clean(o?.title), body: clean(o?.body) };
-  if (o?.signup === "yes") return { state: "open", platforms: strList.parse(o.platforms), ...copy };
+  if (o?.signup === "yes") return { state: "open", platforms: strList.parse(o.platforms), ...copy, why: mapBetaWhy(o) };
   if (o?.signup === "closed") return { state: "closed", ...copy };
   return null;
 }

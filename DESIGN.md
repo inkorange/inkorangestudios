@@ -687,9 +687,9 @@ A "Games / TerraForge" trail.
 
 Three-up (or fewer) values, each under a 3px ink rule.
 
-- **Use for:** the studio band's "Play first / Smart, not stuffy / Play anywhere".
+- **Use for:** the studio band's "Play first / Smart, not stuffy / Play anywhere", and the tester page's "why we need testers" reasons.
 - **Don't use for:** numbered features (use `FeatureList`).
-- **Props / variants:** `items` of `{ title, body }`. Below `md` each value is a row (title left, body right) under a 2px rule; from `md` they are columns under a 3px rule that wrap automatically.
+- **Props / variants:** `items` of `{ title, body }`; `phone`: `row` (default) or `stack`. Below `md` each value is a row (title left, body right) under a 2px rule, or with `stack` the title above a left-aligned body (the tester page's reasons, whose copy is longer); from `md` they are columns under a 3px rule that wrap automatically.
 - **Accessibility:** a list; the title is a paragraph, not a heading.
 
 ### NavPillBar

@@ -26,7 +26,7 @@ const GAME_FIELDS = `
   priceLabel,
   "primaryCta": primaryCta{ label, url },
   "notifyPlatform": notifyPlatform{ enabled, platform },
-  "betaTesting": betaTesting{ signup, platforms, title, body },
+  "betaTesting": betaTesting{ signup, platforms, title, body, whyTitle, whyBody, reasons[]{ title, body } },
   pressKitUrl,
   featured`;
 

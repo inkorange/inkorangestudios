@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { BetaForm } from "@/components/forms/BetaForm";
-import { BetaHero, Button, CalloutBand, Container, FeatureList, Heading, MediaViewer, Section, Stack } from "@/components/ui";
+import { BetaHero, Button, CalloutBand, Container, Display, FeatureList, Heading, MediaViewer, Section, Stack, Statement, ValueList } from "@/components/ui";
 import { betaSignupCopy } from "@/lib/games";
 import { getGame, getGames } from "@/lib/sanity/content";
 import type { Game } from "@/lib/sanity/types";
@@ -85,6 +85,16 @@ export default async function BetaPage({ params }: Props) {
           />
         </Container>
       </Section>
+      {open && beta.why ? (
+        <Section tone="sand">
+          <Container>
+            <Stack gap={10}>
+              <Statement title={<Display size="l">{beta.why.title}</Display>} body={beta.why.body ?? ""} />
+              {beta.why.reasons.length > 0 ? <ValueList items={beta.why.reasons} phone="stack" /> : null}
+            </Stack>
+          </Container>
+        </Section>
+      ) : null}
       {game.media.length > 0 || game.features.length > 0 ? (
         <Section>
           <Container>
