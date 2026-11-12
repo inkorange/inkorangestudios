@@ -59,6 +59,40 @@ it("BetaForm renders its submit label and sends game and source", async () => {
   expect(validateBeta(fd)).toMatchObject({ ok: true, value: { game: "terra-forge", platform: "ios", source: "callout" } });
 });
 
+it("BetaForm on the tester page adds the ?from= link tag to its source and takes custom copy", async () => {
+  window.history.replaceState(null, "", "/beta/g?from=TerraForge");
+  render(
+    <BetaForm
+      game="g"
+      platforms={["android"]}
+      source="beta-page"
+      tone="on-dark"
+      layout="responsive"
+      label="Your Google Play email"
+      placeholder="you@gmail.com"
+      submitLabel="Become a tester"
+      successMessage="Thanks! See you on Google Play."
+    />,
+  );
+  await userEvent.type(screen.getByRole("textbox", { name: "Your Google Play email" }), "a@b.co");
+  await userEvent.click(screen.getByRole("button", { name: "Become a tester" }));
+  expect(await screen.findByRole("status")).toHaveTextContent("Thanks! See you on Google Play.");
+  const fd: FormData = joinBeta.mock.calls[0][1];
+  expect(fd.get("source")).toBe("beta-page-terraforge");
+  expect(validateBeta(fd)).toMatchObject({ ok: true, value: { source: "beta-page-terraforge", platform: "android" } });
+  window.history.replaceState(null, "", "/");
+});
+
+it("BetaForm ignores a ?from= tag that is not a plain slug", async () => {
+  window.history.replaceState(null, "", "/beta/g?from=<script>");
+  render(<BetaForm game="g" platforms={["android"]} source="beta-page" />);
+  await userEvent.type(screen.getByRole("textbox", { name: "Email address" }), "a@b.co");
+  await userEvent.click(screen.getByRole("button", { name: "Join the beta" }));
+  await screen.findByRole("status");
+  expect(joinBeta.mock.calls[0][1].get("source")).toBe("beta-page");
+  window.history.replaceState(null, "", "/");
+});
+
 it("BetaForm shows a platform select only with more than one platform", async () => {
   const { unmount } = render(<BetaForm game="g" platforms={["ios", "android"]} />);
   expect(await optionLabels("Platform")).toEqual(["iOS", "Android"]);

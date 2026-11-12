@@ -304,3 +304,33 @@ describe("mapTool", () => {
     expect(mapTool({ ...tool, status: "in-development", url: null })).toMatchObject({ status: "in-development", url: null });
   });
 });
+
+describe("mapGame tester page copy", () => {
+  const beta = (o: Record<string, unknown>) => mapGame({ slug: "s", name: "S", betaTesting: { signup: "yes", ...o } })!.beta;
+
+  it("maps the reward and the why section, dropping untitled reasons and keeping three", () => {
+    expect(
+      beta({
+        perk: " Free game. ",
+        whyTitle: "Help us.",
+        whyBody: "We're tiny.",
+        reasons: [{ title: "One", body: "a" }, { body: "no title" }, { title: "Two" }, { title: "Three", body: "c" }, { title: "Four", body: "d" }],
+      }),
+    ).toMatchObject({
+      perk: "Free game.",
+      why: {
+        title: "Help us.",
+        body: "We're tiny.",
+        reasons: [
+          { title: "One", body: "a" },
+          { title: "Two", body: "" },
+          { title: "Three", body: "c" },
+        ],
+      },
+    });
+  });
+
+  it("hides the why section without a title", () => {
+    expect(beta({ whyBody: "We're tiny.", reasons: [{ title: "One" }] })).toMatchObject({ perk: null, why: null });
+  });
+});

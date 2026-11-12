@@ -107,3 +107,18 @@ it("flags forms that carry extra fields (phone stacks the email above them)", ()
   rerender(<EmailSignupForm action={action} label="Email address" placeholder="p" submitLabel="Go" tone="on-accent" successMessage="Done" />);
   expect(container.querySelector("form")).toHaveAttribute("data-extra", "false");
 });
+
+it("takes the responsive layout (stacked on a phone, one row from md)", () => {
+  const { container } = render(
+    <EmailSignupForm
+      action={vi.fn()}
+      label="Email address"
+      placeholder="you@example.com"
+      submitLabel="Join"
+      tone="on-dark"
+      layout="responsive"
+      successMessage="Thanks"
+    />,
+  );
+  expect(container.querySelector("form")).toHaveAttribute("data-layout", "responsive");
+});

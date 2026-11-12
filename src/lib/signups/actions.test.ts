@@ -111,6 +111,25 @@ describe("joinBeta", () => {
     );
   });
 
+  it("names the tester page, and the site that linked to it", async () => {
+    const f = fd();
+    f.set("source", "beta-page-terraforge");
+    await joinBeta(idle, f);
+    expect(upsert.mock.calls[0][0].source).toBe("beta-page-terraforge");
+    expect(notifyOwner.mock.calls[0][0].lines).toContain(
+      "Signed up on: the TerraForge tester page, from the link on terraforge (https://www.inkorangestudios.com/beta/terraforge)",
+    );
+    notifyOwner.mockClear();
+    upsert.mockClear();
+    const plain = fd();
+    plain.set("email", "other@x.co");
+    plain.set("source", "beta-page");
+    await joinBeta(idle, plain);
+    expect(notifyOwner.mock.calls[0][0].lines).toContain(
+      "Signed up on: the TerraForge tester page (https://www.inkorangestudios.com/beta/terraforge)",
+    );
+  });
+
   it("turns away a signup once the game's testing has closed", async () => {
     getGame.mockResolvedValue({ slug: "terraforge", name: "TerraForge", beta: { state: "closed", title: null, body: null } });
     expect(await joinBeta(idle, fd())).toEqual({
