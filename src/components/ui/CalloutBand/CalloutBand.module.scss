@@ -40,6 +40,15 @@
   position: relative;
 }
 
+// Phone: the band has wrapped, so the action takes the full width under the text.
+.action {
+  flex-basis: 100%;
+
+  @include bp(md) {
+    flex-basis: auto;
+  }
+}
+
 .text {
   display: flex;
   flex: 1 1 460px;

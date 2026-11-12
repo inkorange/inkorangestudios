@@ -6,6 +6,7 @@ import type { FormState } from "@/lib/signups/types";
 import type { Faq, Featured, GameSummary, Media, PortableTextBlock, PostSummary } from "@/lib/sanity/types";
 import tokenFile from "@/styles/tokens.json";
 import { Accordion } from "../Accordion/Accordion";
+import { BetaHero } from "../BetaHero/BetaHero";
 import { Breadcrumb } from "../Breadcrumb/Breadcrumb";
 import { Button } from "../Button/Button";
 import { CalloutBand } from "../CalloutBand/CalloutBand";
@@ -356,6 +357,32 @@ const COMPONENTS: Entry[] = [
           Block
         </Button>
       </Stack>
+    ),
+  },
+  {
+    name: "BetaHero",
+    note: "The tester page's top: notice, then the dark pitch card. Shown with no art (dark placeholder). Renders its own h1.",
+    render: () => (
+      <BetaHero
+        notice="Android only for now. Sign up with the Google account you use for the Play Store on your Android phone."
+        noticeIcon="android"
+        eyebrow="From the makers of TerraForge"
+        title="Play Space Cowboy before anyone else."
+        lead="A story-driven puzzle game: plan the perfect shot, slingshot around obstacles and hit the target."
+        action={
+          <EmailSignupForm
+            action={demoAction}
+            label="Your Google Play email"
+            placeholder="you@gmail.com"
+            submitLabel="Become a tester"
+            tone="on-dark"
+            successMessage="Thanks!"
+          />
+        }
+        note="We'll add you to the test and email you a link to install it from Google Play."
+        art={null}
+        artLabel="Space Cowboy key art"
+      />
     ),
   },
   {

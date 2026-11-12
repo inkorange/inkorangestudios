@@ -19,6 +19,17 @@ async function findGame(slug: string): Promise<Game | null> {
   }
 }
 
+/** Where the signup happened, for the owner's email. */
+function signupPlace(source: string, name: string, game: string): string {
+  if (source === "game-page") return `the ${name} game page (${publicEnv.siteUrl}/games/${game})`;
+  if (source === "beta-page" || source.startsWith("beta-page-")) {
+    const tag = source.slice("beta-page-".length);
+    const from = tag ? `, from the link on ${tag}` : "";
+    return `the ${name} tester page${from} (${publicEnv.siteUrl}/beta/${game})`;
+  }
+  return `the home page beta callout (${publicEnv.siteUrl}/#beta)`;
+}
+
 export async function joinBeta(_prev: FormState, fd: FormData): Promise<FormState> {
   const v = validateBeta(fd);
   if (!v.ok) return rejection(v);
@@ -41,10 +52,7 @@ export async function joinBeta(_prev: FormState, fd: FormData): Promise<FormStat
 
   // Only for a new row: a repeat signup must not mail the owner again.
   if (r.isNew) {
-    const where =
-      source === "game-page"
-        ? `the ${name} game page (${publicEnv.siteUrl}/games/${game})`
-        : `the home page beta callout (${publicEnv.siteUrl}/#beta)`;
+    const where = signupPlace(source, name, game);
     try {
       await notifyOwner({
         subject: `Beta tester for ${name}: ${email}`,

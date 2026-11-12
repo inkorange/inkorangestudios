@@ -35,3 +35,41 @@ export const STORE_LINK_LABELS: Record<Platform, { badge: string; short: string 
   iOS: { badge: "Download on the App Store", short: "App Store" },
   Web: { badge: "Play in your browser", short: "Play in browser" },
 };
+
+/** What a tester signup asks for, by the platforms its beta is open on. */
+export type BetaSignupCopy = {
+  /** The warning at the top of the tester page; null when the beta is on both phones. */
+  notice: string | null;
+  /** The email field's (visually hidden) label. */
+  label: string;
+  placeholder: string;
+  /** What happens after signing up: under the form, and the success message. */
+  next: string;
+};
+
+export function betaSignupCopy(platforms: string[]): BetaSignupCopy {
+  const only = platforms.length === 1 ? platforms[0] : null;
+  if (only === "android") {
+    return {
+      notice:
+        "Android only for now. Sign up with the Google account you use for the Play Store on your Android phone.",
+      label: "Your Google Play email",
+      placeholder: "you@gmail.com",
+      next: "We'll add you to the test and email you a link to install it from Google Play.",
+    };
+  }
+  if (only === "ios") {
+    return {
+      notice: "iPhone only for now. To join, enter the email address of your Apple ID.",
+      label: "Your Apple ID email",
+      placeholder: "you@example.com",
+      next: "We'll email you a TestFlight invite to install it on your iPhone.",
+    };
+  }
+  return {
+    notice: null,
+    label: "Email address",
+    placeholder: "you@example.com",
+    next: "We'll email you when a beta spot opens.",
+  };
+}

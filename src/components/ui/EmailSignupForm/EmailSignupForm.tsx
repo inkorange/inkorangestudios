@@ -14,7 +14,8 @@ export type EmailSignupFormProps = {
   placeholder: string;
   submitLabel: string;
   tone: "on-dark" | "on-card" | "on-accent";
-  layout?: "inline" | "stacked";
+  /** `responsive`: stacked on a phone, one row from `md`. */
+  layout?: "inline" | "stacked" | "responsive";
   hidden?: Record<string, string>;
   successMessage: string;
   /** Extra controls rendered inside the form, before the submit button. */

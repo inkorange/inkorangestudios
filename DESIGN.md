@@ -552,7 +552,7 @@ An email input plus submit button bound to a server action.
 
 - **Use for:** the footer newsletter, the beta signup and the launch-alert ("Notify me") box.
 - **Don't use for:** forms with more than an email (build those from `TextField` / `TextArea`).
-- **Props / variants:** `action(prev, data)` returning a `FormState`; `label` (visually hidden); `placeholder`; `submitLabel`; `tone`: `on-dark` (footer: paper input, accent button), `on-card` (store card box: paper input, ink button), `on-accent` (callout band: card input, ink button); `layout`: `inline` (row that wraps when narrow, default) or `stacked` (phone / footer column, full-width button); `hidden` (extra fields sent with the form); `extraFields` (controls such as a `Select`, rendered inside the form before the submit button; make them controlled if their value must survive a failed submit; the form gets `data-extra="true"` and, below `md`, the email takes its own full-width line above them); `successMessage`.
+- **Props / variants:** `action(prev, data)` returning a `FormState`; `label` (visually hidden); `placeholder`; `submitLabel`; `tone`: `on-dark` (footer: paper input, accent button), `on-card` (store card box: paper input, ink button), `on-accent` (callout band: card input, ink button); `layout`: `inline` (row that wraps when narrow, default), `stacked` (phone / footer column, full-width button) or `responsive` (stacked below `md`, one row from `md`; the tester page, so a long address never sits squeezed beside the button); `hidden` (extra fields sent with the form); `extraFields` (controls such as a `Select`, rendered inside the form before the submit button; make them controlled if their value must survive a failed submit; the form gets `data-extra="true"` and, below `md`, the email takes its own full-width line above them); `successMessage`.
 - **Accessibility:** the label stays the input's accessible name. Submit is disabled while pending. Success replaces the form with a `status` message; an error shows in an `alert` and keeps what was typed. Includes `Turnstile`, which renders only when `CAPTCHA_WIDGET` (a site key is set, outside `next dev`).
 
 ### Turnstile
@@ -650,10 +650,10 @@ A small sand card with a title, a line of copy and an action link.
 
 The big accent band with a mono eyebrow, a Display title, body copy and an action slot.
 
-- **Use for:** the one beta / recruiting callout per page: the home page beta signup, and on a game page its tester signup or the "Testing is now closed." notice.
+- **Use for:** the one beta / recruiting callout per page: the home page beta signup, on a game page its tester signup or the "Testing is now closed." notice, and the repeat signup at the bottom of a tester page.
 - **Don't use for:** several per page, or small notices (use `FormMessage` or `InfoCard`).
 - **Props / variants:** `eyebrow` (optional, hidden when empty), `title`, `body` (optional, hidden when empty), `action` (optional; a node, usually a `Button variant="ink"` or an `EmailSignupForm tone="on-accent"`; left out, the band is a notice and renders no action wrapper), `paint` (watercolor on the right half at `--wash-opacity`, fading in from the left so it has no hard edge).
-- **Radius:** `--radius-2xl` below `md`, `--radius-3xl` from `md`.
+- **Radius:** `--radius-2xl` below `md`, `--radius-3xl` from `md`. Below `md` the action takes the band's full width under the text.
 - **Accessibility:** all text is `--color-ink` on the accent. The wash is decorative, low opacity and sits behind the content; do not raise its opacity.
 
 ### RichText
@@ -664,6 +664,15 @@ Portable Text rendered with the design system's type.
 - **Don't use for:** hand-written UI copy (use `Text` and `Heading`).
 - **Props / variants:** `value` (`RichBody`: portable text blocks plus mapped `BodyImage`s, from `src/lib/sanity/types.ts`). Supports h2-h4, paragraphs, bullet and numbered lists, blockquote, links and inline images. External links open in a new tab with `rel="noopener noreferrer"`; internal links (starting with `/`) use `next/link`. Images an editor places in a body render as a `figure`: `next/image` at full column width with `--radius-l` corners, and an optional `figcaption` (`--text-body-s`, `--color-ink-2`). The Studio crop and hotspot are honoured (the mapper passes them to the image URL builder).
 - **Accessibility:** headings keep their level (h2-h4) so the author controls the outline. Links are `--color-link` and underlined. Every image has alt text: the Studio requires it, and the mapper drops a body image without it.
+
+### BetaHero
+
+The top of a game's tester page (`/beta/<game>`): an optional must-read notice on paper, then a dark card with the pitch and signup beside the key art.
+
+- **Use for:** the tester landing page only, once, as its `h1`.
+- **Don't use for:** the home page or a game page (they use `CalloutBand` for the signup) or a featured carousel (`ShowcaseHero`).
+- **Props / variants:** `notice` (hidden when empty; card background, `--color-line-strong` border, `--radius-l`, semibold ink text, no accent: it warns, it doesn't ask) with an optional `noticeIcon` in a `--tap-min` sand circle; `eyebrow`; `title` (`Display` `h1` size `l`, on dark); `lead`; `action` (usually a `BetaForm` with `tone="on-dark"`, so the accent "Become a tester" button is the view's one primary action; once testing closes, an accent `Button` to the game); `note` (what happens next, small, `--color-on-dark-3`); `art` (`next/image` with `priority`; missing art shows the dark `Placeholder` labelled `artLabel`). Below `lg` the card stacks: full-bleed 16:9 art on top, then the text. From `lg` it is two columns (5 : 7), text left and the whole 16:9 art right, inset `--space-6` with `--radius-xl` so nothing is cropped, `--radius-3xl` card. The card is the page's one dark hero area.
+- **Accessibility:** owns the page's only `h1`. The notice is plain text, not a live region: it is there on load. The icon is decorative. The key art's alt text comes from the CMS.
 
 ### Breadcrumb
 

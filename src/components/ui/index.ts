@@ -65,6 +65,7 @@ export { CalloutBand } from "./CalloutBand/CalloutBand";
 export type { CalloutBandProps } from "./CalloutBand/CalloutBand";
 export { RichText } from "./RichText/RichText";
 export type { RichTextProps } from "./RichText/RichText";
+export { BetaHero, type BetaHeroProps } from "./BetaHero/BetaHero";
 export { Breadcrumb } from "./Breadcrumb/Breadcrumb";
 export type { BreadcrumbProps } from "./Breadcrumb/Breadcrumb";
 export { ValueList } from "./ValueList/ValueList";
