@@ -86,7 +86,7 @@ another token looks close.
 |---|---|---|
 | `--color-paper` | `#F6F1E7` | Page background. Also the fill of email inputs on dark surfaces. |
 | `--color-card` | `#FFFDF8` | Raised surfaces on paper: news cards, the store card, the nav pill bar, the selected spotlight rail item, the phone menu button, the phone details accordion, inputs on paper/sand. |
-| `--color-sand` | `#EDE5D6` | Alternate sections (the studio band, "More from inkOrange") and small info cards (press kit, help). First stripe of the light placeholder. |
+| `--color-sand` | `#EDE5D6` | Alternate sections (the Educational tools band, the studio band, "More from inkOrange") and small info cards (press kit, help). First stripe of the light placeholder. |
 | `--color-stripe` | `#E6DCCB` | Second stripe of the light placeholder. Nothing else. |
 | `--color-line` | `#DDD3C2` | 1px borders on cards, tiles and inputs; row dividers in feature lists, update rows and fact lists; unselected thumbnail borders. |
 | `--color-line-strong` | `#CFC4B1` | Borders that must read on paper without a fill: unselected filter pills, the dashed "notify me" box. |
@@ -237,6 +237,7 @@ them for every margin, padding and gap.
 | `--grid-min-card` | 300px | Minimum column width of a `Grid` of news cards. |
 | `--grid-min-rail` | 240px | Minimum column width of the spotlight rail `Grid`. |
 | `--grid-min-thumb` | 150px | Minimum column width of a `Grid` of media thumbnails. |
+| `--grid-min-tool` | 420px | Minimum column width of a `Grid` of `ToolCard`s: two to a row in the desktop container, one below. |
 | `--card-image-height` | 180px | Height of the image area of a `NewsCard`. |
 | `--marker-size` | 36px | Diameter of the numbered accent circle in `FeatureList`. |
 | `--date-column` | 120px | Width of the mono date column in `UpdateRow`. |
@@ -388,7 +389,7 @@ An intrinsic auto-fill grid: columns are at least the chosen minimum, then stret
 
 - **Use for:** game tiles, news cards, thumbnails, the spotlight rail.
 - **Don't use for:** a fixed number of columns, or one-dimensional rows (use `Stack`).
-- **Props / variants:** `min` (required): `tile` (260), `tile-s` (240), `card` (300), `rail` (240), `thumb` (150), from the `--grid-min-*` tokens; `gap`: a `--space-*` step (default 5).
+- **Props / variants:** `min` (required): `tile` (260), `tile-s` (240), `card` (300), `rail` (240), `thumb` (150), `tool` (420), from the `--grid-min-*` tokens; `gap`: a `--space-*` step (default 5).
 - **Accessibility:** a plain `div`; no breakpoints needed, so reflow works at any zoom.
 
 ### Display
@@ -582,6 +583,15 @@ A 3:4 cover with a status chip, the game name and a meta line, all one link, wit
 - **Props / variants:** `name`, `href`, `cover` (`ImageRef`; `null` shows a `Placeholder` labelled with the name), `status` (`GameStatus`; `out-now` gets the accent chip, everything else ink), `meta` ("Sandbox · Web"), `size`: `m` (default) or `s`, `stores` (optional `StoreLink[]`: `StoreBadges size="s"` under the tile, outside its link because links can't nest; `--space-4` above them).
 - **Accessibility:** the whole tile is one link whose name is chip + name + meta. Cover alt text comes from the CMS image. Visible focus ring.
 
+### ToolCard
+
+A card for a free educational tool that lives on its own site.
+
+- **Use for:** the Educational tools section on the home page (the first two, by sort order, so the row is full) and every tool on `/learn`.
+- **Don't use for:** games (use `GameTile`) or news (use `NewsCard`).
+- **Props / variants:** `tool` (`Tool`: `name`, `status`, `summary`, `url`, `image`, `links`); `headingLevel` (`h3` by default, under a section heading; `h2` on `/learn`, directly under the page `h1`). A 16:9 banner (cover; `null` shows a `Placeholder`) with the status `Chip` (size `s`) in its top-left corner, `accent` for OUT NOW and `ink` otherwise, as on `GameTile`; the name as a `title-s` `Heading`, the summary in `--color-ink-2`, an accent "Try it free" `Button` (only when the tool is out now and has a URL; a tool still on the way shows its status and no button), then any extra links (articles, videos) as `--color-link` semibold links with a ↗, above a `--color-line` rule. Laid out in a `Grid` with `min="tool"`: two to a row on desktop, one below. Card surface, border and radius match `NewsCard`. The button sits at the bottom of the text so cards in a row line up.
+- **Accessibility:** an `article`. The button and every extra link open in a new tab and say so in visually hidden text; the button's accessible name includes the tool's name. The banner also links to the tool but is `aria-hidden` and out of the tab order, so each tool is one tab stop plus its extra links. Extra links are a list named "More about {name}". Only https URLs are shown.
+
 ### NewsCard
 
 A card with an image area, a mono "DATE · KIND" line and a headline.
@@ -677,7 +687,7 @@ Three-up (or fewer) values, each under a 3px ink rule.
 
 The pill-shaped primary navigation for desktop.
 
-- **Use for:** the four site sections (Games, Studio, News, Support), from `src/lib/nav.ts`. There is no "Press" item until a global press-kit URL exists; each game page has its own Press kit card. `SiteHeader` shows it from `lg` (1024px) up.
+- **Use for:** the five site sections (Games, Learn, Studio, News, Support), from `src/lib/nav.ts`. Learn is the Educational tools page, `/learn`. There is no "Press" item until a global press-kit URL exists; each game page has its own Press kit card. `SiteHeader` shows it from `lg` (1024px) up.
 - **Don't use for:** in-page filters (use `FilterPills`) or the phone menu (use the sheet in `SiteHeader`).
 - **Props / variants:** `active`: a `NavKey`; the active pill is ink with paper text. `current`: `page` (default) or `true`, the `aria-current` value for the active pill (`true` when the page is inside that section rather than the section's own page).
 - **Accessibility:** a `nav` labelled "Primary"; the active link has `aria-current` set to `current`. Each link is at least `--tap-min` tall with a visible focus ring.
@@ -697,7 +707,7 @@ The ink footer with the newsletter signup, link columns and legal row.
 
 - **Use for:** the bottom of every page, once. Its `id="newsletter"` is where every "Get the newsletter" link lands.
 - **Don't use for:** page-level calls to action.
-- **Props / variants:** `newsletter` (a node: the signup form); `variant`: `full` (Games / Studio / Help / Follow columns) or `compact` (one row of links, for game pages); `socialLinks` (the Follow column is hidden when empty); `supportEmail` (the "Player support" link is hidden without it); `games` (optional links added to the Games column); `stickyBarSpace` (below `lg`, adds `--sticky-bar-space` of bottom padding for a `StickyPlayBar` that follows the footer). Pages don't render it: `SiteFooterBlock` (`src/components/site/`) wires it to content, and the leaf layouts mount that (see Page composition). The Studio column holds About and News; there is no "Press kit" link until a global press-kit URL exists (game pages link their own). Includes a "Cookie settings" button that reopens the consent banner.
+- **Props / variants:** `newsletter` (a node: the signup form); `variant`: `full` (Games / Studio / Help / Follow columns) or `compact` (one row of links, for game pages); `socialLinks` (the Follow column is hidden when empty); `supportEmail` (the "Player support" link is hidden without it); `games` (optional links added to the Games column); `stickyBarSpace` (below `lg`, adds `--sticky-bar-space` of bottom padding for a `StickyPlayBar` that follows the footer). Pages don't render it: `SiteFooterBlock` (`src/components/site/`) wires it to content, and the leaf layouts mount that (see Page composition). The Studio column holds About, Educational tools (`/learn`) and News; there is no "Press kit" link until a global press-kit URL exists (game pages link their own). Includes a "Cookie settings" button that reopens the consent banner.
 - **Accessibility:** column labels are mono eyebrows in `--color-on-dark-4`; links are at least `--tap-min` tall, with accent focus rings.
 
 ### ConsentBanner

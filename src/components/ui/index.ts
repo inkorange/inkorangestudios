@@ -119,3 +119,5 @@ export type { PillLinksProps } from "./PillLinks/PillLinks";
 export { DesignGallery } from "./DesignGallery/DesignGallery";
 export { NotFoundMessage } from "./NotFoundMessage/NotFoundMessage";
 export type { NotFoundMessageProps } from "./NotFoundMessage/NotFoundMessage";
+export { ToolCard } from "./ToolCard/ToolCard";
+export type { ToolCardProps } from "./ToolCard/ToolCard";

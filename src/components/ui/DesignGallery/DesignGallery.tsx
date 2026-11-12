@@ -39,6 +39,7 @@ import { MediaViewer } from "../MediaViewer/MediaViewer";
 import { MoreGames } from "../MoreGames/MoreGames";
 import { NavPillBar } from "../NavPillBar/NavPillBar";
 import { NewsCard } from "../NewsCard/NewsCard";
+import { ToolCard } from "../ToolCard/ToolCard";
 import { NewsRail } from "../NewsRail/NewsRail";
 import { NotFoundMessage } from "../NotFoundMessage/NotFoundMessage";
 import { PageHero } from "../PageHero/PageHero";
@@ -683,6 +684,25 @@ const COMPONENTS: Entry[] = [
     ),
   },
   { name: "NewsRail", render: () => <NewsRail posts={POSTS} /> },
+  {
+    name: "ToolCard",
+    note: "Out now with one extra link, and in development (status chip only, no button). Tools open in a new tab.",
+    render: () => (
+      <Grid min="tool" gap={6}>
+        <ToolCard
+          tool={{
+            name: "A science tool",
+            status: "out-now",
+            summary: "One or two sentences on what it teaches and how.",
+            url: "https://example.com",
+            image: null,
+            links: [{ label: "Read: how it was built", href: "https://example.com/article" }],
+          }}
+        />
+        <ToolCard tool={{ name: "A tool on the way", status: "in-development", summary: "Still being built: no button yet.", url: null, image: null, links: [] }} />
+      </Grid>
+    ),
+  },
   { name: "NotFoundMessage", note: "With logo, as on the 404 outside the site shell. Renders its own h1.", render: () => <NotFoundMessage logo /> },
   { name: "PageHero", render: () => <PageHero eyebrow="Support" title="How can we help?" intro="Answers to common questions, and a way to reach us." /> },
   {

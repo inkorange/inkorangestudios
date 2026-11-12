@@ -1,0 +1,74 @@
+@use "../../../styles/mixins" as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: var(--color-card);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-l);
+}
+
+.media {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background-color: var(--color-ink);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.banner {
+  position: absolute;
+  inset: 0;
+}
+
+.image {
+  object-fit: cover;
+}
+
+.chip {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-6) var(--space-6);
+}
+
+.actions {
+  // Keeps the button at the bottom of the text, so cards in a row line up when summaries differ.
+  margin-top: auto;
+  padding-top: var(--space-2);
+}
+
+.links {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-2) 0 0;
+  margin: 0;
+  list-style: none;
+  border-top: 1px solid var(--color-line);
+}
+
+.link {
+  display: inline-flex;
+  gap: var(--space-1);
+  align-items: center;
+  min-height: var(--tap-min);
+  font-weight: var(--weight-semibold);
+  color: var(--color-link);
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+.hidden {
+  @include visually-hidden;
+}

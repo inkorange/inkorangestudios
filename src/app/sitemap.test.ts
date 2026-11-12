@@ -26,6 +26,7 @@ it("lists the static pages, every game and every post on the site URL", async ()
     expect.arrayContaining([
       "https://inkorangestudios.com/",
       "https://inkorangestudios.com/about",
+      "https://inkorangestudios.com/learn",
       "https://inkorangestudios.com/support",
       "https://inkorangestudios.com/news",
       "https://inkorangestudios.com/games/terraforge",

@@ -131,3 +131,14 @@ export type SiteSettings = {
   studioPhoto: ImageRef;
   foundedLine: string | null;
 };
+
+/** A free educational tool on its own site, with optional links to articles or videos about it. */
+export type Tool = {
+  name: string;
+  status: GameStatus;
+  summary: string | null;
+  /** https only; null when unset. */
+  url: string | null;
+  image: ImageRef;
+  links: { label: string; href: string }[];
+};

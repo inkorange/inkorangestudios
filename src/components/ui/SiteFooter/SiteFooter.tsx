@@ -60,6 +60,7 @@ export function SiteFooter({ newsletter, variant = "full", socialLinks, supportE
   const gamesLinks: FooterLink[] = [{ label: "All games", href: "/#games" }, ...games];
   const studioLinks: FooterLink[] = [
     { label: "About", href: "/about" },
+    { label: "Educational tools", href: "/learn" },
     { label: "News", href: "/news" },
     // No "Press kit" link until a global press-kit URL exists; game pages link their own.
   ];

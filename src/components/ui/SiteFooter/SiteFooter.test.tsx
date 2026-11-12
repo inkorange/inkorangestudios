@@ -48,6 +48,7 @@ it("has no circular Press kit link or press anchor until a global press kit exis
   expect(screen.queryByRole("link", { name: /press/i })).toBeNull();
   expect(screen.getByRole("link", { name: "About" })).toHaveAttribute("href", "/about");
   expect(screen.getByRole("link", { name: "News" })).toHaveAttribute("href", "/news");
+  expect(screen.getByRole("link", { name: "Educational tools" })).toHaveAttribute("href", "/learn");
 });
 
 it("reserves room for the phone sticky play bar only when asked", () => {

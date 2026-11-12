@@ -72,3 +72,12 @@ export const SETTINGS_QUERY = `*[_type == "studioSettings"][0]{
   ${img("studioPhoto")},
   foundedLine
 }`;
+
+export const TOOLS_QUERY = `*[_type == "studioTool"] | order(coalesce(sortOrder, 9999) asc, name asc){
+  name,
+  status,
+  url,
+  summary,
+  ${img("banner")},
+  links[]{ label, url }
+}`;

@@ -8,7 +8,7 @@ vi.mock("@/lib/env", () => ({
   readServerEnv: () => ({}),
 }));
 
-import { getFaqs, getFeatured, getGame, getGames, getGameSlugs, getLegalPage, getPost, getPosts, getSettings } from "./content";
+import { getFaqs, getFeatured, getGame, getGames, getGameSlugs, getLegalPage, getPost, getPosts, getSettings, getTools } from "./content";
 
 const defaults = { supportEmail: null, socialLinks: [], betaCallout: null, newsletterBlurb: null, studioPhoto: null, foundedLine: null };
 let errorSpy: ReturnType<typeof vi.spyOn>;
@@ -31,6 +31,7 @@ const everyRead: [string, () => Promise<unknown>][] = [
   ["getLegalPage", () => getLegalPage("privacy")],
   ["getFaqs", () => getFaqs()],
   ["getSettings", () => getSettings()],
+  ["getTools", () => getTools()],
 ];
 
 /** Leave the test environment: no VITEST flag, the given NODE_ENV and build phase. */
@@ -104,6 +105,7 @@ describe("in tests, when sanity is unreachable", () => {
       ["getLegalPage", () => getLegalPage("privacy"), null],
       ["getFaqs", () => getFaqs(), []],
       ["getSettings", () => getSettings(), defaults],
+      ["getTools", () => getTools(), []],
     ];
     for (const [name, run, empty] of steps) {
       errorSpy.mockClear();
@@ -127,6 +129,15 @@ describe("when sanity returns nothing", () => {
 });
 
 describe("with data", () => {
+  it("getTools maps, drops unnamed rows and tags the fetch", async () => {
+    fetchMock.mockResolvedValue([{ name: "Molecular", status: "out-now", url: "https://m.example.com" }, { status: "out-now" }]);
+    expect((await getTools()).map((t) => t.name)).toEqual(["Molecular"]);
+    const [query, , tags] = fetchMock.mock.calls[0];
+    expect(query).toContain('_type == "studioTool"');
+    expect(query).toContain("coalesce(sortOrder, 9999) asc, name asc");
+    expect(tags).toEqual(["studioTool"]);
+  });
+
   it("getGames maps, drops invalid rows and tags the fetch", async () => {
     fetchMock.mockResolvedValue([{ slug: "a", name: "A", status: "out-now" }, { name: "no slug" }]);
     const games = await getGames();

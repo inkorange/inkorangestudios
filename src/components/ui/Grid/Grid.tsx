@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import type { SpaceStep } from "../Stack/Stack";
 import styles from "./Grid.module.scss";
 
-type Min = "tile" | "tile-s" | "card" | "rail" | "thumb";
+type Min = "tile" | "tile-s" | "card" | "rail" | "thumb" | "tool";
 
 export type GridProps = {
   min: Min;

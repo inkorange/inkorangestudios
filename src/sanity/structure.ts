@@ -17,6 +17,7 @@ export const structure: StructureResolver = (S) =>
         ),
       S.divider(),
       S.documentTypeListItem("studioGame").title("Games"),
+      S.documentTypeListItem("studioTool").title("Educational tools"),
       S.documentTypeListItem("studioPost").title("News"),
       S.documentTypeListItem("studioNewsletterIssue").title("Newsletter"),
       S.documentTypeListItem("studioPage").title("Pages"),

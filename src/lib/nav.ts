@@ -1,6 +1,7 @@
 // No "Press" item until a global press-kit URL exists (game pages carry their own Press kit card).
 export const NAV_ITEMS = [
   { key: "games", label: "Games", href: "/#games" },
+  { key: "learn", label: "Learn", href: "/learn" },
   { key: "studio", label: "Studio", href: "/about" },
   { key: "news", label: "News", href: "/news" },
   { key: "support", label: "Support", href: "/support" },
@@ -14,6 +15,7 @@ export type NavCurrent = "page" | "true";
 
 const SECTION_PREFIXES: [string, NavKey][] = [
   ["/games", "games"],
+  ["/learn", "learn"],
   ["/about", "studio"],
   ["/news", "news"],
   ["/support", "support"],

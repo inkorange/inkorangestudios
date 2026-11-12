@@ -1,12 +1,13 @@
 import { render, screen, within } from "@testing-library/react";
 import { beforeEach, expect, it, vi } from "vitest";
-import type { Featured, GameSummary, PostSummary, SiteSettings } from "@/lib/sanity/types";
+import type { Featured, GameSummary, PostSummary, SiteSettings, Tool } from "@/lib/sanity/types";
 
 const content = vi.hoisted(() => ({
   getFeatured: vi.fn(),
   getGames: vi.fn(),
   getPosts: vi.fn(),
   getSettings: vi.fn(),
+  getTools: vi.fn(),
 }));
 vi.mock("@/lib/sanity/content", () => content);
 vi.mock("@/app/actions/beta", () => ({ joinBeta: vi.fn() }));
@@ -54,6 +55,15 @@ const posts: PostSummary[] = [1, 2, 3].map((n) => ({
   image: null,
   game: null,
 }));
+const tool = (name: string): Tool => ({
+  name,
+  status: "out-now",
+  summary: `${name} summary.`,
+  url: `https://${name.toLowerCase()}.example.com`,
+  image: null,
+  links: [],
+});
+const tools: Tool[] = [tool("Molecular"), tool("Solar"), tool("Strata")];
 const emptySettings: SiteSettings = {
   supportEmail: null,
   socialLinks: [],
@@ -79,6 +89,7 @@ function withContent(full: boolean) {
   content.getGames.mockResolvedValue(full ? games : []);
   content.getPosts.mockResolvedValue(full ? posts : []);
   content.getSettings.mockResolvedValue(full ? fullSettings : emptySettings);
+  content.getTools.mockResolvedValue(full ? tools : []);
 }
 
 beforeEach(() => {
@@ -100,6 +111,7 @@ it("renders the first featured game as the page h1, then the home sections in or
   expect(h2s).toEqual([
     "An independent studio making games that make you think.",
     "All games",
+    "Educational tools",
     "Play Space Cowboy before anyone else.",
     "A small studio with a big backlog of ideas.",
     "News",
@@ -137,6 +149,15 @@ it("fills the grid, the beta callout, the studio teaser and three news cards", a
   expect(within(screen.getByRole("list", { name: "Latest news" })).getAllByRole("link")).toHaveLength(3);
 });
 
+it("shows the first two educational tools under the games, linking to every tool", async () => {
+  withContent(true);
+  const { container } = render(await Home());
+  const learn = container.querySelector("#learn") as HTMLElement;
+  expect(within(learn).getByRole("link", { name: "All tools →" })).toHaveAttribute("href", "/learn");
+  expect(within(learn).getAllByRole("heading", { level: 3 }).map((h) => h.textContent)).toEqual(["Molecular", "Solar"]);
+  expect(within(learn).getByRole("link", { name: /Try it free: Molecular/ })).toHaveAttribute("href", "https://molecular.example.com");
+});
+
 it("with no content renders the empty grid message and no hero, callout or news", async () => {
   withContent(false);
   const { container } = render(await Home());
@@ -146,6 +167,7 @@ it("with no content renders the empty grid message and no hero, callout or news"
   expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("An independent studio making games that make you think.");
   expect(screen.queryByRole("button", { name: "Join the beta" })).toBeNull();
   expect(container.querySelector("#news")).toBeNull();
+  expect(container.querySelector("#learn")).toBeNull();
   // The studio teaser is static copy and still shows.
   expect(screen.getByRole("heading", { level: 2, name: "A small studio with a big backlog of ideas." })).toBeInTheDocument();
   expect(container.textContent).not.toMatch(/\[[A-Z ]+\]/);

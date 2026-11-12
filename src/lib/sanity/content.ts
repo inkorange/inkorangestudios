@@ -11,10 +11,11 @@ import {
   POST_QUERY,
   postsQuery,
   SETTINGS_QUERY,
+  TOOLS_QUERY,
 } from "./queries";
 import { sanityFetch } from "./client";
-import { mapFaq, mapGame, mapGameSummary, mapLegalPage, mapPost, mapPostSummary, mapSettings, toFeatured } from "./mappers";
-import type { Faq, Featured, Game, GameSummary, LegalPage, Post, PostSummary, SiteSettings } from "./types";
+import { mapFaq, mapGame, mapGameSummary, mapLegalPage, mapPost, mapPostSummary, mapSettings, mapTool, toFeatured } from "./mappers";
+import type { Faq, Featured, Game, GameSummary, LegalPage, Post, PostSummary, SiteSettings, Tool } from "./types";
 
 const TAGS = {
   game: ["studioGame"],
@@ -23,6 +24,7 @@ const TAGS = {
   page: ["studioPage"],
   faq: ["studioFaq", "studioGame"],
   settings: ["studioSettings", "studioGame"],
+  tool: ["studioTool"],
 };
 
 const isTest = () => process.env.NODE_ENV === "test" || Boolean(process.env.VITEST);
@@ -109,6 +111,10 @@ function getSettingsUncached(): Promise<SiteSettings> {
   return safely("getSettings", mapSettings(null), async () => mapSettings(await sanityFetch(SETTINGS_QUERY, {}, TAGS.settings)));
 }
 
+function getToolsUncached(): Promise<Tool[]> {
+  return safely("getTools", [], async () => compact(rows(await sanityFetch(TOOLS_QUERY, {}, TAGS.tool)).map(mapTool)));
+}
+
 // Per-request dedupe: layouts and pages read the same content, so each fetch runs once per render.
 export const getGames = cache(getGamesUncached);
 export const getFeatured = cache(getFeaturedUncached);
@@ -118,3 +124,4 @@ export const getPost = cache(getPostUncached);
 export const getLegalPage = cache(getLegalPageUncached);
 export const getFaqs = cache(getFaqsUncached);
 export const getSettings = cache(getSettingsUncached);
+export const getTools = cache(getToolsUncached);

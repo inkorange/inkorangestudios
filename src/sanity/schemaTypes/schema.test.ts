@@ -54,6 +54,7 @@ describe("sanity schema", () => {
         "studioPage",
         "studioPost",
         "studioSettings",
+        "studioTool",
       ].sort(),
     );
   });
@@ -61,6 +62,12 @@ describe("sanity schema", () => {
   it("studioGame.status options equal GameStatus values", () => {
     const game = types.find((t) => t.name === "studioGame")!;
     const status = game.fields!.find((f) => f.name === "status")!;
+    expect(status.options!.list!.map((o) => o.value)).toEqual(STATUSES);
+  });
+
+  it("studioTool.status options equal GameStatus values", () => {
+    const tool = types.find((t) => t.name === "studioTool")!;
+    const status = tool.fields!.find((f) => f.name === "status")!;
     expect(status.options!.list!.map((o) => o.value)).toEqual(STATUSES);
   });
 

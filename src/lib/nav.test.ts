@@ -5,6 +5,7 @@ it.each([
   ["/", { active: "games", current: "true", variant: "default" }],
   ["/games", { active: "games", current: "page", variant: "default" }],
   ["/games/terraforge", { active: "games", current: "true", variant: "game" }],
+  ["/learn", { active: "learn", current: "page", variant: "default" }],
   ["/about", { active: "studio", current: "page", variant: "default" }],
   ["/news", { active: "news", current: "page", variant: "default" }],
   ["/news/a-post", { active: "news", current: "true", variant: "default" }],

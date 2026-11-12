@@ -5,7 +5,7 @@ vi.mock("@/lib/env", () => ({
   readServerEnv: () => ({}),
 }));
 
-import { mapFaq, mapGame, mapGameSummary, mapLegalPage, mapPost, mapPostSummary, mapSettings, toFeatured } from "./mappers";
+import { mapFaq, mapGame, mapGameSummary, mapLegalPage, mapPost, mapPostSummary, mapSettings, mapTool, toFeatured } from "./mappers";
 
 const img = (alt = "Art") => ({ alt, asset: { _ref: "image-a1b2c3d4-2000x1000-jpg" }, dimensions: { width: 2000, height: 1000 } });
 
@@ -263,5 +263,42 @@ describe("mapSettings", () => {
   });
   it("drops an empty betaCallout", () => {
     expect(mapSettings({ betaCallout: { title: "[T]" } }).betaCallout).toBeNull();
+  });
+});
+
+describe("mapTool", () => {
+  const tool = { name: "Molecular", status: "out-now", url: "https://molecular.chriswest.tech/", summary: "Atoms in 3D." };
+
+  it("drops a tool with no name", () => {
+    expect(mapTool({ ...tool, name: " " })).toBeNull();
+    expect(mapTool(null)).toBeNull();
+  });
+
+  it("maps the fields, the banner and https links", () => {
+    const t = mapTool({
+      ...tool,
+      banner: img("Molecular banner"),
+      links: [
+        { label: "Read how it was built", url: "https://www.chriswest.tech/project/molecular" },
+        { label: "Insecure", url: "http://example.com" },
+        { label: " ", url: "https://example.com" },
+        "junk",
+      ],
+    })!;
+    expect(t).toMatchObject({ name: "Molecular", status: "out-now", summary: "Atoms in 3D.", url: "https://molecular.chriswest.tech/" });
+    expect(t.image).toMatchObject({ alt: "Molecular banner" });
+    expect(t.links).toEqual([{ label: "Read how it was built", href: "https://www.chriswest.tech/project/molecular" }]);
+  });
+
+  it("defaults an unknown status to out now and drops a non-https URL", () => {
+    const t = mapTool({ ...tool, status: "bogus", url: "javascript:alert(1)" })!;
+    expect(t.status).toBe("out-now");
+    expect(t.url).toBeNull();
+    expect(t.image).toBeNull();
+    expect(t.links).toEqual([]);
+  });
+
+  it("keeps a status that is still on the way", () => {
+    expect(mapTool({ ...tool, status: "in-development", url: null })).toMatchObject({ status: "in-development", url: null });
   });
 });

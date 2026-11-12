@@ -17,6 +17,7 @@ import type {
   RichBody,
   SiteSettings,
   StoreLink,
+  Tool,
 } from "./types";
 
 /*
@@ -313,4 +314,28 @@ export function mapSettings(raw: unknown): SiteSettings {
     studioPhoto: image(d.studioPhoto, CARD),
     foundedLine: d.foundedLine,
   };
+}
+
+const isHttps = (href: string | null): href is string => href !== null && /^https:\/\//i.test(href);
+
+const toolShape = lenient({
+  name: str,
+  status: z.unknown().transform((v): GameStatus => (STATUSES.includes(v as GameStatus) ? (v as GameStatus) : "out-now")),
+  url: str,
+  summary: str,
+  banner: z.unknown(),
+  links: list,
+});
+
+/** A tool needs a name. A URL that is not https is dropped, as are extra links without a label or an https URL. */
+export function mapTool(raw: unknown): Tool | null {
+  const d = toolShape(raw);
+  if (!d || !d.name) return null;
+  const links = d.links.flatMap((l) => {
+    const o = obj.parse(l);
+    const label = clean(o?.label);
+    const href = clean(o?.url);
+    return label && isHttps(href) ? [{ label, href }] : [];
+  });
+  return { name: d.name, status: d.status, summary: d.summary, url: isHttps(d.url) ? d.url : null, image: image(d.banner, CARD), links };
 }

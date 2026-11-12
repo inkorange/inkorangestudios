@@ -5,6 +5,7 @@ import {
   Container,
   Display,
   GameGrid,
+  Grid,
   Highlight,
   NewsRail,
   Section,
@@ -12,11 +13,12 @@ import {
   ShowcaseHero,
   Statement,
   StudioTeaser,
+  ToolCard,
 } from "@/components/ui";
 import { JsonLd } from "@/components/site/JsonLd";
 import { publicEnv } from "@/lib/env";
 import { siteJsonLd } from "@/lib/jsonLd";
-import { getFeatured, getGames, getPosts, getSettings } from "@/lib/sanity/content";
+import { getFeatured, getGames, getPosts, getSettings, getTools } from "@/lib/sanity/content";
 import { pageMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
@@ -30,7 +32,7 @@ const VALUES = [
 ];
 
 export default async function Home() {
-  const [featured, games, posts, settings] = await Promise.all([getFeatured(), getGames(), getPosts(3), getSettings()]);
+  const [featured, games, posts, settings, tools] = await Promise.all([getFeatured(), getGames(), getPosts(3), getSettings(), getTools()]);
   const callout = settings.betaCallout;
   const beta = callout?.title && callout.game ? { ...callout, title: callout.title, game: callout.game } : null;
 
@@ -64,6 +66,19 @@ export default async function Home() {
           <GameGrid games={games} />
         </Container>
       </Section>
+
+      {tools.length > 0 ? (
+        <Section tone="sand" id="learn">
+          <Container>
+            <SectionHeader title="Educational tools" action={{ label: "All tools →", href: "/learn" }} />
+            <Grid min="tool">
+              {tools.slice(0, 2).map((tool) => (
+                <ToolCard key={tool.name} tool={tool} />
+              ))}
+            </Grid>
+          </Container>
+        </Section>
+      ) : null}
 
       {beta ? (
         <Section id="beta" space="bottom">
