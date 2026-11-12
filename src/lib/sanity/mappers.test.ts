@@ -205,6 +205,49 @@ describe("mapPost", () => {
   });
 });
 
+describe("link posts", () => {
+  const raw = {
+    _id: "p1",
+    format: "link",
+    url: "https://www.chriswest.tech/article/space-cowboy",
+    source: "chriswest.tech",
+    title: "Space Cowboy: From Web App to App Store",
+    date: "2026-10-28",
+    kind: "update",
+    game: { slug: "space-cowboy", name: "Space Cowboy" },
+  };
+  it("maps a link to the outside article, keeping its game tag", () => {
+    expect(mapPostSummary(raw)).toEqual({
+      format: "link",
+      id: "p1",
+      url: "https://www.chriswest.tech/article/space-cowboy",
+      source: "chriswest.tech",
+      title: "Space Cowboy: From Web App to App Store",
+      date: "2026-10-28",
+      kind: "update",
+      excerpt: null,
+      image: null,
+      game: { slug: "space-cowboy", name: "Space Cowboy" },
+    });
+  });
+  it("names the site from the URL when no publication is given", () => {
+    expect(mapPostSummary({ ...raw, source: " " })).toMatchObject({ source: "chriswest.tech" });
+    expect(mapPostSummary({ ...raw, source: undefined, url: "https://pocketgamer.com/x" })).toMatchObject({ source: "pocketgamer.com" });
+  });
+  it("drops a link without an https URL, title or date", () => {
+    expect(mapPostSummary({ ...raw, url: "http://example.com/a" })).toBeNull();
+    expect(mapPostSummary({ ...raw, url: undefined })).toBeNull();
+    expect(mapPostSummary({ ...raw, title: "" })).toBeNull();
+    expect(mapPostSummary({ ...raw, date: undefined })).toBeNull();
+  });
+  it("never maps a link as a page, even with a leftover slug", () => {
+    expect(mapPost({ ...raw, slug: "space-cowboy" })).toBeNull();
+  });
+  it("treats a post without a type as our article", () => {
+    expect(mapPostSummary({ slug: "hello", title: "Hello", date: "2026-11-01" })).toMatchObject({ format: "article", slug: "hello" });
+  });
+});
+
 describe("mapLegalPage and mapFaq", () => {
   it("maps pages", () => {
     expect(mapLegalPage({ slug: "privacy", title: "Privacy", updatedAt: "2026-01-01", body: [] })).toMatchObject({ slug: "privacy", updatedAt: "2026-01-01" });

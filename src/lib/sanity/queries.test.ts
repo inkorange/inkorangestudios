@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FEATURED_QUERY, GAMES_QUERY, postsQuery } from "./queries";
+import { FEATURED_QUERY, GAMES_QUERY, POST_QUERY, postsQuery } from "./queries";
 
 describe("game ordering", () => {
   it("sorts unset sortOrder last", () => {
@@ -26,5 +26,16 @@ describe("image projection", () => {
     for (const field of ["keyArt", "coverArt", "poster", "image"]) {
       expect(GAMES_QUERY).toMatch(new RegExp(`"${field}": ${field}\\{ "asset": asset\\{ _ref \\}, "dimensions": [^}]+\\}, alt, crop, hotspot \\}`));
     }
+  });
+});
+
+describe("link posts", () => {
+  it("lists links that have a URL and articles that have a slug", () => {
+    const q = postsQuery({ filterByGame: false });
+    expect(q).toContain(`((format == "link") && defined(url) || !(format == "link") && defined(slug.current))`);
+    expect(q).toContain(`"format": coalesce(format, "article")`);
+  });
+  it("only opens a page for articles", () => {
+    expect(POST_QUERY).toContain(`!(format == "link") && slug.current == $slug`);
   });
 });

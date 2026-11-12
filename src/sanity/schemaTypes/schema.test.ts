@@ -87,6 +87,30 @@ describe("sanity schema", () => {
     expect(images).toBeGreaterThan(0);
   });
 
+  it("studioPost is an article or a link, showing only that type's fields", () => {
+    const post = types.find((t) => t.name === "studioPost")!;
+    const field = (name: string) =>
+      post.fields!.find((f) => f.name === name) as Field & {
+        hidden?: (ctx: { document: unknown }) => boolean;
+        initialValue?: unknown;
+      };
+    expect(field("format").options?.list?.map((o) => o.value)).toEqual(["article", "link"]);
+    expect(field("format").initialValue).toBe("article");
+    const shown = (name: string, format?: string) => !field(name).hidden?.({ document: { format } });
+    for (const name of ["url", "source"]) {
+      expect(shown(name, "link"), `${name} on a link`).toBe(true);
+      expect(shown(name, "article"), `${name} on an article`).toBe(false);
+      expect(shown(name), `${name} on an untyped post`).toBe(false);
+    }
+    for (const name of ["slug", "kind", "excerpt", "body"]) {
+      expect(shown(name, "article"), `${name} on an article`).toBe(true);
+      expect(shown(name, "link"), `${name} on a link`).toBe(false);
+    }
+    for (const name of ["title", "date", "game", "coverImage"]) {
+      expect(shown(name, "link"), `${name} on a link`).toBe(true);
+    }
+  });
+
   it("body images offer hotspot, require alt and take an optional caption", () => {
     const post = types.find((t) => t.name === "studioPost")!;
     const body = post.fields!.find((f) => f.name === "body")!;

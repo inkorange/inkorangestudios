@@ -53,3 +53,12 @@ it("dates posts and legal pages, and never lists /design, /studio or /api", asyn
   expect(entries.find((e) => e.url.endsWith("/terms"))?.lastModified).toBe("2026-11-02");
   expect(entries.some((e) => /\/(design|studio|api)/.test(e.url))).toBe(false);
 });
+
+it("leaves out link posts, which live on other sites", async () => {
+  content.getPosts.mockResolvedValue([
+    { format: "link", id: "x", url: "https://example.com/a", source: "Example", date: "2026-10-28", title: "About us", kind: "update", excerpt: null, image: null, game: null },
+  ]);
+  const list = await urls();
+  expect(list.some((u) => u.includes("example.com"))).toBe(false);
+  expect(list.filter((u) => u.includes("/news/"))).toEqual([]);
+});

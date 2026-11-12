@@ -79,3 +79,25 @@ it("with no posts shows the empty state and no filter", async () => {
   expect(screen.getByText("No news yet.")).toBeInTheDocument();
   expect(screen.queryByRole("navigation", { name: "Filter news by game" })).not.toBeInTheDocument();
 });
+
+it("lists a link post beside articles, linking out, and filters it by its game", async () => {
+  const link: PostSummary = {
+    format: "link",
+    id: "l1",
+    url: "https://www.chriswest.tech/article/space-cowboy",
+    source: "chriswest.tech",
+    title: "From web app to app store",
+    date: "2026-10-28",
+    kind: "update",
+    excerpt: null,
+    image: null,
+    game: sc,
+  };
+  content.getPosts.mockResolvedValue([...posts, link]);
+  await page("space-cowboy");
+  const card = screen.getByRole("link", { name: /From web app to app store/ });
+  expect(card).toHaveAttribute("href", "https://www.chriswest.tech/article/space-cowboy");
+  expect(card).toHaveAttribute("target", "_blank");
+  expect(screen.getByRole("link", { name: /Saddle up/ })).toHaveAttribute("href", "/news/b");
+  expect(screen.queryByRole("link", { name: /Terrain tools/ })).toBeNull();
+});

@@ -45,6 +45,14 @@ it("revalidates hourly and prebuilds every post", async () => {
   expect(await generateStaticParams()).toEqual([{ slug: "terrain-tools" }]);
 });
 
+it("does not prebuild pages for link posts", async () => {
+  content.getPosts.mockResolvedValue([
+    post,
+    { format: "link", id: "l1", url: "https://example.com/a", source: "Example", title: "About us", date: "2026-10-28", kind: "update", excerpt: null, image: null, game: null },
+  ]);
+  expect(await generateStaticParams()).toEqual([{ slug: "terrain-tools" }]);
+});
+
 it("renders the date and kind, the h1, the cover, the body and the related game", async () => {
   content.getPost.mockResolvedValue(post);
   render(await PostPage(params("terrain-tools")));
