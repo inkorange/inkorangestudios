@@ -45,7 +45,7 @@ export function BetaHero({ eyebrow, title, lead, notice, noticeIcon, perk, actio
           <span>{notice}</span>
         </p>
       ) : null}
-      <div className={styles.card}>
+      <div className={styles.card} data-eyebrow={Boolean(eyebrow)}>
         <div className={styles.art}>
           {art ? (
             <Image className={styles.image} src={art.src} alt={art.alt} fill priority sizes="(min-width: 1024px) 760px, 100vw" />
@@ -53,8 +53,13 @@ export function BetaHero({ eyebrow, title, lead, notice, noticeIcon, perk, actio
             <Placeholder tone="dark" radius="none" label={artLabel} />
           )}
         </div>
+        {/* Its own row on desktop, so the art's top lines up with the title, not the eyebrow. */}
+        {eyebrow ? (
+          <div className={styles.eyebrow}>
+            <Eyebrow tone="on-dark-4">{eyebrow}</Eyebrow>
+          </div>
+        ) : null}
         <div className={styles.body}>
-          {eyebrow ? <Eyebrow tone="on-dark-4">{eyebrow}</Eyebrow> : null}
           <Display as="h1" size="l" tone="on-dark">
             {title}
           </Display>
