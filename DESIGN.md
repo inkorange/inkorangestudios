@@ -461,7 +461,7 @@ The inline SVG icon set, drawn from the mockups.
 
 - **Use for:** icons inside `Button` and `IconButton`, or beside a label.
 - **Don't use for:** art or brand logos (the inkOrange logo is an image); the only marks here are the platform logos. Icon-only controls need `IconButton` for the label.
-- **Props / variants:** `name`: `chevron-left`, `chevron-right`, `play`, `globe`, `phone`, `menu`, `close`, `arrow-right`, `check`, `zoom-in`, `expand`, `plus`, `minus` (the `MediaViewer` zoom), and the platform logos `apple` (iOS) and `android` (Web uses `globe`). `play`, `apple` and `android` are filled; the rest are 2px strokes; `size`: 16, 18 (default), 20, 26, 34. Uses `currentColor`.
+- **Props / variants:** `name`: `chevron-left`, `chevron-right`, `play`, `globe`, `phone`, `menu`, `close`, `arrow-right`, `check`, `zoom-in`, `expand`, `plus`, `minus` (the `MediaViewer` zoom), `external` (an up-right arrow beside a link that opens another site), and the platform logos `apple` (iOS) and `android` (Web uses `globe`). `play`, `apple` and `android` are filled; the rest are 2px strokes; `size`: 16, 18 (default), 20, 26, 34. Uses `currentColor`.
 - **Accessibility:** always `aria-hidden`; the control around it carries the name.
 
 ### Button
@@ -594,12 +594,12 @@ A card for a free educational tool that lives on its own site.
 
 ### NewsCard
 
-A card with an image area, a mono "DATE · KIND" line and a headline.
+A card with an image area, a mono "DATE · KIND" line and a headline. A news link to another site shows "DATE · PUBLICATION ↗" instead.
 
 - **Use for:** the news grid on the home page and the news index.
 - **Don't use for:** compact lists (use `UpdateRow`).
-- **Props / variants:** `href`, `image` (`ImageRef`, `null` shows a `Placeholder`), `date` (ISO, shown as `NOV 5, 2026` in UTC), `kind` (`PostKind`, shown as UPDATE / ANNOUNCEMENT / DEVLOG / PATCH NOTES), `title`.
-- **Accessibility:** one link wrapping the card. The date format never depends on server timezone.
+- **Props / variants:** `href`, `image` (`ImageRef`, `null` shows a `Placeholder`), `date` (ISO, shown as `NOV 5, 2026` in UTC), `kind` (`PostKind`, shown as UPDATE / ANNOUNCEMENT / DEVLOG / PATCH NOTES), `title`; `source` (optional publication name): the card links out, opens in a new tab, and shows the publication with the `external` icon in place of the kind.
+- **Accessibility:** one link wrapping the card. The date format never depends on server timezone. A `source` card adds hidden "(opens {source} in a new tab)" text.
 
 ### UpdateRow
 
@@ -607,8 +607,8 @@ A ruled row with a mono date column and a semibold headline.
 
 - **Use for:** "Latest updates" lists on a game page.
 - **Don't use for:** the main news grid (use `NewsCard`).
-- **Props / variants:** `href`, `date` (ISO), `title`. Rows draw a top rule; the last row also draws a bottom rule.
-- **Accessibility:** the row is the link. The date column wraps above the headline on narrow screens.
+- **Props / variants:** `href`, `date` (ISO), `title`; `source` (optional publication name): the row links out in a new tab and shows the publication with the `external` icon after the headline. Rows draw a top rule; the last row also draws a bottom rule.
+- **Accessibility:** the row is the link. The date column wraps above the headline on narrow screens. A `source` row adds hidden "(opens in a new tab)" text.
 
 ### FeatureList
 
@@ -815,7 +815,7 @@ A list of `NewsCard`s: a grid from `md`, a horizontal scroller on phones.
 
 - **Use for:** the home page's latest news (under a `SectionHeader` with "All news →").
 - **Don't use for:** the full news index (use a `Grid min="card"`).
-- **Props / variants:** `posts` (`PostSummary[]`; each card links to `/news/{slug}`); `label` (default "Latest news"). Below `md` the cards are `--rail-card-width` wide in one row that scrolls sideways with snap points, running past the right gutter; from `md` they are an auto-fit grid at `--grid-min-card`. Renders nothing for no posts, so the page hides the section.
+- **Props / variants:** `posts` (`PostSummary[]`; an article card links to `/news/{slug}`, a link post's card to the outside article); `label` (default "Latest news"). Below `md` the cards are `--rail-card-width` wide in one row that scrolls sideways with snap points, running past the right gutter; from `md` they are an auto-fit grid at `--grid-min-card`. Renders nothing for no posts, so the page hides the section.
 - **Accessibility:** a list named by `label`; each card is one link. The scroller is native overflow, so touch, trackpad and keyboard scrolling all work.
 
 ### GameTitle

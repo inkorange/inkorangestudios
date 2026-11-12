@@ -47,6 +47,7 @@ const games: GameSummary[] = [
   { slug: "space-cowboy", name: "Space Cowboy", status: "coming-soon", genre: "Puzzle", platformLabel: "iOS · Android", cover: null, stores: [] },
 ];
 const posts: PostSummary[] = [1, 2, 3].map((n) => ({
+  format: "article",
   slug: `post-${n}`,
   title: `Post ${n}`,
   date: "2026-11-05",

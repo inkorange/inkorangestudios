@@ -37,6 +37,9 @@
 }
 
 .meta {
+  display: flex;
+  gap: var(--space-1);
+  align-items: center;
   font-family: var(--font-mono);
   font-size: var(--text-mono);
   color: var(--color-ink-3);
@@ -46,4 +49,8 @@
   font-size: var(--text-lead);
   font-weight: var(--weight-semibold);
   line-height: var(--leading-normal);
+}
+
+.hidden {
+  @include visually-hidden;
 }

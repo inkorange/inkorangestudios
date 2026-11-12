@@ -19,6 +19,7 @@ import PostPage, { dynamicParams, generateMetadata, generateStaticParams, revali
 
 const body = [{ _type: "block", _key: "a", style: "normal", markDefs: [], children: [{ _type: "span", _key: "s", text: "We rebuilt the terrain brush.", marks: [] }] }];
 const post: Post = {
+  format: "article",
   slug: "terrain-tools",
   title: "New terrain tools",
   date: "2026-11-05T09:00:00Z",

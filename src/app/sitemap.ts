@@ -18,7 +18,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/support` },
     { url: `${base}/news` },
     ...slugs.map((slug) => ({ url: `${base}/games/${slug}` })),
-    ...posts.map((post) => ({ url: `${base}/news/${post.slug}`, lastModified: post.date })),
+    // Link posts live on other sites, so only our own articles are listed.
+    ...posts.flatMap((post) => (post.format === "article" ? [{ url: `${base}/news/${post.slug}`, lastModified: post.date }] : [])),
     // Legal pages without copy render the noindex empty state, so they stay out until written.
     ...legal.flatMap((page, i) =>
       page && page.body.length > 0 ? [{ url: `${base}/${LEGAL[i]}`, ...(page.updatedAt ? { lastModified: page.updatedAt } : {}) }] : [],

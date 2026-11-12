@@ -82,8 +82,8 @@ const games: GameSummary[] = [
   { slug: "mission-control", name: "Mission Control", status: "out-now", genre: "Simulation", platformLabel: "Web", cover: null, stores: [] },
 ];
 const posts: PostSummary[] = [
-  { slug: "exoplanets-update", title: "New exoplanet data", date: "2026-10-01", kind: "update", excerpt: null, image: null, game: { slug: "terraforge", name: "TerraForge" } },
-  { slug: "patch-1-2", title: "Patch 1.2", date: "2026-09-12", kind: "patch-notes", excerpt: null, image: null, game: { slug: "terraforge", name: "TerraForge" } },
+  { format: "article", slug: "exoplanets-update", title: "New exoplanet data", date: "2026-10-01", kind: "update", excerpt: null, image: null, game: { slug: "terraforge", name: "TerraForge" } },
+  { format: "article", slug: "patch-1-2", title: "Patch 1.2", date: "2026-09-12", kind: "patch-notes", excerpt: null, image: null, game: { slug: "terraforge", name: "TerraForge" } },
 ];
 
 const params = (slug: string) => ({ params: Promise.resolve({ slug }) });

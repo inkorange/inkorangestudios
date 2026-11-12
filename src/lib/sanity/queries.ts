@@ -41,7 +41,11 @@ export const GAME_QUERY = `*[_type == "studioGame" && slug.current == $slug][0]{
 export const GAME_SLUGS_QUERY = `*[_type == "studioGame" && defined(slug.current)].slug.current`;
 
 const POST_SUMMARY_FIELDS = `
+  _id,
+  "format": coalesce(format, "article"),
   "slug": slug.current,
+  url,
+  source,
   title,
   date,
   kind,
@@ -49,16 +53,19 @@ const POST_SUMMARY_FIELDS = `
   ${img("coverImage")},
   "game": game->{ "slug": slug.current, name }`;
 
+const IS_LINK = `(format == "link")`;
+
 /** `limit` must be a positive integer; it is inlined because GROQ slices cannot take null. */
 export function postsQuery(opts: { limit?: number; filterByGame: boolean }): string {
   const filter = opts.filterByGame ? ` && game->slug.current == $gameSlug` : "";
   const limit = opts.limit !== undefined && Number.isFinite(opts.limit) && Math.floor(opts.limit) >= 1
       ? `[0...${Math.floor(opts.limit)}]`
       : "";
-  return `*[_type == "studioPost" && defined(slug.current)${filter}] | order(date desc)${limit}{${POST_SUMMARY_FIELDS}}`;
+  return `*[_type == "studioPost" && (${IS_LINK} && defined(url) || !${IS_LINK} && defined(slug.current))${filter}] | order(date desc)${limit}{${POST_SUMMARY_FIELDS}}`;
 }
 
-export const POST_QUERY = `*[_type == "studioPost" && slug.current == $slug][0]{${POST_SUMMARY_FIELDS}, body}`;
+/** Only articles have a page here; a link post lives on the other site. */
+export const POST_QUERY = `*[_type == "studioPost" && !${IS_LINK} && slug.current == $slug][0]{${POST_SUMMARY_FIELDS}, body}`;
 
 export const LEGAL_PAGE_QUERY = `*[_type == "studioPage" && slug.current == $slug][0]{ "slug": slug.current, title, updatedAt, body }`;
 

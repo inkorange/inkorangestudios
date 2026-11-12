@@ -225,9 +225,20 @@ const FEATURED: Featured[] = [
 ];
 
 const POSTS: PostSummary[] = [
-  { slug: "a", title: "New terrain tools land in TerraForge", date: "2026-11-05", kind: "patch-notes", excerpt: null, image: null, game: null },
-  { slug: "b", title: "How we prototype a game in a week", date: "2026-10-21", kind: "devlog", excerpt: null, image: null, game: null },
-  { slug: "c", title: "Space Cowboy beta sign-ups are open", date: "2026-10-02", kind: "announcement", excerpt: null, image: null, game: null },
+  { format: "article", slug: "a", title: "New terrain tools land in TerraForge", date: "2026-11-05", kind: "patch-notes", excerpt: null, image: null, game: null },
+  {
+    format: "link",
+    id: "b",
+    url: "https://example.com/inkorange",
+    source: "Example Gazette",
+    title: "The two-person studio teaching kids to build planets",
+    date: "2026-10-21",
+    kind: "update",
+    excerpt: null,
+    image: null,
+    game: null,
+  },
+  { format: "article", slug: "c", title: "Space Cowboy beta sign-ups are open", date: "2026-10-02", kind: "announcement", excerpt: null, image: null, game: null },
 ];
 
 const FACTS = [
@@ -708,6 +719,7 @@ const COMPONENTS: Entry[] = [
       <Grid min="card" gap={6}>
         <NewsCard href="/design" image={null} date="2026-11-05" kind="update" title="An update headline" />
         <NewsCard href="/design" image={null} date="2026-10-21" kind="devlog" title="A devlog headline that runs a little longer" />
+        <NewsCard href="https://example.com/inkorange" image={null} date="2026-10-14" kind="update" title="An article about us on another site" source="Example Gazette" />
       </Grid>
     ),
   },
@@ -972,6 +984,7 @@ const COMPONENTS: Entry[] = [
       <div>
         <UpdateRow href="/design" date="2026-11-05" title="Patch 1.2: new biomes" />
         <UpdateRow href="/design" date="2026-10-21" title="Devlog: building the brush" />
+        <UpdateRow href="https://example.com/inkorange" date="2026-10-14" title="An article about us on another site" source="Example Gazette" />
       </div>
     ),
   },

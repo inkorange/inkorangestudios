@@ -10,6 +10,7 @@ import News, { metadata, revalidate } from "./page";
 const tf = { slug: "terraforge", name: "TerraForge" };
 const sc = { slug: "space-cowboy", name: "Space Cowboy" };
 const post = (slug: string, title: string, game: PostSummary["game"]): PostSummary => ({
+  format: "article",
   slug,
   title,
   date: "2026-11-05",

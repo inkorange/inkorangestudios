@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Container, Grid, NewsCard, PillLinks, Section, SectionHeader, Text } from "@/components/ui";
+import { newsLink } from "@/lib/news";
 import { getPosts } from "@/lib/sanity/content";
 import { pageMetadata } from "@/lib/seo";
 import type { PostSummary } from "@/lib/sanity/types";
@@ -8,7 +9,7 @@ export const revalidate = 3600;
 
 export const metadata: Metadata = pageMetadata({
   title: "News — inkOrange Studios",
-  description: "Updates, devlogs and patch notes from inkOrange Studios.",
+  description: "Updates, devlogs, patch notes and press coverage from inkOrange Studios.",
   path: "/news",
 });
 
@@ -44,9 +45,10 @@ export default async function News({ searchParams }: Props) {
         </SectionHeader>
         {shown.length > 0 ? (
           <Grid min="card" gap={6}>
-            {shown.map((post) => (
-              <NewsCard key={post.slug} href={`/news/${post.slug}`} image={post.image} date={post.date} kind={post.kind} title={post.title} />
-            ))}
+            {shown.map((post) => {
+              const { key, ...link } = newsLink(post);
+              return <NewsCard key={key} {...link} image={post.image} date={post.date} kind={post.kind} title={post.title} />;
+            })}
           </Grid>
         ) : (
           <Text tone="ink-2">No news yet.</Text>

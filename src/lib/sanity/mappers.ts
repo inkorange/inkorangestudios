@@ -245,7 +245,11 @@ export function toFeatured(game: Game): Featured {
 }
 
 const postShape = lenient({
+  _id: str,
+  format: str,
   slug: str,
+  url: str,
+  source: str,
   title: str,
   date: str,
   kind: z.unknown().transform((v): PostKind => (POST_KINDS.includes(v as PostKind) ? (v as PostKind) : "update")),
@@ -255,10 +259,12 @@ const postShape = lenient({
   body: blocks,
 });
 
+/** An article needs a slug, title and date. Link posts have no page, so they never map here. */
 export function mapPost(raw: unknown): Post | null {
   const d = postShape(raw);
-  if (!d || !d.slug || !d.title || !d.date) return null;
+  if (!d || d.format === "link" || !d.slug || !d.title || !d.date) return null;
   return {
+    format: "article",
     slug: d.slug,
     title: d.title,
     date: d.date,
@@ -270,10 +276,36 @@ export function mapPost(raw: unknown): Post | null {
   };
 }
 
+/** The site's name from a URL, without "www.", for a link post with no publication name. */
+function hostName(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return url;
+  }
+}
+
+/** A link post needs a title, a date and an https URL; an article maps as in `mapPost`, minus the body. */
 export function mapPostSummary(raw: unknown): PostSummary | null {
+  const d = postShape(raw);
+  if (d?.format === "link") {
+    if (!d.title || !d.date || !isHttps(d.url)) return null;
+    return {
+      format: "link",
+      id: d._id ?? d.url,
+      url: d.url,
+      source: d.source ?? hostName(d.url),
+      title: d.title,
+      date: d.date,
+      kind: d.kind,
+      excerpt: d.excerpt,
+      image: image(d.coverImage, CARD),
+      game: slugName(d.game),
+    };
+  }
   const p = mapPost(raw);
   if (!p) return null;
-  return { slug: p.slug, title: p.title, date: p.date, kind: p.kind, excerpt: p.excerpt, image: p.image, game: p.game };
+  return { format: "article", slug: p.slug, title: p.title, date: p.date, kind: p.kind, excerpt: p.excerpt, image: p.image, game: p.game };
 }
 
 const pageShape = lenient({ slug: str, title: str, updatedAt: str, body: blocks });

@@ -11,7 +11,7 @@ const block = [{ _type: "block", _key: "a", children: [{ _type: "span", _key: "s
 
 beforeEach(() => {
   content.getGameSlugs.mockResolvedValue(["terraforge", "space-cowboy"]);
-  content.getPosts.mockResolvedValue([{ slug: "devlog-1", date: "2026-11-01", title: "Devlog", kind: "devlog", excerpt: null, image: null, game: null }]);
+  content.getPosts.mockResolvedValue([{ format: "article", slug: "devlog-1", date: "2026-11-01", title: "Devlog", kind: "devlog", excerpt: null, image: null, game: null }]);
   content.getLegalPage.mockImplementation(async (slug: string) =>
     slug === "terms" ? { slug, title: "Terms", updatedAt: "2026-11-02", body: block } : null,
   );

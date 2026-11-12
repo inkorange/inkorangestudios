@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-export type IconName = "chevron-left" | "chevron-right" | "play" | "globe" | "phone" | "menu" | "close" | "arrow-right" | "check" | "apple" | "android" | "zoom-in" | "expand" | "plus" | "minus";
+export type IconName = "chevron-left" | "chevron-right" | "play" | "globe" | "phone" | "menu" | "close" | "arrow-right" | "check" | "apple" | "android" | "zoom-in" | "expand" | "plus" | "minus" | "external";
 export type IconSize = 16 | 18 | 20 | 26 | 34;
 
 export type IconProps = {
@@ -38,6 +38,7 @@ const paths: Record<IconName, ReactNode> = {
   expand: <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />,
   plus: <path d="M12 5v14M5 12h14" />,
   minus: <path d="M5 12h14" />,
+  external: <path d="M7 17 17 7M8 7h9v9" />,
   // Platform logos (filled): the Apple mark for iOS and the Android robot's head.
   apple: (
     <path d="M15.6 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.8-.8-3-.8-1.6 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.3.8 1.1 1.7 2.4 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.3.9-1.3 1.3-2.6 1.3-2.6s-2.5-1-2.5-3.8zM13.3 5.9c.6-.8 1.1-1.8.9-2.9-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.7-1 2.8 1 .1 2.1-.5 2.8-1.3z" />

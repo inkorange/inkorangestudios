@@ -93,8 +93,7 @@ export type GameSummary = {
   stores: StoreLink[];
 };
 
-export type PostSummary = {
-  slug: string;
+type PostBase = {
   title: string;
   /** ISO date. */
   date: string;
@@ -104,7 +103,16 @@ export type PostSummary = {
   game: { slug: string; name: string } | null;
 };
 
-export type Post = PostSummary & { body: RichBody };
+/** A news article written on this site, read at `/news/{slug}`. */
+export type ArticleSummary = PostBase & { format: "article"; slug: string };
+
+/** A link out to an article about us on another site (`source` names the publication). */
+export type NewsLink = PostBase & { format: "link"; id: string; url: string; source: string };
+
+/** One item in the news list: our own article or a link to outside coverage. */
+export type PostSummary = ArticleSummary | NewsLink;
+
+export type Post = ArticleSummary & { body: RichBody };
 
 export type LegalPage = {
   slug: string;

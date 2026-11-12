@@ -28,6 +28,7 @@ import {
 import { publicEnv } from "@/lib/env";
 import { videoGameJsonLd } from "@/lib/jsonLd";
 import { splitLead } from "@/lib/portableText";
+import { newsLink } from "@/lib/news";
 import { getGame, getGames, getGameSlugs, getPosts } from "@/lib/sanity/content";
 import type { Game } from "@/lib/sanity/types";
 import { notFoundMetadata, pageMetadata } from "@/lib/seo";
@@ -167,9 +168,10 @@ export default async function GamePage({ params }: Props) {
                 rule={false}
                 action={{ label: `All ${game.name} news →`, href: `/news?game=${encodeURIComponent(game.slug)}` }}
               />
-              {posts.map((post) => (
-                <UpdateRow key={post.slug} href={`/news/${post.slug}`} date={post.date} title={post.title} />
-              ))}
+              {posts.map((post) => {
+                const { key, ...link } = newsLink(post);
+                return <UpdateRow key={key} {...link} date={post.date} title={post.title} />;
+              })}
             </>
           ) : null
         }
