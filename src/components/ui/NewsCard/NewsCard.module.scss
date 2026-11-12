@@ -37,9 +37,6 @@
 }
 
 .meta {
-  display: flex;
-  gap: var(--space-1);
-  align-items: center;
   font-family: var(--font-mono);
   font-size: var(--text-mono);
   color: var(--color-ink-3);
@@ -49,6 +46,15 @@
   font-size: var(--text-lead);
   font-weight: var(--weight-semibold);
   line-height: var(--leading-normal);
+}
+
+.source {
+  display: inline-flex;
+  gap: var(--space-1);
+  align-items: center;
+  font-size: var(--text-body-s);
+  font-weight: var(--weight-semibold);
+  color: var(--color-link);
 }
 
 .hidden {

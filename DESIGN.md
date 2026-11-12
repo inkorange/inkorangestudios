@@ -594,12 +594,12 @@ A card for a free educational tool that lives on its own site.
 
 ### NewsCard
 
-A card with an image area, a mono "DATE · KIND" line and a headline. A news link to another site shows "DATE · PUBLICATION ↗" instead.
+A card with an image area, a mono "DATE · KIND" line and a headline. A news link to another site shows "DATE · IN THE NEWS" and ends with a "Read on {publication} ↗" line in the link color.
 
 - **Use for:** the news grid on the home page and the news index.
 - **Don't use for:** compact lists (use `UpdateRow`).
-- **Props / variants:** `href`, `image` (`ImageRef`, `null` shows a `Placeholder`), `date` (ISO, shown as `NOV 5, 2026` in UTC), `kind` (`PostKind`, shown as UPDATE / ANNOUNCEMENT / DEVLOG / PATCH NOTES), `title`; `source` (optional publication name): the card links out, opens in a new tab, and shows the publication with the `external` icon in place of the kind.
-- **Accessibility:** one link wrapping the card. The date format never depends on server timezone. A `source` card adds hidden "(opens {source} in a new tab)" text.
+- **Props / variants:** `href`, `image` (`ImageRef`, `null` shows a `Placeholder`), `date` (ISO, shown as `NOV 5, 2026` in UTC), `kind` (`PostKind`, shown as UPDATE / ANNOUNCEMENT / DEVLOG / PATCH NOTES), `title`; `source` (optional publication name): the card links out, opens in a new tab, says IN THE NEWS in place of the kind, and ends with "Read on {source}" and the `external` icon.
+- **Accessibility:** one link wrapping the card. The date format never depends on server timezone. A `source` card adds hidden "(opens in a new tab)" text.
 
 ### UpdateRow
 

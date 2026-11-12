@@ -13,7 +13,7 @@ export type NewsCardProps = {
   date: string;
   kind: PostKind;
   title: string;
-  /** The publication, for an article on another site: the card opens it in a new tab and names it in place of the kind. */
+  /** The publication, for an article on another site: the card opens it in a new tab, says IN THE NEWS in place of the kind, and ends with "Read on {source}". */
   source?: string;
 };
 
@@ -29,11 +29,16 @@ export function NewsCard({ href, image, date, kind, title, source }: NewsCardPro
       </span>
       <span className={styles.body}>
         <span className={styles.meta}>
-          {formatDate(date)} · {source ? source.toUpperCase() : postKindLabel(kind)}
-          {source ? <Icon name="external" size={16} /> : null}
+          {formatDate(date)} · {source ? "IN THE NEWS" : postKindLabel(kind)}
         </span>
         <span className={styles.title}>{title}</span>
-        {source ? <span className={styles.hidden}>(opens {source} in a new tab)</span> : null}
+        {source ? (
+          <span className={styles.source}>
+            Read on {source}
+            <Icon name="external" size={16} />
+            <span className={styles.hidden}>(opens in a new tab)</span>
+          </span>
+        ) : null}
       </span>
     </>
   );
