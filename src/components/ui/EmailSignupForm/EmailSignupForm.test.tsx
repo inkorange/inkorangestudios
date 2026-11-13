@@ -122,3 +122,23 @@ it("takes the responsive layout (stacked on a phone, one row from md)", () => {
   );
   expect(container.querySelector("form")).toHaveAttribute("data-layout", "responsive");
 });
+
+it("fills the email from defaultEmail, takes a later value, and keeps what the visitor types", async () => {
+  const props = {
+    action: vi.fn(async () => ({ status: "ok" as const })),
+    label: "Email address",
+    placeholder: "you@example.com",
+    submitLabel: "Subscribe",
+    tone: "on-dark" as const,
+    successMessage: "Done.",
+  };
+  const { rerender } = render(<EmailSignupForm {...props} />);
+  const field = screen.getByRole("textbox", { name: "Email address" });
+  expect(field).toHaveValue("");
+  rerender(<EmailSignupForm {...props} defaultEmail="a@b.co" />);
+  expect(field).toHaveValue("a@b.co");
+  await userEvent.clear(field);
+  await userEvent.type(field, "c@d.co");
+  rerender(<EmailSignupForm {...props} defaultEmail="" />);
+  expect(field).toHaveValue("c@d.co");
+});
