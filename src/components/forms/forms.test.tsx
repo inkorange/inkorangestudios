@@ -93,6 +93,31 @@ it("BetaForm ignores a ?from= tag that is not a plain slug", async () => {
   window.history.replaceState(null, "", "/");
 });
 
+it("BetaForm on the tester page fills the email from ?email= and drops it from the URL", async () => {
+  window.history.replaceState(null, "", "/beta/prefill?email=Name+tag@Gmail.com&from=launch");
+  render(<BetaForm game="g" platforms={["android"]} source="beta-page" />);
+  expect(screen.getByRole("textbox", { name: "Email address" })).toHaveValue("name+tag@gmail.com");
+  expect(window.location.search).toBe("?from=launch");
+  await userEvent.click(screen.getByRole("button", { name: "Join the beta" }));
+  await screen.findByRole("status");
+  expect(joinBeta.mock.calls[0][1].get("email")).toBe("name+tag@gmail.com");
+  expect(joinBeta.mock.calls[0][1].get("source")).toBe("beta-page-launch");
+  window.history.replaceState(null, "", "/");
+});
+
+it("BetaForm leaves the email empty for an invalid ?email=, and off the tester page", async () => {
+  window.history.replaceState(null, "", "/beta/bad?email=not-an-email");
+  const { unmount } = render(<BetaForm game="g" platforms={["android"]} source="beta-page" />);
+  expect(screen.getByRole("textbox", { name: "Email address" })).toHaveValue("");
+  expect(window.location.search).toBe("");
+  unmount();
+  window.history.replaceState(null, "", "/elsewhere?email=a@b.co");
+  render(<BetaForm game="g" platforms={["android"]} />);
+  expect(screen.getByRole("textbox", { name: "Email address" })).toHaveValue("");
+  expect(window.location.search).toBe("?email=a@b.co");
+  window.history.replaceState(null, "", "/");
+});
+
 it("BetaForm shows a platform select only with more than one platform", async () => {
   const { unmount } = render(<BetaForm game="g" platforms={["ios", "android"]} />);
   expect(await optionLabels("Platform")).toEqual(["iOS", "Android"]);

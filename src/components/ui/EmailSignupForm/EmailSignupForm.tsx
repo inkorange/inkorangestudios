@@ -20,6 +20,8 @@ export type EmailSignupFormProps = {
   successMessage: string;
   /** Extra controls rendered inside the form, before the submit button. */
   extraFields?: ReactNode;
+  /** Fills the email field. A later non-empty value (e.g. read from the URL after hydration) replaces it. */
+  defaultEmail?: string;
 };
 
 const FIELD_TONE = { "on-dark": "on-dark", "on-card": "on-card", "on-accent": "on-light" } as const;
@@ -35,10 +37,16 @@ export function EmailSignupForm({
   hidden,
   successMessage,
   extraFields,
+  defaultEmail = "",
 }: EmailSignupFormProps) {
   const [state, formAction, pending] = useActionState(action, { status: "idle" } as FormState);
   // Controlled so a rejected submit keeps what the visitor typed.
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(defaultEmail);
+  const [seeded, setSeeded] = useState(defaultEmail);
+  if (defaultEmail !== seeded) {
+    setSeeded(defaultEmail);
+    if (defaultEmail) setEmail(defaultEmail);
+  }
   // When a human check is on, hold submit until it has produced a token.
   const [tokenReady, setTokenReady] = useState(() => !turnstileActive());
 
